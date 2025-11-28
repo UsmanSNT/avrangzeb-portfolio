@@ -1096,9 +1096,18 @@ export default function Portfolio() {
       <section id="home" className="min-h-screen flex items-center justify-center pt-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-6 sm:mb-8 animate-float">
-            <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
-              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
-                <span className="text-4xl sm:text-5xl">👨‍💻</span>
+            <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1 animate-pulse-glow">
+              <div className="w-full h-full rounded-full overflow-hidden">
+                <img
+                  src="/images/profile.jpg"
+                  alt="Abdujalilov Avrangzeb"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML = '<span class="text-4xl sm:text-5xl flex items-center justify-center w-full h-full bg-slate-900">👨‍💻</span>';
+                  }}
+                />
               </div>
             </div>
           </div>
