@@ -665,54 +665,70 @@ export default function Portfolio() {
     }
   }, []);
   
-  // Load book quotes from localStorage
+  // Loading states
+  const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
+  const [isLoadingGallery, setIsLoadingGallery] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Load book quotes from API
   useEffect(() => {
-    const savedQuotes = localStorage.getItem("portfolio-book-quotes");
-    if (savedQuotes) {
-      setBookQuotes(JSON.parse(savedQuotes));
-    } else {
-      setBookQuotes(defaultBookQuotes);
-      localStorage.setItem("portfolio-book-quotes", JSON.stringify(defaultBookQuotes));
-    }
+    const fetchBookQuotes = async () => {
+      try {
+        const res = await fetch('/api/book-quotes');
+        const result = await res.json();
+        if (result.success && result.data) {
+          const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: number }) => ({
+            id: q.id,
+            bookTitle: q.book_title,
+            author: q.author,
+            quote: q.quote,
+            image: q.image_url,
+            likes: q.likes || 0,
+            dislikes: q.dislikes || 0,
+            userReaction: null,
+          }));
+          setBookQuotes(formattedQuotes);
+        } else {
+          setBookQuotes(defaultBookQuotes);
+        }
+      } catch (error) {
+        console.error('Failed to fetch book quotes:', error);
+        setBookQuotes(defaultBookQuotes);
+      } finally {
+        setIsLoadingQuotes(false);
+      }
+    };
+    fetchBookQuotes();
   }, []);
 
-  // Save book quotes to localStorage
+  // Load gallery items from API
   useEffect(() => {
-    if (bookQuotes.length > 0) {
+    const fetchGallery = async () => {
       try {
-        localStorage.setItem("portfolio-book-quotes", JSON.stringify(bookQuotes));
-      } catch (e) {
-        console.warn("localStorage quota exceeded for book quotes");
+        const res = await fetch('/api/gallery');
+        const result = await res.json();
+        if (result.success && result.data) {
+          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[]; date: string }) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            category: item.category as GalleryItem['category'],
+            images: item.images || [],
+            date: item.date,
+          }));
+          setGalleryItems(formattedItems);
+        } else {
+          setGalleryItems(defaultGalleryItems);
+        }
+      } catch (error) {
+        console.error('Failed to fetch gallery:', error);
+        setGalleryItems(defaultGalleryItems);
+      } finally {
+        setIsLoadingGallery(false);
       }
-    }
-  }, [bookQuotes]);
-
-  // Load gallery items from localStorage
-  useEffect(() => {
-    const savedGallery = localStorage.getItem("portfolio-gallery");
-    if (savedGallery) {
-      setGalleryItems(JSON.parse(savedGallery));
-    } else {
-      setGalleryItems(defaultGalleryItems);
-      try {
-        localStorage.setItem("portfolio-gallery", JSON.stringify(defaultGalleryItems));
-      } catch (e) {
-        console.warn("localStorage quota exceeded");
-      }
-    }
+    };
+    fetchGallery();
   }, []);
-
-  // Save gallery items to localStorage with error handling
-  useEffect(() => {
-    if (galleryItems.length > 0) {
-      try {
-        localStorage.setItem("portfolio-gallery", JSON.stringify(galleryItems));
-      } catch (e) {
-        console.warn("localStorage quota exceeded for gallery - images too large");
-        alert("Rasmlar hajmi juda katta! Kichikroq rasmlar yuklang.");
-      }
-    }
-  }, [galleryItems]);
 
   // Save language to localStorage
   const changeLanguage = (lang: Language) => {
@@ -786,67 +802,169 @@ export default function Portfolio() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const compressedImage = await compressImage(file, 600, 0.6);
-      setBookFormImage(compressedImage);
+      setIsUploading(true);
+      try {
+        // Rasmni siqish
+        const compressedBase64 = await compressImage(file, 800, 0.7);
+        
+        // Base64 ni File ga aylantirish
+        const arr = compressedBase64.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const compressedFile = new File([u8arr], file.name, { type: mime });
+        
+        // Supabase Storage ga yuklash
+        const formData = new FormData();
+        formData.append('file', compressedFile);
+        formData.append('folder', 'book-quotes');
+        
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          setBookFormImage(result.data.url);
+        } else {
+          alert('Rasm yuklanmadi: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Rasm yuklashda xatolik yuz berdi');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
-  const handleBookSubmit = (e: React.FormEvent) => {
+  const handleBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingQuote) {
-      setBookQuotes(bookQuotes.map(q => 
-        q.id === editingQuote.id 
-          ? { ...q, bookTitle: bookFormTitle, author: bookFormAuthor, quote: bookFormQuote, image: bookFormImage }
-          : q
-      ));
-    } else {
-      const newQuote: BookQuote = {
-        id: Date.now(),
-        bookTitle: bookFormTitle,
-        author: bookFormAuthor,
-        quote: bookFormQuote,
-        image: bookFormImage,
-        likes: 0,
-        dislikes: 0,
-        userReaction: null,
-      };
-      setBookQuotes([newQuote, ...bookQuotes]);
-    }
-    closeBookModal();
-  };
-
-  const deleteBookQuote = (id: number) => {
-    if (confirm(t.books.confirmDelete)) {
-      setBookQuotes(bookQuotes.filter(q => q.id !== id));
-    }
-  };
-
-  const handleReaction = (id: number, reaction: 'like' | 'dislike') => {
-    setBookQuotes(bookQuotes.map(q => {
-      if (q.id !== id) return q;
-      
-      let newLikes = q.likes;
-      let newDislikes = q.dislikes;
-      let newReaction: 'like' | 'dislike' | null = reaction;
-
-      // If clicking the same reaction, remove it
-      if (q.userReaction === reaction) {
-        if (reaction === 'like') newLikes--;
-        else newDislikes--;
-        newReaction = null;
-      } else {
-        // Remove old reaction if exists
-        if (q.userReaction === 'like') newLikes--;
-        else if (q.userReaction === 'dislike') newDislikes--;
+    try {
+      if (editingQuote) {
+        // Update existing quote
+        const res = await fetch('/api/book-quotes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingQuote.id,
+            book_title: bookFormTitle,
+            author: bookFormAuthor,
+            quote: bookFormQuote,
+            image_url: bookFormImage,
+          }),
+        });
+        const result = await res.json();
         
-        // Add new reaction
-        if (reaction === 'like') newLikes++;
-        else newDislikes++;
+        if (result.success) {
+          setBookQuotes(bookQuotes.map(q => 
+            q.id === editingQuote.id 
+              ? { ...q, bookTitle: bookFormTitle, author: bookFormAuthor, quote: bookFormQuote, image: bookFormImage }
+              : q
+          ));
+        }
+      } else {
+        // Create new quote
+        const res = await fetch('/api/book-quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            book_title: bookFormTitle,
+            author: bookFormAuthor,
+            quote: bookFormQuote,
+            image_url: bookFormImage,
+          }),
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          const newQuote: BookQuote = {
+            id: result.data.id,
+            bookTitle: bookFormTitle,
+            author: bookFormAuthor,
+            quote: bookFormQuote,
+            image: bookFormImage,
+            likes: 0,
+            dislikes: 0,
+            userReaction: null,
+          };
+          setBookQuotes([newQuote, ...bookQuotes]);
+        }
       }
+      closeBookModal();
+    } catch (error) {
+      console.error('Failed to save book quote:', error);
+      alert('Saqlashda xatolik yuz berdi');
+    }
+  };
 
-      return { ...q, likes: newLikes, dislikes: newDislikes, userReaction: newReaction };
-    }));
+  const deleteBookQuote = async (id: number) => {
+    if (confirm(t.books.confirmDelete)) {
+      try {
+        const res = await fetch(`/api/book-quotes?id=${id}`, {
+          method: 'DELETE',
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          setBookQuotes(bookQuotes.filter(q => q.id !== id));
+        }
+      } catch (error) {
+        console.error('Failed to delete book quote:', error);
+      }
+    }
+  };
+
+  const handleReaction = async (id: number, reaction: 'like' | 'dislike') => {
+    const quote = bookQuotes.find(q => q.id === id);
+    if (!quote) return;
+    
+    let newLikes = quote.likes;
+    let newDislikes = quote.dislikes;
+    let newReaction: 'like' | 'dislike' | null = reaction;
+
+    // If clicking the same reaction, remove it
+    if (quote.userReaction === reaction) {
+      if (reaction === 'like') newLikes--;
+      else newDislikes--;
+      newReaction = null;
+    } else {
+      // Remove old reaction if exists
+      if (quote.userReaction === 'like') newLikes--;
+      else if (quote.userReaction === 'dislike') newDislikes--;
+      
+      // Add new reaction
+      if (reaction === 'like') newLikes++;
+      else newDislikes++;
+    }
+
+    // Optimistic update
+    setBookQuotes(bookQuotes.map(q => 
+      q.id === id 
+        ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: newReaction }
+        : q
+    ));
+
+    // Update in database
+    try {
+      await fetch('/api/book-quotes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          likes: newLikes,
+          dislikes: newDislikes,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to update reaction:', error);
+    }
   };
 
   // Gallery functions
@@ -882,9 +1000,45 @@ export default function Portfolio() {
       const remainingSlots = 5 - galleryFormImages.length;
       const filesToProcess = Array.from(files).slice(0, remainingSlots);
       
-      for (const file of filesToProcess) {
-        const compressedImage = await compressImage(file, 800, 0.6);
-        setGalleryFormImages(prev => [...prev, compressedImage]);
+      setIsUploading(true);
+      try {
+        for (const file of filesToProcess) {
+          // Rasmni siqish
+          const compressedBase64 = await compressImage(file, 1200, 0.7);
+          
+          // Base64 ni File ga aylantirish
+          const arr = compressedBase64.split(',');
+          const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const compressedFile = new File([u8arr], file.name, { type: mime });
+          
+          // Supabase Storage ga yuklash
+          const formData = new FormData();
+          formData.append('file', compressedFile);
+          formData.append('folder', 'gallery');
+          
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const result = await res.json();
+          
+          if (result.success) {
+            setGalleryFormImages(prev => [...prev, result.data.url]);
+          } else {
+            console.error('Upload failed:', result.error);
+          }
+        }
+      } catch (error) {
+        console.error('Gallery upload error:', error);
+        alert('Rasmlar yuklashda xatolik yuz berdi');
+      } finally {
+        setIsUploading(false);
       }
     }
   };
@@ -893,34 +1047,81 @@ export default function Portfolio() {
     setGalleryFormImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleGallerySubmit = (e: React.FormEvent) => {
+  const handleGallerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const today = new Date().toISOString().split('T')[0];
     
-    if (editingGallery) {
-      setGalleryItems(galleryItems.map(item => 
-        item.id === editingGallery.id 
-          ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
-          : item
-      ));
-    } else {
-      const newItem: GalleryItem = {
-        id: Date.now(),
-        title: galleryFormTitle,
-        description: galleryFormDescription,
-        category: galleryFormCategory,
-        images: galleryFormImages,
-        date: today,
-      };
-      setGalleryItems([newItem, ...galleryItems]);
+    try {
+      if (editingGallery) {
+        // Update existing gallery item
+        const res = await fetch('/api/gallery', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingGallery.id,
+            title: galleryFormTitle,
+            description: galleryFormDescription,
+            category: galleryFormCategory,
+            images: galleryFormImages,
+          }),
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          setGalleryItems(galleryItems.map(item => 
+            item.id === editingGallery.id 
+              ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
+              : item
+          ));
+        }
+      } else {
+        // Create new gallery item
+        const res = await fetch('/api/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: galleryFormTitle,
+            description: galleryFormDescription,
+            category: galleryFormCategory,
+            images: galleryFormImages,
+          }),
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          const newItem: GalleryItem = {
+            id: result.data.id,
+            title: galleryFormTitle,
+            description: galleryFormDescription,
+            category: galleryFormCategory,
+            images: galleryFormImages,
+            date: today,
+          };
+          setGalleryItems([newItem, ...galleryItems]);
+        }
+      }
+      closeGalleryModal();
+    } catch (error) {
+      console.error('Failed to save gallery item:', error);
+      alert('Saqlashda xatolik yuz berdi');
     }
-    closeGalleryModal();
   };
 
-  const deleteGalleryItem = (id: number) => {
+  const deleteGalleryItem = async (id: number) => {
     if (confirm(t.gallery.confirmDelete)) {
-      setGalleryItems(galleryItems.filter(item => item.id !== id));
+      try {
+        const res = await fetch(`/api/gallery?id=${id}`, {
+          method: 'DELETE',
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          setGalleryItems(galleryItems.filter(item => item.id !== id));
+        }
+      } catch (error) {
+        console.error('Failed to delete gallery item:', error);
+      }
     }
   };
 
@@ -1496,6 +1697,11 @@ export default function Portfolio() {
                         </svg>
                       </button>
                     </div>
+                  ) : isUploading ? (
+                    <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mb-2"></div>
+                      <span className="text-sm text-cyan-400">Yuklanmoqda...</span>
+                    </div>
                   ) : (
                     <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
                       <svg className="w-8 h-8 text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1754,24 +1960,31 @@ export default function Portfolio() {
                 )}
                 
                 {galleryFormImages.length < 5 && (
-                  <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
-                    <svg className="w-6 h-6 text-slate-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span className="text-xs text-slate-500">
-                      {galleryFormImages.length > 0 ? t.gallery.addMore : t.gallery.uploadImages}
-                    </span>
-                    <span className="text-xs text-slate-600 mt-1">
-                      ({galleryFormImages.length}/5)
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleGalleryImageUpload}
-                      className="hidden"
-                    />
-                  </label>
+                  isUploading ? (
+                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500 mb-1"></div>
+                      <span className="text-xs text-cyan-400">Yuklanmoqda...</span>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
+                      <svg className="w-6 h-6 text-slate-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <span className="text-xs text-slate-500">
+                        {galleryFormImages.length > 0 ? t.gallery.addMore : t.gallery.uploadImages}
+                      </span>
+                      <span className="text-xs text-slate-600 mt-1">
+                        ({galleryFormImages.length}/5)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleGalleryImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )
                 )}
               </div>
 
