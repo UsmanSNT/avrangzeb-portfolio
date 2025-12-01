@@ -669,6 +669,142 @@ export default function Portfolio() {
   const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
   const [isLoadingGallery, setIsLoadingGallery] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+
+  // Base64 ni File ga aylantirish funksiyasi
+  const base64ToFile = (base64: string, filename: string): File | null => {
+    try {
+      if (!base64 || !base64.includes(',')) return null;
+      const arr = base64.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
+    } catch {
+      return null;
+    }
+  };
+
+  // Rasmni Supabase Storage ga yuklash
+  const uploadBase64Image = async (base64: string, folder: string): Promise<string | null> => {
+    const file = base64ToFile(base64, `migrated-${Date.now()}.jpg`);
+    if (!file) return null;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
+    
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await res.json();
+      return result.success ? result.data.url : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // localStorage dan eski ma'lumotlarni ko'chirish
+  useEffect(() => {
+    const migrateOldData = async () => {
+      const migrated = localStorage.getItem('portfolio-migrated-to-supabase');
+      if (migrated === 'true') return;
+
+      const oldBookQuotes = localStorage.getItem('portfolio-book-quotes');
+      const oldGallery = localStorage.getItem('portfolio-gallery');
+
+      if (!oldBookQuotes && !oldGallery) {
+        localStorage.setItem('portfolio-migrated-to-supabase', 'true');
+        return;
+      }
+
+      setIsMigrating(true);
+      console.log('Eski ma\'lumotlar ko\'chirilmoqda...');
+
+      try {
+        // Book quotes ko'chirish
+        if (oldBookQuotes) {
+          const quotes = JSON.parse(oldBookQuotes);
+          for (const quote of quotes) {
+            let imageUrl = null;
+            
+            // Agar rasm base64 bo'lsa, yuklash
+            if (quote.image && quote.image.startsWith('data:')) {
+              imageUrl = await uploadBase64Image(quote.image, 'book-quotes');
+            }
+            
+            // Bazaga saqlash
+            await fetch('/api/book-quotes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                book_title: quote.bookTitle,
+                author: quote.author,
+                quote: quote.quote,
+                image_url: imageUrl,
+              }),
+            });
+          }
+          console.log('Kitob fikrlari ko\'chirildi');
+        }
+
+        // Gallery ko'chirish
+        if (oldGallery) {
+          const items = JSON.parse(oldGallery);
+          for (const item of items) {
+            const uploadedImages: string[] = [];
+            
+            // Har bir rasmni yuklash
+            if (item.images && item.images.length > 0) {
+              for (const img of item.images) {
+                if (img && img.startsWith('data:')) {
+                  const url = await uploadBase64Image(img, 'gallery');
+                  if (url) uploadedImages.push(url);
+                } else if (img && img.startsWith('http')) {
+                  uploadedImages.push(img);
+                }
+              }
+            }
+            
+            // Bazaga saqlash
+            await fetch('/api/gallery', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: item.title,
+                description: item.description,
+                category: item.category,
+                images: uploadedImages,
+              }),
+            });
+          }
+          console.log('Galereya ko\'chirildi');
+        }
+
+        // Muvaffaqiyatli ko'chirilgandan so'ng belgilash
+        localStorage.setItem('portfolio-migrated-to-supabase', 'true');
+        // Eski ma'lumotlarni o'chirish
+        localStorage.removeItem('portfolio-book-quotes');
+        localStorage.removeItem('portfolio-gallery');
+        
+        console.log('Ko\'chirish muvaffaqiyatli yakunlandi!');
+        // Sahifani yangilash
+        window.location.reload();
+      } catch (error) {
+        console.error('Ko\'chirishda xatolik:', error);
+      } finally {
+        setIsMigrating(false);
+      }
+    };
+
+    migrateOldData();
+  }, []);
 
   // Load book quotes from API
   useEffect(() => {
@@ -1165,6 +1301,18 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen network-bg text-slate-200">
+      {/* Migration Loading Overlay */}
+      {isMigrating && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/95 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-cyan-500 mx-auto mb-4"></div>
+            <h2 className="text-xl font-bold text-cyan-400 mb-2">Ma&apos;lumotlar ko&apos;chirilmoqda...</h2>
+            <p className="text-slate-400">Eski rasmlar Supabase ga yuklanmoqda</p>
+            <p className="text-slate-500 text-sm mt-2">Iltimos, kutib turing...</p>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
