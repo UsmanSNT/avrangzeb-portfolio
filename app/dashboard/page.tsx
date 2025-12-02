@@ -19,24 +19,44 @@ export default function UserDashboard() {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
-    if (!authUser) {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      if (!authUser) {
+        router.push('/auth/login');
+        return;
+      }
+
+      const res = await fetch(`/api/auth/profile?userId=${authUser.id}`);
+      const profile = await res.json();
+
+      // Agar profil topilmasa yoki xato bo'lsa
+      if (profile.error || !profile.id) {
+        // Yangi profil yaratish
+        setUser({
+          id: authUser.id,
+          email: authUser.email || '',
+          full_name: null,
+          avatar_url: null,
+          role: 'user',
+          created_at: new Date().toISOString()
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (profile.role === 'admin') {
+        router.push('/admin');
+        return;
+      }
+
+      setUser(profile);
+      setFullName(profile.full_name || '');
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Auth check error:', error);
       router.push('/auth/login');
-      return;
     }
-
-    const res = await fetch(`/api/auth/profile?userId=${authUser.id}`);
-    const profile = await res.json();
-
-    if (profile.role === 'admin') {
-      router.push('/admin');
-      return;
-    }
-
-    setUser(profile);
-    setFullName(profile.full_name || '');
-    setIsLoading(false);
   };
 
   const handleSaveProfile = async () => {
@@ -118,7 +138,7 @@ export default function UserDashboard() {
         <div className="bg-gradient-to-r from-cyan-500/20 to-violet-600/20 rounded-2xl p-6 sm:p-8 mb-8 border border-cyan-500/30">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white">
-              {user?.full_name?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}
+              {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
             </div>
             <div className="text-center sm:text-left">
               <h2 className="text-2xl font-bold text-white">

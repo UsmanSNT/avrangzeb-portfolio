@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -635,6 +636,11 @@ export default function Portfolio() {
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
+  // Auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; full_name: string | null } | null>(null);
+  
   // Book quotes state
   const [bookQuotes, setBookQuotes] = useState<BookQuote[]>([]);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
@@ -663,6 +669,48 @@ export default function Portfolio() {
     if (savedLang && ["uz", "en", "ko"].includes(savedLang)) {
       setLanguage(savedLang);
     }
+  }, []);
+
+  // Check auth status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setIsLoggedIn(true);
+        
+        // Get user profile
+        const res = await fetch(`/api/auth/profile?userId=${user.id}`);
+        const profile = await res.json();
+        
+        if (profile && !profile.error) {
+          setCurrentUser({
+            email: profile.email,
+            full_name: profile.full_name
+          });
+          setIsAdmin(profile.role === 'admin');
+        }
+      } else {
+        setIsLoggedIn(false);
+        setIsAdmin(false);
+        setCurrentUser(null);
+      }
+    };
+
+    checkAuth();
+
+    // Auth holati o'zgarganda yangilash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        checkAuth();
+      } else {
+        setIsLoggedIn(false);
+        setIsAdmin(false);
+        setCurrentUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
   
   // Loading states
@@ -1317,24 +1365,23 @@ export default function Portfolio() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            {/* Logo - bosh sahifaga havola */}
+            <button 
+              onClick={() => scrollToSection("home")}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
               <div className="animate-pulse-glow rounded-lg">
                 <Logo />
               </div>
               <span className="font-bold text-lg sm:text-xl">Avrangzeb</span>
-            </div>
+            </button>
             
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - faqat asosiy bo'limlar */}
             <div className="hidden md:flex items-center gap-6 lg:gap-8">
               {[
-                { id: "home", label: t.nav.home },
-                { id: "about", label: t.nav.about },
-                { id: "skills", label: t.nav.skills },
-                { id: "projects", label: t.nav.projects },
                 { id: "books", label: t.nav.books },
                 { id: "gallery", label: t.nav.gallery },
                 { id: "notes", label: t.nav.notes, isLink: true },
-                { id: "contact", label: t.nav.contact },
               ].map((item) => (
                 item.id === "notes" ? (
                   <a
@@ -1387,16 +1434,28 @@ export default function Portfolio() {
                 )}
               </div>
               
-              {/* Login Button */}
-              <a
-                href="/auth/login"
-                className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                {language === 'uz' ? 'Kirish' : language === 'ko' ? '로그인' : 'Login'}
-              </a>
+              {/* Login/Profile Button */}
+              {isLoggedIn ? (
+                <a
+                  href={isAdmin ? "/admin" : "/dashboard"}
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                    {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  {isAdmin ? (language === 'uz' ? 'Admin' : language === 'ko' ? '관리자' : 'Admin') : (language === 'uz' ? 'Profil' : language === 'ko' ? '프로필' : 'Profile')}
+                </a>
+              ) : (
+                <a
+                  href="/auth/login"
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  {language === 'uz' ? 'Kirish' : language === 'ko' ? '로그인' : 'Login'}
+                </a>
+              )}
 
               {/* Mobile Menu Button */}
               <button
@@ -1413,12 +1472,9 @@ export default function Portfolio() {
             <div className="md:hidden mt-4 pb-4 border-t border-slate-700 pt-4">
               <div className="flex flex-col gap-2">
                 {[
-                  { id: "home", label: t.nav.home },
-                  { id: "about", label: t.nav.about },
-                  { id: "skills", label: t.nav.skills },
-                  { id: "projects", label: t.nav.projects },
+                  { id: "books", label: t.nav.books },
+                  { id: "gallery", label: t.nav.gallery },
                   { id: "notes", label: t.nav.notes, isLink: true },
-                  { id: "contact", label: t.nav.contact },
                 ].map((item) => (
                   item.id === "notes" ? (
                     <a
@@ -1447,17 +1503,30 @@ export default function Portfolio() {
                   )
                 ))}
                 
-                {/* Mobile Login Button */}
-                <a
-                  href="/auth/login"
-                  className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  {language === 'uz' ? 'Kirish / Ro\'yxatdan o\'tish' : language === 'ko' ? '로그인 / 회원가입' : 'Login / Register'}
-                </a>
+                {/* Mobile Login/Profile Button */}
+                {isLoggedIn ? (
+                  <a
+                    href={isAdmin ? "/admin" : "/dashboard"}
+                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+                      {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    {isAdmin ? (language === 'uz' ? 'Admin Panel' : language === 'ko' ? '관리자 패널' : 'Admin Panel') : (language === 'uz' ? 'Mening Profilim' : language === 'ko' ? '내 프로필' : 'My Profile')}
+                  </a>
+                ) : (
+                  <a
+                    href="/auth/login"
+                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    {language === 'uz' ? 'Kirish / Ro\'yxatdan o\'tish' : language === 'ko' ? '로그인 / 회원가입' : 'Login / Register'}
+                  </a>
+                )}
               </div>
             </div>
           )}
@@ -1708,15 +1777,17 @@ export default function Portfolio() {
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.books.subtitle}
             </p>
-            <button
-              onClick={() => openBookModal()}
-              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              {t.books.addNew}
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => openBookModal()}
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {t.books.addNew}
+              </button>
+            )}
           </div>
 
           {bookQuotes.length === 0 ? (
@@ -1725,12 +1796,14 @@ export default function Portfolio() {
                 <span className="text-4xl">📚</span>
               </div>
               <p className="text-slate-500 mb-4">{t.books.noQuotes}</p>
-              <button
-                onClick={() => openBookModal()}
-                className="text-cyan-400 hover:underline"
-              >
-                {t.books.addFirst}
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => openBookModal()}
+                  className="text-cyan-400 hover:underline"
+                >
+                  {t.books.addFirst}
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -1796,27 +1869,29 @@ export default function Portfolio() {
                         </button>
                       </div>
                       
-                      {/* Edit/Delete */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openBookModal(quote)}
-                          className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
-                          title="Edit"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => deleteBookQuote(quote.id)}
-                          className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
-                          title="Delete"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
+                      {/* Edit/Delete - faqat admin uchun */}
+                      {isAdmin && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => openBookModal(quote)}
+                            className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                            title="Edit"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => deleteBookQuote(quote.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1966,15 +2041,17 @@ export default function Portfolio() {
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.gallery.subtitle}
             </p>
-            <button
-              onClick={() => openGalleryModal()}
-              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              {t.gallery.addNew}
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => openGalleryModal()}
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {t.gallery.addNew}
+              </button>
+            )}
           </div>
 
           {galleryItems.length === 0 ? (
@@ -1983,12 +2060,14 @@ export default function Portfolio() {
                 <span className="text-4xl">🖼️</span>
               </div>
               <p className="text-slate-500 mb-4">{t.gallery.noItems}</p>
-              <button
-                onClick={() => openGalleryModal()}
-                className="text-cyan-400 hover:underline"
-              >
-                {t.gallery.addFirst}
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => openGalleryModal()}
+                  className="text-cyan-400 hover:underline"
+                >
+                  {t.gallery.addFirst}
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -2057,24 +2136,29 @@ export default function Portfolio() {
                             </svg>
                           </button>
                         )}
-                        <button
-                          onClick={() => openGalleryModal(item)}
-                          className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
-                          title="Edit"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => deleteGalleryItem(item.id)}
-                          className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
-                          title="Delete"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                        {/* Edit/Delete - faqat admin uchun */}
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={() => openGalleryModal(item)}
+                              className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                              title="Edit"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => deleteGalleryItem(item.id)}
+                              className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                              title="Delete"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

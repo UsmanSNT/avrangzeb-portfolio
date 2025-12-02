@@ -24,24 +24,35 @@ export default function AdminDashboard() {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
-    if (!authUser) {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      
+      if (!authUser) {
+        router.push('/auth/login');
+        return;
+      }
+
+      const res = await fetch(`/api/auth/profile?userId=${authUser.id}`);
+      const profile = await res.json();
+
+      // Agar profil topilmasa yoki xato bo'lsa
+      if (profile.error || !profile.id) {
+        router.push('/dashboard');
+        return;
+      }
+
+      if (profile.role !== 'admin') {
+        router.push('/dashboard');
+        return;
+      }
+
+      setUser(profile);
+      await loadData();
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Auth check error:', error);
       router.push('/auth/login');
-      return;
     }
-
-    const res = await fetch(`/api/auth/profile?userId=${authUser.id}`);
-    const profile = await res.json();
-
-    if (profile.role !== 'admin') {
-      router.push('/dashboard');
-      return;
-    }
-
-    setUser(profile);
-    await loadData();
-    setIsLoading(false);
   };
 
   const loadData = async () => {
@@ -242,7 +253,7 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-white font-bold">
-                            {u.full_name?.[0]?.toUpperCase() || u.email[0].toUpperCase()}
+                            {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
                           </div>
                           <span className="text-white font-medium">{u.full_name || 'Nomsiz'}</span>
                         </div>
