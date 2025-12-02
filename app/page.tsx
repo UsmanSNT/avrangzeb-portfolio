@@ -1387,6 +1387,17 @@ export default function Portfolio() {
                 )}
               </div>
               
+              {/* Login Button */}
+              <a
+                href="/auth/login"
+                className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                {language === 'uz' ? 'Kirish' : language === 'ko' ? '로그인' : 'Login'}
+              </a>
+
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -1435,6 +1446,18 @@ export default function Portfolio() {
                     </button>
                   )
                 ))}
+                
+                {/* Mobile Login Button */}
+                <a
+                  href="/auth/login"
+                  className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  {language === 'uz' ? 'Kirish / Ro\'yxatdan o\'tish' : language === 'ko' ? '로그인 / 회원가입' : 'Login / Register'}
+                </a>
               </div>
             </div>
           )}
