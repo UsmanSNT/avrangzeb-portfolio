@@ -2441,7 +2441,7 @@ export default function Portfolio() {
               
               <div className="space-y-3 sm:space-y-4">
                 <a
-                  href="mailto:avrangzeb@example.com"
+                  href="mailto:avrangzebabdujalilov@gmail.com"
                   className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
@@ -2449,12 +2449,12 @@ export default function Portfolio() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs sm:text-sm text-slate-500">{t.contact.email}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base truncate">avrangzeb@example.com</p>
+                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base truncate">avrangzebabdujalilov@gmail.com</p>
                   </div>
                 </a>
                 
                 <a
-                  href="tel:+998901234567"
+                  href="tel:+821023492777"
                   className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
@@ -2462,7 +2462,7 @@ export default function Portfolio() {
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm text-slate-500">{t.contact.phone}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base">+998 90 123 45 67</p>
+                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base">+82 10-2349-2777</p>
                   </div>
                 </a>
                 
@@ -2480,20 +2480,29 @@ export default function Portfolio() {
               {/* Social Links */}
               <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <a
-                  href="#"
+                  href="https://t.me/Avrangzeb_Abdujalilov"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  title="Telegram"
                 >
                   <TelegramIcon />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/in/avrangzeb-abdujalilov-365b5221a/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  title="LinkedIn"
                 >
                   <LinkedInIcon />
-          </a>
-          <a
-                  href="#"
+                </a>
+                <a
+                  href="https://github.com/UsmanSNT"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  title="GitHub"
                 >
                   <GitHubIcon />
                 </a>
