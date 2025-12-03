@@ -66,7 +66,16 @@ export default function AdminDashboard() {
       .select('*')
       .order('created_at', { ascending: false });
     
-    setUsers(usersData || []);
+    // Super admin'larni birinchi o'ringa qo'yish
+    const sortedUsers = (usersData || []).sort((a, b) => {
+      if (a.role === 'super_admin' && b.role !== 'super_admin') return -1;
+      if (a.role !== 'super_admin' && b.role === 'super_admin') return 1;
+      if (a.role === 'admin' && b.role === 'user') return -1;
+      if (a.role === 'user' && b.role === 'admin') return 1;
+      return 0;
+    });
+    
+    setUsers(sortedUsers);
 
     // Statistika
     const { count: quotesCount } = await supabase
@@ -173,19 +182,34 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center relative ${
                 isSuperAdmin 
-                  ? 'bg-gradient-to-br from-yellow-500 to-orange-600' 
+                  ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50' 
                   : 'bg-gradient-to-br from-red-500 to-orange-600'
               }`}>
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+                {isSuperAdmin && (
+                  <>
+                    <span className="text-xl">👑</span>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                  </>
+                )}
+                {!isSuperAdmin && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                )}
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Admin Panel</h1>
-                <p className="text-xs text-slate-400">
-                  {isSuperAdmin ? 'Asosiy boshqaruv paneli' : 'Boshqaruv paneli'}
+                <h1 className={`text-xl font-bold flex items-center gap-2 ${
+                  isSuperAdmin ? 'text-yellow-300' : 'text-white'
+                }`}>
+                  {isSuperAdmin && <span className="text-2xl animate-pulse">👑</span>}
+                  Admin Panel
+                </h1>
+                <p className={`text-xs ${
+                  isSuperAdmin ? 'text-yellow-400/80' : 'text-slate-400'
+                }`}>
+                  {isSuperAdmin ? '👑 Asosiy boshqaruv paneli (Super Admin)' : 'Boshqaruv paneli'}
                 </p>
               </div>
             </div>
@@ -195,9 +219,23 @@ export default function AdminDashboard() {
               </Link>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-white">{user?.full_name || 'Admin'}</p>
-                  <p className={`text-xs ${isSuperAdmin ? 'text-yellow-400' : 'text-red-400'}`}>
-                    {isSuperAdmin ? '👑 Asosiy Admin' : 'Administrator'}
+                  <p className={`text-sm font-medium flex items-center gap-1 ${
+                    isSuperAdmin ? 'text-yellow-300' : 'text-white'
+                  }`}>
+                    {isSuperAdmin && <span className="text-base animate-pulse">👑</span>}
+                    {user?.full_name || 'Admin'}
+                  </p>
+                  <p className={`text-xs font-medium flex items-center gap-1 ${
+                    isSuperAdmin ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {isSuperAdmin ? (
+                      <>
+                        <span className="text-sm">👑</span>
+                        <span>Super Admin</span>
+                      </>
+                    ) : (
+                      'Administrator'
+                    )}
                   </p>
                 </div>
                 <button
@@ -348,26 +386,60 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody className="divide-y divide-slate-700/50">
                   {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-700/20">
+                    <tr 
+                      key={u.id} 
+                      className={`hover:bg-slate-700/20 transition-colors ${
+                        u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : ''
+                      }`}
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold relative ${
                             u.role === 'super_admin' 
-                              ? 'bg-gradient-to-br from-yellow-500 to-orange-600'
+                              ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
                               : u.role === 'admin'
                               ? 'bg-gradient-to-br from-red-500 to-pink-600'
                               : 'bg-gradient-to-br from-cyan-500 to-violet-600'
                           }`}>
-                            {u.role === 'super_admin' && '👑'}
+                            {u.role === 'super_admin' && (
+                              <>
+                                <span className="text-xl animate-pulse">👑</span>
+                                {/* Toj animatsiyasi */}
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                              </>
+                            )}
                             {u.role !== 'super_admin' && (u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?')}
                           </div>
-                          <span className="text-white font-medium">{u.full_name || 'Nomsiz'}</span>
+                          <div className="flex flex-col">
+                            <span className={`text-white font-medium flex items-center gap-2 ${
+                              u.role === 'super_admin' ? 'text-yellow-300' : ''
+                            }`}>
+                              {u.full_name || 'Nomsiz'}
+                              {u.role === 'super_admin' && (
+                                <span className="text-xs px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">
+                                  SUPER ADMIN
+                                </span>
+                              )}
+                            </span>
+                            {u.role === 'super_admin' && (
+                              <span className="text-xs text-yellow-400/70">Asosiy boshqaruvchi</span>
+                            )}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-400">{u.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getRoleColor(u.role)}`}>
-                          {u.role === 'super_admin' && '👑 '}{getRoleLabel(u.role)}
+                        <span className={u.role === 'super_admin' ? 'text-yellow-300/90' : 'text-slate-400'}>
+                          {u.email}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${getRoleColor(u.role)} ${
+                          u.role === 'super_admin' ? 'shadow-lg shadow-yellow-500/30' : ''
+                        }`}>
+                          {u.role === 'super_admin' && (
+                            <span className="text-base animate-pulse">👑</span>
+                          )}
+                          {getRoleLabel(u.role)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-400 text-sm">
@@ -382,15 +454,16 @@ export default function AdminDashboard() {
                                 value={u.role}
                                 onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
                                 disabled={roleChangeLoading === u.id}
-                                className={`bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-500 ${
-                                  roleChangeLoading === u.id ? 'opacity-50 cursor-not-allowed' : ''
+                                className={`bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-yellow-500 transition-colors ${
+                                  roleChangeLoading === u.id ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-500/50'
                                 }`}
+                                title="Adminlik berish"
                               >
                                 <option value="user">Foydalanuvchi</option>
                                 <option value="admin">Admin</option>
                               </select>
                               {roleChangeLoading === u.id && (
-                                <svg className="animate-spin h-4 w-4 text-cyan-400" viewBox="0 0 24 24">
+                                <svg className="animate-spin h-4 w-4 text-yellow-400" viewBox="0 0 24 24">
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                 </svg>
@@ -398,10 +471,18 @@ export default function AdminDashboard() {
                             </div>
                           )}
                           {u.id === user?.id && (
-                            <span className="text-slate-500 text-sm">Siz</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-yellow-400 text-sm font-medium flex items-center gap-1">
+                                <span className="text-base">👑</span>
+                                Siz (Super Admin)
+                              </span>
+                            </div>
                           )}
                           {u.role === 'super_admin' && u.id !== user?.id && (
-                            <span className="text-yellow-500 text-sm">Asosiy Admin</span>
+                            <span className="text-yellow-500 text-sm font-medium flex items-center gap-1">
+                              <span className="text-base">👑</span>
+                              Asosiy Admin
+                            </span>
                           )}
                         </td>
                       )}
