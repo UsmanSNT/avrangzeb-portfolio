@@ -389,7 +389,8 @@ export default function AdminDashboard() {
                     <tr 
                       key={u.id} 
                       className={`hover:bg-slate-700/20 transition-colors ${
-                        u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : ''
+                        u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : 
+                        u.role === 'admin' ? 'bg-slate-400/5 border-l-2 border-slate-400' : ''
                       }`}
                     >
                       <td className="px-6 py-4">
@@ -398,7 +399,7 @@ export default function AdminDashboard() {
                             u.role === 'super_admin' 
                               ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
                               : u.role === 'admin'
-                              ? 'bg-gradient-to-br from-red-500 to-pink-600'
+                              ? 'bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600 shadow-lg shadow-slate-400/50'
                               : 'bg-gradient-to-br from-cyan-500 to-violet-600'
                           }`}>
                             {u.role === 'super_admin' && (
@@ -408,11 +409,19 @@ export default function AdminDashboard() {
                                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
                               </>
                             )}
-                            {u.role !== 'super_admin' && (u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?')}
+                            {u.role === 'admin' && (
+                              <>
+                                <span className="text-xl animate-pulse text-slate-200">👑</span>
+                                {/* Kumush toj animatsiyasi */}
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-slate-300 rounded-full animate-ping"></div>
+                              </>
+                            )}
+                            {u.role !== 'super_admin' && u.role !== 'admin' && (u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?')}
                           </div>
                           <div className="flex flex-col">
                             <span className={`text-white font-medium flex items-center gap-2 ${
-                              u.role === 'super_admin' ? 'text-yellow-300' : ''
+                              u.role === 'super_admin' ? 'text-yellow-300' : 
+                              u.role === 'admin' ? 'text-slate-300' : ''
                             }`}>
                               {u.full_name || 'Nomsiz'}
                               {u.role === 'super_admin' && (
@@ -420,24 +429,40 @@ export default function AdminDashboard() {
                                   SUPER ADMIN
                                 </span>
                               )}
+                              {u.role === 'admin' && (
+                                <span className="text-xs px-1.5 py-0.5 bg-slate-400/20 text-slate-300 rounded border border-slate-400/30">
+                                  ADMIN
+                                </span>
+                              )}
                             </span>
                             {u.role === 'super_admin' && (
                               <span className="text-xs text-yellow-400/70">Asosiy boshqaruvchi</span>
+                            )}
+                            {u.role === 'admin' && (
+                              <span className="text-xs text-slate-300/70">Ikkinchi darajali admin</span>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={u.role === 'super_admin' ? 'text-yellow-300/90' : 'text-slate-400'}>
+                        <span className={
+                          u.role === 'super_admin' ? 'text-yellow-300/90' : 
+                          u.role === 'admin' ? 'text-slate-300/90' : 
+                          'text-slate-400'
+                        }>
                           {u.email}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${getRoleColor(u.role)} ${
-                          u.role === 'super_admin' ? 'shadow-lg shadow-yellow-500/30' : ''
+                          u.role === 'super_admin' ? 'shadow-lg shadow-yellow-500/30' : 
+                          u.role === 'admin' ? 'shadow-lg shadow-slate-400/30' : ''
                         }`}>
                           {u.role === 'super_admin' && (
                             <span className="text-base animate-pulse">👑</span>
+                          )}
+                          {u.role === 'admin' && (
+                            <span className="text-base animate-pulse text-slate-200">👑</span>
                           )}
                           {getRoleLabel(u.role)}
                         </span>
