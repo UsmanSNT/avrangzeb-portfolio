@@ -661,6 +661,22 @@ export default function Portfolio() {
   const [viewingGallery, setViewingGallery] = useState<GalleryItem | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Book quote viewing state
+  const [viewingQuote, setViewingQuote] = useState<BookQuote | null>(null);
+  const [expandedQuotes, setExpandedQuotes] = useState<Set<number>>(new Set());
+
+  const toggleQuoteExpand = (id: number) => {
+    setExpandedQuotes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   const t = translations[language];
 
   // Load language from localStorage
@@ -1851,35 +1867,79 @@ export default function Portfolio() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {bookQuotes.map((quote) => (
+              {bookQuotes.map((quote) => {
+                const isExpanded = expandedQuotes.has(quote.id);
+                const isLongQuote = quote.quote.length > 200;
+                
+                return (
                 <div
                   key={quote.id}
                   className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
                 >
-                  {/* Image */}
+                  {/* Image - kattaroq va bosiladigan */}
                   {quote.image && (
-                    <div className="relative h-40 sm:h-48 overflow-hidden">
+                    <div 
+                      className="relative h-52 sm:h-64 overflow-hidden cursor-pointer"
+                      onClick={() => setViewingQuote(quote)}
+                    >
                       <img
                         src={quote.image}
                         alt={quote.bookTitle}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                      {/* Zoom icon */}
+                      <div className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                      {/* Book title overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="font-bold text-white text-base sm:text-lg drop-shadow-lg">{quote.bookTitle}</h3>
+                        <p className="text-cyan-300 text-sm">{quote.author}</p>
+                      </div>
                     </div>
                   )}
                   
                   {/* Content */}
                   <div className="p-4 sm:p-5">
-                    {/* Book info */}
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-slate-200 text-sm sm:text-base">{quote.bookTitle}</h3>
-                      <p className="text-xs sm:text-sm text-cyan-400">{t.books.from} {quote.author}</p>
-                    </div>
+                    {/* Book info - agar rasm bo'lmasa */}
+                    {!quote.image && (
+                      <div className="mb-3">
+                        <h3 className="font-semibold text-slate-200 text-sm sm:text-base">{quote.bookTitle}</h3>
+                        <p className="text-xs sm:text-sm text-cyan-400">{t.books.from} {quote.author}</p>
+                      </div>
+                    )}
                     
-                    {/* Quote */}
-                    <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-4">
-                      "{quote.quote}"
-                    </p>
+                    {/* Quote - kengaytiriladigan */}
+                    <div className="mb-4">
+                      <p className={`text-slate-300 text-sm leading-relaxed ${!isExpanded && isLongQuote ? 'line-clamp-4' : ''}`}>
+                        &ldquo;{quote.quote}&rdquo;
+                      </p>
+                      {isLongQuote && (
+                        <button
+                          onClick={() => toggleQuoteExpand(quote.id)}
+                          className="mt-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium flex items-center gap-1 transition-colors"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>Yopish</span>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </>
+                          ) : (
+                            <>
+                              <span>Ko&apos;proq o&apos;qish</span>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                     
                     {/* Actions */}
                     <div className="flex items-center justify-between pt-3 border-t border-slate-700">
@@ -1939,7 +1999,7 @@ export default function Portfolio() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>
@@ -2423,6 +2483,80 @@ export default function Portfolio() {
         </div>
       )}
 
+      {/* Book Quote Viewer Modal */}
+      {viewingQuote && viewingQuote.image && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          {/* Close button */}
+          <button
+            onClick={() => setViewingQuote(null)}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-slate-900 rounded-2xl">
+            {/* Full Image */}
+            <div className="relative">
+              <img
+                src={viewingQuote.image}
+                alt={viewingQuote.bookTitle}
+                className="w-full max-h-[60vh] object-contain bg-black"
+              />
+            </div>
+            
+            {/* Content */}
+            <div className="p-6">
+              <div className="mb-4">
+                <h3 className="text-2xl font-bold text-white mb-1">{viewingQuote.bookTitle}</h3>
+                <p className="text-cyan-400">{viewingQuote.author}</p>
+              </div>
+              
+              <div className="bg-slate-800/50 rounded-xl p-4 border-l-4 border-cyan-500">
+                <p className="text-slate-200 text-lg leading-relaxed italic">
+                  &ldquo;{viewingQuote.quote}&rdquo;
+                </p>
+              </div>
+              
+              {/* Reactions */}
+              <div className="flex items-center gap-4 mt-6">
+                <button
+                  onClick={() => {
+                    handleReaction(viewingQuote.id, 'like');
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
+                    viewingQuote.userReaction === 'like'
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-slate-800 text-slate-400 hover:text-green-400'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill={viewingQuote.userReaction === 'like' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                  </svg>
+                  <span>{viewingQuote.likes}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    handleReaction(viewingQuote.id, 'dislike');
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
+                    viewingQuote.userReaction === 'dislike'
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-slate-800 text-slate-400 hover:text-red-400'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill={viewingQuote.userReaction === 'dislike' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                  </svg>
+                  <span>{viewingQuote.dislikes}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 {/* Contact Section */}
       <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
         <div className="max-w-4xl mx-auto">
@@ -2459,7 +2593,7 @@ export default function Portfolio() {
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
                     <PhoneIcon />
-                  </div>
+        </div>
                   <div>
                     <p className="text-xs sm:text-sm text-slate-500">{t.contact.phone}</p>
                     <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base">+82 10-2349-2777</p>
@@ -2481,17 +2615,17 @@ export default function Portfolio() {
               <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <a
                   href="https://t.me/Avrangzeb_Abdujalilov"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
                   title="Telegram"
                 >
                   <TelegramIcon />
-                </a>
-                <a
+          </a>
+          <a
                   href="https://www.linkedin.com/in/avrangzeb-abdujalilov-365b5221a/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
                   title="LinkedIn"
                 >
@@ -2505,8 +2639,8 @@ export default function Portfolio() {
                   title="GitHub"
                 >
                   <GitHubIcon />
-                </a>
-              </div>
+          </a>
+        </div>
             </div>
             
             {/* Contact Form */}
