@@ -90,20 +90,43 @@ export default function AdminDashboard() {
   };
 
   // Faqat super_admin rol o'zgartira oladi
+  const [roleChangeLoading, setRoleChangeLoading] = useState<string | null>(null);
+  const [roleChangeMessage, setRoleChangeMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
     // Xavfsizlik: faqat super_admin rol o'zgartira oladi
     if (!isSuperAdmin) {
-      alert("Sizda rol o'zgartirish huquqi yo'q!");
+      setRoleChangeMessage({ type: 'error', text: "Sizda rol o'zgartirish huquqi yo'q!" });
       return;
     }
 
-    const { error } = await supabase
-      .from('user_profiles')
-      .update({ role: newRole })
-      .eq('id', userId);
+    setRoleChangeLoading(userId);
+    setRoleChangeMessage(null);
 
-    if (!error) {
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Role update error:', error);
+        setRoleChangeMessage({ type: 'error', text: `Xato: ${error.message}` });
+      } else if (data) {
+        // Ma'lumotlarni yangilash
+        setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+        setRoleChangeMessage({ type: 'success', text: `Rol muvaffaqiyatli o'zgartirildi!` });
+        
+        // 3 soniyadan keyin xabarni o'chirish
+        setTimeout(() => setRoleChangeMessage(null), 3000);
+      }
+    } catch (err) {
+      console.error('Role change error:', err);
+      setRoleChangeMessage({ type: 'error', text: 'Kutilmagan xato yuz berdi' });
+    } finally {
+      setRoleChangeLoading(null);
     }
   };
 
@@ -301,6 +324,16 @@ export default function AdminDashboard() {
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 overflow-hidden">
           {activeTab === 'users' && (
             <div className="overflow-x-auto">
+              {/* Role change message */}
+              {roleChangeMessage && (
+                <div className={`mx-6 mt-4 p-3 rounded-lg text-sm ${
+                  roleChangeMessage.type === 'success' 
+                    ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
+                    : 'bg-red-500/20 border border-red-500/50 text-red-400'
+                }`}>
+                  {roleChangeMessage.type === 'success' ? '✅' : '❌'} {roleChangeMessage.text}
+                </div>
+              )}
               <table className="w-full">
                 <thead className="bg-slate-900/50">
                   <tr>
@@ -344,14 +377,25 @@ export default function AdminDashboard() {
                         <td className="px-6 py-4">
                           {/* Super admin o'zini va boshqa super_adminlarni o'zgartira olmaydi */}
                           {u.id !== user?.id && u.role !== 'super_admin' && (
-                            <select
-                              value={u.role}
-                              onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
-                              className="bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-500"
-                            >
-                              <option value="user">Foydalanuvchi</option>
-                              <option value="admin">Admin</option>
-                            </select>
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={u.role}
+                                onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
+                                disabled={roleChangeLoading === u.id}
+                                className={`bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-500 ${
+                                  roleChangeLoading === u.id ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                              >
+                                <option value="user">Foydalanuvchi</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              {roleChangeLoading === u.id && (
+                                <svg className="animate-spin h-4 w-4 text-cyan-400" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                              )}
+                            </div>
                           )}
                           {u.id === user?.id && (
                             <span className="text-slate-500 text-sm">Siz</span>
