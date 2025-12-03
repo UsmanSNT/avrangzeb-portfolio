@@ -1,6 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Telegram xabar yuborish
+async function sendTelegramMessage(name: string, email: string, message: string) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!botToken || !chatId) {
+    console.log('Telegram credentials not configured');
+    return false;
+  }
+
+  const text = `📬 *Yangi xabar!*
+
+👤 *Ism:* ${name}
+📧 *Email:* ${email}
+
+💬 *Xabar:*
+${message}
+
+⏰ *Vaqt:* ${new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Seoul' })}`;
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'Markdown'
+      })
+    });
+
+    const result = await response.json();
+    return result.ok;
+  } catch (error) {
+    console.error('Telegram send error:', error);
+    return false;
+  }
+}
+
+// Email yuborish (Resend API orqali)
+async function sendEmailNotification(name: string, senderEmail: string, message: string) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const adminEmail = process.env.ADMIN_EMAIL || 'avrangzebabdujalilov@gmail.com';
+
+  if (!resendApiKey) {
+    console.log('Resend API key not configured');
+    return false;
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Portfolio <onboarding@resend.dev>',
+        to: adminEmail,
+        subject: `📬 Yangi xabar: ${name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #06b6d4;">📬 Yangi xabar keldi!</h2>
+            <div style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <p><strong>👤 Ism:</strong> ${name}</p>
+              <p><strong>📧 Email:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></p>
+              <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 15px 0;">
+              <p><strong>💬 Xabar:</strong></p>
+              <p style="white-space: pre-wrap;">${message}</p>
+            </div>
+            <p style="color: #64748b; font-size: 12px;">
+              ⏰ Yuborilgan vaqt: ${new Date().toLocaleString('uz-UZ', { timeZone: 'Asia/Seoul' })}
+            </p>
+          </div>
+        `
+      })
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Email send error:', error);
+    return false;
+  }
+}
+
 // Xabarlarni olish (admin uchun)
 export async function GET() {
   try {
@@ -26,6 +111,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Barcha maydonlar to\'ldirilishi kerak' }, { status: 400 });
     }
 
+    // Database'ga saqlash
     const { data, error } = await supabase
       .from('portfolio_contacts')
       .insert([{ name, email, message }])
@@ -34,9 +120,19 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
+    // Telegram'ga yuborish (agar sozlangan bo'lsa)
+    const telegramSent = await sendTelegramMessage(name, email, message);
+    
+    // Email'ga yuborish (agar sozlangan bo'lsa)
+    const emailSent = await sendEmailNotification(name, email, message);
+
     return NextResponse.json({ 
       success: true, 
       message: 'Xabaringiz muvaffaqiyatli yuborildi!',
+      notifications: {
+        telegram: telegramSent,
+        email: emailSent
+      },
       data 
     });
   } catch (error) {
