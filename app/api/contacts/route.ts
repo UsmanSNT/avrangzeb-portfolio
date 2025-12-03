@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
 // Telegram xabar yuborish
-async function sendTelegramMessage(name: string, email: string, message: string) {
+async function sendTelegramMessage(name: string, telegram: string, message: string) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -11,10 +11,13 @@ async function sendTelegramMessage(name: string, email: string, message: string)
     return false;
   }
 
+  // Telegram username formatlash
+  const telegramLink = telegram.startsWith('@') ? telegram : `@${telegram}`;
+
   const text = `📬 *Yangi xabar!*
 
 👤 *Ism:* ${name}
-📧 *Email:* ${email}
+✈️ *Telegram:* ${telegramLink}
 
 💬 *Xabar:*
 ${message}
@@ -40,8 +43,8 @@ ${message}
   }
 }
 
-// Email yuborish (Resend API orqali)
-async function sendEmailNotification(name: string, senderEmail: string, message: string) {
+// Email yuborish (Resend API orqali) - ixtiyoriy
+async function sendEmailNotification(name: string, telegram: string, message: string) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const adminEmail = process.env.ADMIN_EMAIL || 'avrangzebabdujalilov@gmail.com';
 
@@ -49,6 +52,8 @@ async function sendEmailNotification(name: string, senderEmail: string, message:
     console.log('Resend API key not configured');
     return false;
   }
+
+  const telegramLink = telegram.startsWith('@') ? telegram : `@${telegram}`;
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -66,7 +71,7 @@ async function sendEmailNotification(name: string, senderEmail: string, message:
             <h2 style="color: #06b6d4;">📬 Yangi xabar keldi!</h2>
             <div style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
               <p><strong>👤 Ism:</strong> ${name}</p>
-              <p><strong>📧 Email:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></p>
+              <p><strong>✈️ Telegram:</strong> <a href="https://t.me/${telegram.replace('@', '')}">${telegramLink}</a></p>
               <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 15px 0;">
               <p><strong>💬 Xabar:</strong></p>
               <p style="white-space: pre-wrap;">${message}</p>
@@ -105,26 +110,26 @@ export async function GET() {
 // Yangi xabar yuborish
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, message } = await request.json();
+    const { name, telegram, message } = await request.json();
 
-    if (!name || !email || !message) {
+    if (!name || !telegram || !message) {
       return NextResponse.json({ error: 'Barcha maydonlar to\'ldirilishi kerak' }, { status: 400 });
     }
 
     // Database'ga saqlash
     const { data, error } = await supabase
       .from('portfolio_contacts')
-      .insert([{ name, email, message }])
+      .insert([{ name, telegram, message }])
       .select()
       .single();
 
     if (error) throw error;
 
     // Telegram'ga yuborish (agar sozlangan bo'lsa)
-    const telegramSent = await sendTelegramMessage(name, email, message);
+    const telegramSent = await sendTelegramMessage(name, telegram, message);
     
     // Email'ga yuborish (agar sozlangan bo'lsa)
-    const emailSent = await sendEmailNotification(name, email, message);
+    const emailSent = await sendEmailNotification(name, telegram, message);
 
     return NextResponse.json({ 
       success: true, 
