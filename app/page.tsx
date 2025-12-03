@@ -785,7 +785,8 @@ export default function Portfolio() {
             email: profile.email,
             full_name: profile.full_name
           });
-          setIsAdmin(profile.role === 'admin');
+          // Admin yoki super_admin bo'lsa ma'lumotlarni o'zgartira oladi
+          setIsAdmin(profile.role === 'admin' || profile.role === 'super_admin');
         }
       } else {
         setIsLoggedIn(false);

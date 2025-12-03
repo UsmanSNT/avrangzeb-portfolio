@@ -25,7 +25,8 @@ export default function LoginPage() {
         const res = await fetch(`/api/auth/profile?userId=${user.id}`);
         const profile = await res.json();
         
-        if (profile.role === 'admin') {
+        // Admin yoki super_admin bo'lsa admin panelga yo'naltirish
+        if (profile.role === 'admin' || profile.role === 'super_admin') {
           router.push('/admin');
         } else {
           router.push('/dashboard');

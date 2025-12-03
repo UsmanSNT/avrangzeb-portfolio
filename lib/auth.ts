@@ -5,7 +5,7 @@ export interface UserProfile {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'super_admin';
   created_at: string;
 }
 
@@ -96,10 +96,16 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   return data;
 }
 
-// Foydalanuvchi admin ekanligini tekshirish
+// Foydalanuvchi admin ekanligini tekshirish (admin yoki super_admin)
 export async function isAdmin(userId: string): Promise<boolean> {
   const profile = await getUserProfile(userId);
-  return profile?.role === 'admin';
+  return profile?.role === 'admin' || profile?.role === 'super_admin';
+}
+
+// Foydalanuvchi super_admin ekanligini tekshirish
+export async function isSuperAdmin(userId: string): Promise<boolean> {
+  const profile = await getUserProfile(userId);
+  return profile?.role === 'super_admin';
 }
 
 // Profilni yangilash

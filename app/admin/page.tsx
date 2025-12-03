@@ -19,6 +19,9 @@ export default function AdminDashboard() {
     totalNotes: 0
   });
 
+  // Check if current user is super_admin
+  const isSuperAdmin = user?.role === 'super_admin';
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -41,7 +44,8 @@ export default function AdminDashboard() {
         return;
       }
 
-      if (profile.role !== 'admin') {
+      // Admin yoki super_admin bo'lishi kerak
+      if (profile.role !== 'admin' && profile.role !== 'super_admin') {
         router.push('/dashboard');
         return;
       }
@@ -85,7 +89,14 @@ export default function AdminDashboard() {
     });
   };
 
+  // Faqat super_admin rol o'zgartira oladi
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
+    // Xavfsizlik: faqat super_admin rol o'zgartira oladi
+    if (!isSuperAdmin) {
+      alert("Sizda rol o'zgartirish huquqi yo'q!");
+      return;
+    }
+
     const { error } = await supabase
       .from('user_profiles')
       .update({ role: newRole })
@@ -99,6 +110,29 @@ export default function AdminDashboard() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/');
+  };
+
+  // Rol ko'rsatish funksiyasi
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'super_admin':
+        return 'Asosiy Admin';
+      case 'admin':
+        return 'Admin';
+      default:
+        return 'Foydalanuvchi';
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'super_admin':
+        return 'bg-yellow-500/20 text-yellow-400';
+      case 'admin':
+        return 'bg-red-500/20 text-red-400';
+      default:
+        return 'bg-green-500/20 text-green-400';
+    }
   };
 
   if (isLoading) {
@@ -116,14 +150,20 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                isSuperAdmin 
+                  ? 'bg-gradient-to-br from-yellow-500 to-orange-600' 
+                  : 'bg-gradient-to-br from-red-500 to-orange-600'
+              }`}>
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Admin Panel</h1>
-                <p className="text-xs text-slate-400">Boshqaruv paneli</p>
+                <p className="text-xs text-slate-400">
+                  {isSuperAdmin ? 'Asosiy boshqaruv paneli' : 'Boshqaruv paneli'}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -133,7 +173,9 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-medium text-white">{user?.full_name || 'Admin'}</p>
-                  <p className="text-xs text-red-400">Administrator</p>
+                  <p className={`text-xs ${isSuperAdmin ? 'text-yellow-400' : 'text-red-400'}`}>
+                    {isSuperAdmin ? '👑 Asosiy Admin' : 'Administrator'}
+                  </p>
                 </div>
                 <button
                   onClick={handleSignOut}
@@ -151,6 +193,28 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Super Admin Notice */}
+        {isSuperAdmin && (
+          <div className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-3">
+            <span className="text-2xl">👑</span>
+            <div>
+              <p className="text-yellow-400 font-medium">Asosiy Admin sifatida kirgansiz</p>
+              <p className="text-yellow-400/70 text-sm">Siz boshqa foydalanuvchilarga admin huquqini berishingiz mumkin</p>
+            </div>
+          </div>
+        )}
+
+        {/* Admin Notice (not super) */}
+        {!isSuperAdmin && (
+          <div className="mb-6 bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 flex items-center gap-3">
+            <span className="text-2xl">🔧</span>
+            <div>
+              <p className="text-cyan-400 font-medium">Admin sifatida kirgansiz</p>
+              <p className="text-cyan-400/70 text-sm">Siz sayt ma&apos;lumotlarini o&apos;zgartirishingiz mumkin, lekin boshqalarga admin bera olmaysiz</p>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
@@ -244,7 +308,9 @@ export default function AdminDashboard() {
                     <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Email</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Rol</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Sana</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Amallar</th>
+                    {isSuperAdmin && (
+                      <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Amallar</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700/50">
@@ -252,37 +318,49 @@ export default function AdminDashboard() {
                     <tr key={u.id} className="hover:bg-slate-700/20">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-white font-bold">
-                            {u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?'}
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                            u.role === 'super_admin' 
+                              ? 'bg-gradient-to-br from-yellow-500 to-orange-600'
+                              : u.role === 'admin'
+                              ? 'bg-gradient-to-br from-red-500 to-pink-600'
+                              : 'bg-gradient-to-br from-cyan-500 to-violet-600'
+                          }`}>
+                            {u.role === 'super_admin' && '👑'}
+                            {u.role !== 'super_admin' && (u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?')}
                           </div>
                           <span className="text-white font-medium">{u.full_name || 'Nomsiz'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-slate-400">{u.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                          u.role === 'admin' 
-                            ? 'bg-red-500/20 text-red-400' 
-                            : 'bg-green-500/20 text-green-400'
-                        }`}>
-                          {u.role === 'admin' ? 'Admin' : 'Foydalanuvchi'}
+                        <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getRoleColor(u.role)}`}>
+                          {u.role === 'super_admin' && '👑 '}{getRoleLabel(u.role)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-400 text-sm">
                         {new Date(u.created_at).toLocaleDateString('uz-UZ')}
                       </td>
-                      <td className="px-6 py-4">
-                        {u.id !== user?.id && (
-                          <select
-                            value={u.role}
-                            onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
-                            className="bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-500"
-                          >
-                            <option value="user">Foydalanuvchi</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                        )}
-                      </td>
+                      {isSuperAdmin && (
+                        <td className="px-6 py-4">
+                          {/* Super admin o'zini va boshqa super_adminlarni o'zgartira olmaydi */}
+                          {u.id !== user?.id && u.role !== 'super_admin' && (
+                            <select
+                              value={u.role}
+                              onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
+                              className="bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-500"
+                            >
+                              <option value="user">Foydalanuvchi</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          )}
+                          {u.id === user?.id && (
+                            <span className="text-slate-500 text-sm">Siz</span>
+                          )}
+                          {u.role === 'super_admin' && u.id !== user?.id && (
+                            <span className="text-yellow-500 text-sm">Asosiy Admin</span>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -299,7 +377,7 @@ export default function AdminDashboard() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Kitob iqtiboslari</h3>
-                <Link href="/#book-quotes" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                <Link href="/#books" className="text-cyan-400 hover:text-cyan-300 text-sm">
                   Barchasini ko&apos;rish →
                 </Link>
               </div>
@@ -331,9 +409,50 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+
+        {/* Role Permissions Info */}
+        <div className="mt-8 bg-slate-800/30 rounded-2xl border border-slate-700/30 p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">📋 Rol huquqlari</h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-yellow-500/10 rounded-xl p-4 border border-yellow-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">👑</span>
+                <span className="font-medium text-yellow-400">Asosiy Admin (Super Admin)</span>
+              </div>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>✅ Barcha ma&apos;lumotlarni o&apos;zgartirish</li>
+                <li>✅ Boshqalarga admin berish</li>
+                <li>✅ Adminlikni olib tashlash</li>
+                <li>✅ Faqat 1 ta bo&apos;ladi (Siz)</li>
+              </ul>
+            </div>
+            <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🔧</span>
+                <span className="font-medium text-red-400">Admin</span>
+              </div>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>✅ Barcha ma&apos;lumotlarni o&apos;zgartirish</li>
+                <li>✅ Kitob fikrlari, galereya, qaydlar</li>
+                <li>❌ Boshqalarga admin bera olmaydi</li>
+                <li>❌ Rollarni o&apos;zgartira olmaydi</li>
+              </ul>
+            </div>
+            <div className="bg-green-500/10 rounded-xl p-4 border border-green-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">👤</span>
+                <span className="font-medium text-green-400">Oddiy Foydalanuvchi</span>
+              </div>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>✅ Ma&apos;lumotlarni ko&apos;rish</li>
+                <li>✅ Reaksiya bildirish (like/dislike)</li>
+                <li>❌ Ma&apos;lumot qo&apos;sha olmaydi</li>
+                <li>❌ Ma&apos;lumot o&apos;zgartira olmaydi</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-
