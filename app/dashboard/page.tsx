@@ -6,6 +6,12 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/lib/auth";
 
+interface Stats {
+  notes: number;
+  gallery: number;
+  quotes: number;
+}
+
 export default function UserDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -13,10 +19,36 @@ export default function UserDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [stats, setStats] = useState<Stats>({ notes: 0, gallery: 0, quotes: 0 });
 
   useEffect(() => {
     checkAuth();
+    loadStats();
   }, []);
+
+  const loadStats = async () => {
+    try {
+      // Qaydlar soni
+      const notesRes = await fetch('/api/notes');
+      const notesData = await notesRes.json();
+      
+      // Galereya soni
+      const galleryRes = await fetch('/api/gallery');
+      const galleryData = await galleryRes.json();
+      
+      // Kitob fikrlari soni
+      const quotesRes = await fetch('/api/book-quotes');
+      const quotesData = await quotesRes.json();
+
+      setStats({
+        notes: Array.isArray(notesData) ? notesData.length : 0,
+        gallery: Array.isArray(galleryData) ? galleryData.length : 0,
+        quotes: Array.isArray(quotesData) ? quotesData.length : 0,
+      });
+    } catch (error) {
+      console.error('Stats load error:', error);
+    }
+  };
 
   const checkAuth = async () => {
     try {
@@ -225,8 +257,24 @@ export default function UserDashboard() {
           </div>
         </div>
 
+        {/* Stats */}
+        <div className="mt-8 grid grid-cols-3 gap-4">
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{stats.quotes}</div>
+            <p className="text-sm text-slate-400">Kitob fikrlari</p>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
+            <div className="text-3xl font-bold text-violet-400 mb-1">{stats.gallery}</div>
+            <p className="text-sm text-slate-400">Galereya</p>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
+            <div className="text-3xl font-bold text-green-400 mb-1">{stats.notes}</div>
+            <p className="text-sm text-slate-400">Qaydlar</p>
+          </div>
+        </div>
+
         {/* Quick Links */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/"
             className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-cyan-500/50 transition-colors group"
@@ -264,6 +312,19 @@ export default function UserDashboard() {
             </div>
             <h4 className="font-semibold text-white mb-1">Galereya</h4>
             <p className="text-sm text-slate-400">Rasmlarni ko&apos;ring</p>
+          </Link>
+
+          <Link
+            href="/auth/change-password"
+            className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-orange-500/50 transition-colors group"
+          >
+            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
+              <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-white mb-1">Parolni o&apos;zgartirish</h4>
+            <p className="text-sm text-slate-400">Yangi parol o&apos;rnating</p>
           </Link>
         </div>
       </div>

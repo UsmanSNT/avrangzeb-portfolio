@@ -717,6 +717,50 @@ export default function Portfolio() {
   const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
   const [isLoadingGallery, setIsLoadingGallery] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Contact form state
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [isContactSending, setIsContactSending] = useState(false);
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactError, setContactError] = useState("");
+
+  // Contact form submit handler
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsContactSending(true);
+    setContactError("");
+    setContactSuccess(false);
+
+    try {
+      const res = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          message: contactMessage
+        })
+      });
+
+      if (res.ok) {
+        setContactSuccess(true);
+        setContactName("");
+        setContactEmail("");
+        setContactMessage("");
+        // 3 soniyadan keyin success xabarini o'chirish
+        setTimeout(() => setContactSuccess(false), 5000);
+      } else {
+        const data = await res.json();
+        setContactError(data.error || "Xabar yuborishda xatolik");
+      }
+    } catch (error) {
+      setContactError("Xabar yuborishda xatolik yuz berdi");
+    } finally {
+      setIsContactSending(false);
+    }
+  };
   const [isMigrating, setIsMigrating] = useState(false);
 
   // Base64 ni File ga aylantirish funksiyasi
@@ -2461,11 +2505,27 @@ export default function Portfolio() {
               <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
                 {t.contact.sendMessage}
               </h3>
-              <form className="space-y-3 sm:space-y-4">
+              
+              {contactSuccess && (
+                <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm">
+                  ✅ Xabaringiz muvaffaqiyatli yuborildi! Tez orada javob beramiz.
+                </div>
+              )}
+              
+              {contactError && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                  {contactError}
+                </div>
+              )}
+              
+              <form onSubmit={handleContactSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-xs sm:text-sm text-slate-400 mb-2">{t.contact.form.name}</label>
                   <input
                     type="text"
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    required
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
                     placeholder={t.contact.form.namePlaceholder}
                   />
@@ -2474,6 +2534,9 @@ export default function Portfolio() {
                   <label className="block text-xs sm:text-sm text-slate-400 mb-2">{t.contact.form.email}</label>
                   <input
                     type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    required
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
                     placeholder="email@example.com"
                   />
@@ -2482,15 +2545,29 @@ export default function Portfolio() {
                   <label className="block text-xs sm:text-sm text-slate-400 mb-2">{t.contact.form.message}</label>
                   <textarea
                     rows={4}
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
+                    required
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
                     placeholder={t.contact.form.messagePlaceholder}
                   ></textarea>
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                  disabled={isContactSending}
+                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t.contact.form.send}
+                  {isContactSending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Yuborilmoqda...
+                    </span>
+                  ) : (
+                    t.contact.form.send
+                  )}
                 </button>
               </form>
             </div>
