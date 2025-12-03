@@ -1005,7 +1005,9 @@ export default function Portfolio() {
       try {
         const res = await fetch('/api/book-quotes');
         const result = await res.json();
-        if (result.success && result.data) {
+        console.log('Book quotes API response:', result);
+        
+        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
           const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
             bookTitle: q.book_title,
@@ -1016,13 +1018,10 @@ export default function Portfolio() {
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
             userReaction: null,
           }));
-          // Agar ma'lumotlar bo'sh bo'lsa, default ma'lumotlarni ko'rsatish
-          if (formattedQuotes.length === 0) {
-            setBookQuotes(defaultBookQuotes);
-          } else {
-            setBookQuotes(formattedQuotes);
-          }
+          console.log('Formatted quotes:', formattedQuotes);
+          setBookQuotes(formattedQuotes);
         } else {
+          console.log('No quotes found, using defaults');
           setBookQuotes(defaultBookQuotes);
         }
       } catch (error) {
@@ -1041,17 +1040,21 @@ export default function Portfolio() {
       try {
         const res = await fetch('/api/gallery');
         const result = await res.json();
-        if (result.success && result.data) {
-          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[]; created_at: string }) => ({
+        console.log('Gallery API response:', result);
+        
+        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
             id: item.id,
             title: item.title,
             description: item.description,
             category: item.category as GalleryItem['category'],
-            images: item.images || [],
+            images: Array.isArray(item.images) ? item.images : [],
             date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           }));
+          console.log('Formatted gallery items:', formattedItems);
           setGalleryItems(formattedItems);
         } else {
+          console.log('No gallery items found, using defaults');
           setGalleryItems(defaultGalleryItems);
         }
       } catch (error) {
@@ -1180,6 +1183,11 @@ export default function Portfolio() {
   const handleBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!bookFormTitle.trim() || !bookFormQuote.trim()) {
+      alert('Kitob nomi va fikrni kiriting!');
+      return;
+    }
+    
     try {
       if (editingQuote) {
         // Update existing quote
@@ -1202,6 +1210,9 @@ export default function Portfolio() {
               ? { ...q, bookTitle: bookFormTitle, author: bookFormAuthor, quote: bookFormQuote, image: bookFormImage }
               : q
           ));
+          closeBookModal();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
         }
       } else {
         // Create new quote
@@ -1217,7 +1228,7 @@ export default function Portfolio() {
         });
         const result = await res.json();
         
-        if (result.success) {
+        if (result.success && result.data) {
           const newQuote: BookQuote = {
             id: result.data.id,
             bookTitle: bookFormTitle,
@@ -1229,9 +1240,11 @@ export default function Portfolio() {
             userReaction: null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
+          closeBookModal();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
         }
       }
-      closeBookModal();
     } catch (error) {
       console.error('Failed to save book quote:', error);
       alert('Saqlashda xatolik yuz berdi');
@@ -1408,6 +1421,9 @@ export default function Portfolio() {
               ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
               : item
           ));
+          closeGalleryModal();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
         }
       } else {
         // Create new gallery item
@@ -1423,7 +1439,7 @@ export default function Portfolio() {
         });
         const result = await res.json();
         
-        if (result.success) {
+        if (result.success && result.data) {
           const newItem: GalleryItem = {
             id: result.data.id,
             title: galleryFormTitle,
@@ -1433,9 +1449,11 @@ export default function Portfolio() {
             date: today,
           };
           setGalleryItems([newItem, ...galleryItems]);
+          closeGalleryModal();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
         }
       }
-      closeGalleryModal();
     } catch (error) {
       console.error('Failed to save gallery item:', error);
       alert('Saqlashda xatolik yuz berdi');
