@@ -1016,7 +1016,12 @@ export default function Portfolio() {
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
             userReaction: null,
           }));
-          setBookQuotes(formattedQuotes);
+          // Agar ma'lumotlar bo'sh bo'lsa, default ma'lumotlarni ko'rsatish
+          if (formattedQuotes.length === 0) {
+            setBookQuotes(defaultBookQuotes);
+          } else {
+            setBookQuotes(formattedQuotes);
+          }
         } else {
           setBookQuotes(defaultBookQuotes);
         }
