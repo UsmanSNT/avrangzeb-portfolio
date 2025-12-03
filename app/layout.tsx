@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   verification: {
-    google: 'your-google-verification-code', // Google Search Console dan olinadi
+    google: 'hkkXR8HTrCqInv8nhznuiC0MdS2AqZqSsmD9S-7wKU4',
   },
   alternates: {
     canonical: 'https://avrangzeb-portfolio.vercel.app',
