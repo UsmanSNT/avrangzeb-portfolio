@@ -2,12 +2,22 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
 // GET - Barcha galereya elementlarini olish
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { data, error } = await supabase
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    
+    let query = supabase
       .from('portfolio_gallery_rows')
       .select('*')
       .order('created_at', { ascending: false });
+    
+    // Agar userId berilgan bo'lsa, faqat o'sha foydalanuvchining ma'lumotlarini olish
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query;
 
     if (error) throw error;
 
@@ -24,11 +34,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, images } = body;
+    const { title, description, category, images, user_id } = body;
 
     const { data, error } = await supabase
       .from('portfolio_gallery_rows')
-      .insert([{ title, description, category, images: images || [] }])
+      .insert([{ title, description, category, images: images || [], user_id }])
       .select()
       .single();
 

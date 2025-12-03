@@ -29,17 +29,22 @@ export default function UserDashboard() {
   }, []);
 
   const loadStats = async () => {
+    if (!user) return;
+    
     try {
-      // Qaydlar soni
-      const notesRes = await fetch('/api/notes');
+      // Foydalanuvchi o'zi yaratgan ma'lumotlarni olish
+      const userId = user.id;
+      
+      // Qaydlar soni (faqat foydalanuvchi o'zi yaratgan)
+      const notesRes = await fetch(`/api/notes?userId=${userId}`);
       const notesData = await notesRes.json();
       
-      // Galereya soni
-      const galleryRes = await fetch('/api/gallery');
+      // Galereya soni (faqat foydalanuvchi o'zi yaratgan)
+      const galleryRes = await fetch(`/api/gallery?userId=${userId}`);
       const galleryData = await galleryRes.json();
       
-      // Kitob fikrlari soni
-      const quotesRes = await fetch('/api/book-quotes');
+      // Kitob fikrlari soni (faqat foydalanuvchi o'zi yaratgan)
+      const quotesRes = await fetch(`/api/book-quotes?userId=${userId}`);
       const quotesData = await quotesRes.json();
 
       setStats({
@@ -79,16 +84,16 @@ export default function UserDashboard() {
         return;
       }
 
-      // Admin yoki super_admin bo'lsa admin panelga yo'naltirish
-      if (profile.role === 'admin' || profile.role === 'super_admin') {
-        router.push('/admin');
-        return;
-      }
+      // Admin yoki super_admin bo'lsa ham dashboard'da qoladi
+      // Lekin admin panelga ham kirish imkoniyati bor
 
       setUser(profile);
       setFullName(profile.full_name || '');
       setAvatarUrl(profile.avatar_url);
       setIsLoading(false);
+      
+      // Statistikalarni yuklash
+      loadStats();
     } catch (error) {
       console.error('Auth check error:', error);
       router.push('/auth/login');
@@ -202,22 +207,54 @@ export default function UserDashboard() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-cyan-500/20 to-violet-600/20 rounded-2xl p-6 sm:p-8 mb-8 border border-cyan-500/30">
+        <div className={`rounded-2xl p-6 sm:p-8 mb-8 border ${
+          user?.role === 'super_admin' 
+            ? 'bg-gradient-to-r from-yellow-500/20 to-orange-600/20 border-yellow-500/30' 
+            : user?.role === 'admin'
+            ? 'bg-gradient-to-r from-slate-400/20 to-slate-600/20 border-slate-400/30'
+            : 'bg-gradient-to-r from-cyan-500/20 to-violet-600/20 border-cyan-500/30'
+        }`}>
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative">
               {avatarUrl ? (
                 <img 
                   src={avatarUrl} 
                   alt={user?.full_name || 'Avatar'} 
-                  className="w-20 h-20 rounded-full object-cover border-2 border-cyan-500"
+                  className={`w-20 h-20 rounded-full object-cover border-2 ${
+                    user?.role === 'super_admin' 
+                      ? 'border-yellow-500' 
+                      : user?.role === 'admin'
+                      ? 'border-slate-400'
+                      : 'border-cyan-500'
+                  }`}
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white border-2 border-cyan-500">
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-white border-2 ${
+                  user?.role === 'super_admin' 
+                    ? 'bg-gradient-to-br from-yellow-500 to-orange-600 border-yellow-500' 
+                    : user?.role === 'admin'
+                    ? 'bg-gradient-to-br from-slate-400 to-slate-600 border-slate-400'
+                    : 'bg-gradient-to-br from-cyan-500 to-violet-600 border-cyan-500'
+                }`}>
                   {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
                 </div>
               )}
+              {/* Admin uchun kumush toj */}
+              {user?.role === 'admin' && (
+                <div className="absolute -top-2 -right-2 text-2xl animate-pulse text-slate-300">👑</div>
+              )}
+              {/* Super Admin uchun sariq toj */}
+              {user?.role === 'super_admin' && (
+                <div className="absolute -top-2 -right-2 text-2xl animate-pulse text-yellow-400">👑</div>
+              )}
               {isEditing && (
-                <label className="absolute bottom-0 right-0 p-2 bg-cyan-500 rounded-full cursor-pointer hover:bg-cyan-600 transition-colors">
+                <label className={`absolute bottom-0 right-0 p-2 rounded-full cursor-pointer transition-colors ${
+                  user?.role === 'super_admin' 
+                    ? 'bg-yellow-500 hover:bg-yellow-600' 
+                    : user?.role === 'admin'
+                    ? 'bg-slate-400 hover:bg-slate-500'
+                    : 'bg-cyan-500 hover:bg-cyan-600'
+                }`}>
                   <input
                     type="file"
                     accept="image/*"
@@ -240,12 +277,23 @@ export default function UserDashboard() {
               )}
             </div>
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2 justify-center sm:justify-start">
                 Xush kelibsiz, {user?.full_name || 'Foydalanuvchi'}!
+                {user?.role === 'admin' && (
+                  <span className="text-slate-300 text-xl" title="Admin">👑</span>
+                )}
               </h2>
               <p className="text-slate-400 mt-1">{user?.email}</p>
-              <span className="inline-block mt-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">
-                Faol hisob
+              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${
+                user?.role === 'super_admin' 
+                  ? 'bg-yellow-500/20 text-yellow-400' 
+                  : user?.role === 'admin'
+                  ? 'bg-slate-400/20 text-slate-300'
+                  : 'bg-green-500/20 text-green-400'
+              }`}>
+                {user?.role === 'super_admin' ? '👑 Super Admin' : 
+                 user?.role === 'admin' ? '👑 Admin' : 
+                 'Faol hisob'}
               </span>
             </div>
           </div>
@@ -308,10 +356,23 @@ export default function UserDashboard() {
 
             <div>
               <label className="block text-sm text-slate-400 mb-2">Hisob turi</label>
-              <p className="text-white text-lg">
-                {user?.role === 'super_admin' ? '👑 Super Admin' : 
-                 user?.role === 'admin' ? '🔧 Admin' : 
-                 '👤 Oddiy foydalanuvchi'}
+              <p className="text-white text-lg flex items-center gap-2">
+                {user?.role === 'super_admin' ? (
+                  <>
+                    <span className="text-yellow-400 animate-pulse">👑</span>
+                    <span>Super Admin</span>
+                  </>
+                ) : user?.role === 'admin' ? (
+                  <>
+                    <span className="text-slate-300">👑</span>
+                    <span className="text-slate-300">Admin</span>
+                  </>
+                ) : (
+                  <>
+                    <span>👤</span>
+                    <span>Oddiy foydalanuvchi</span>
+                  </>
+                )}
               </p>
             </div>
 

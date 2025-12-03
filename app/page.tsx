@@ -1216,6 +1216,8 @@ export default function Portfolio() {
         }
       } else {
         // Create new quote
+        // Foydalanuvchi ID ni olish
+        const { data: { user } } = await supabase.auth.getUser();
         const res = await fetch('/api/book-quotes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1224,6 +1226,7 @@ export default function Portfolio() {
             author: bookFormAuthor,
             quote: bookFormQuote,
             image_url: bookFormImage,
+            user_id: user?.id || null,
           }),
         });
         const result = await res.json();
@@ -1427,6 +1430,8 @@ export default function Portfolio() {
         }
       } else {
         // Create new gallery item
+        // Foydalanuvchi ID ni olish
+        const { data: { user } } = await supabase.auth.getUser();
         const res = await fetch('/api/gallery', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1435,6 +1440,7 @@ export default function Portfolio() {
             description: galleryFormDescription,
             category: galleryFormCategory,
             images: galleryFormImages,
+            user_id: user?.id || null,
           }),
         });
         const result = await res.json();
