@@ -16,6 +16,7 @@ const translations = {
       projects: "Maqsadlar",
       books: "Kitob fikrlari",
       gallery: "Galereya",
+      myProjects: "Loyihalar",
       notes: "Qaydlar",
       contact: "Aloqa",
     },
@@ -132,6 +133,32 @@ const translations = {
       viewAll: "Barchasini ko'rish",
       close: "Yopish",
     },
+    myProjects: {
+      title: "Loyihalarim",
+      subtitle: "Men yaratgan web loyihalar",
+      viewProject: "Loyihani ko'rish",
+      technologies: "Texnologiyalar",
+      projects: [
+        {
+          id: 1,
+          title: "Bir Ilm",
+          description: "Ilm-fan platformasi - o'qilgan kitoblar taqrizi, Pomodoro taymer, foydalanuvchi tizimi. Bilimlarni ulashish va kitob muhokamalarini o'tkazish uchun jamoa platformasi.",
+          image: "/images/bir-ilm.png",
+          link: "https://bir-ilm.vercel.app",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-emerald-500 to-teal-500",
+        },
+        {
+          id: 2,
+          title: "Uz Travel",
+          description: "Sayyohlar uchun O'zbekiston haqida ma'lumot - turli shaharlar, xizmatlar, galereya. O'zbekistondagi sayohat joylarini tanlash va ma'lumot olish platformasi.",
+          image: "/images/uz-travel.png",
+          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-cyan-500 to-blue-500",
+        },
+      ],
+    },
     contact: {
       title: "Bog'lanish",
       subtitle: "Men bilan bog'laning",
@@ -160,6 +187,7 @@ const translations = {
       projects: "Goals",
       books: "Book Quotes",
       gallery: "Gallery",
+      myProjects: "Projects",
       notes: "Notes",
       contact: "Contact",
     },
@@ -276,6 +304,32 @@ const translations = {
       viewAll: "View All",
       close: "Close",
     },
+    myProjects: {
+      title: "My Projects",
+      subtitle: "Web projects I've created",
+      viewProject: "View Project",
+      technologies: "Technologies",
+      projects: [
+        {
+          id: 1,
+          title: "Bir Ilm",
+          description: "Educational platform - book reviews, Pomodoro timer, user system. A community platform for sharing knowledge and conducting book discussions.",
+          image: "/images/bir-ilm.png",
+          link: "https://bir-ilm.vercel.app",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-emerald-500 to-teal-500",
+        },
+        {
+          id: 2,
+          title: "Uz Travel",
+          description: "Information about Uzbekistan for tourists - various cities, services, gallery. A platform for selecting travel destinations and getting information about Uzbekistan.",
+          image: "/images/uz-travel.png",
+          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-cyan-500 to-blue-500",
+        },
+      ],
+    },
     contact: {
       title: "Contact",
       subtitle: "Get in Touch",
@@ -304,6 +358,7 @@ const translations = {
       projects: "목표",
       books: "책 인용구",
       gallery: "갤러리",
+      myProjects: "프로젝트",
       notes: "노트",
       contact: "연락처",
     },
@@ -419,6 +474,32 @@ const translations = {
       confirmDelete: "이 갤러리를 삭제하시겠습니까?",
       viewAll: "모두 보기",
       close: "닫기",
+    },
+    myProjects: {
+      title: "내 프로젝트",
+      subtitle: "내가 만든 웹 프로젝트",
+      viewProject: "프로젝트 보기",
+      technologies: "기술 스택",
+      projects: [
+        {
+          id: 1,
+          title: "Bir Ilm",
+          description: "교육 플랫폼 - 도서 리뷰, 뽀모도로 타이머, 사용자 시스템. 지식 공유와 도서 토론을 위한 커뮤니티 플랫폼입니다.",
+          image: "/images/bir-ilm.png",
+          link: "https://bir-ilm.vercel.app",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-emerald-500 to-teal-500",
+        },
+        {
+          id: 2,
+          title: "Uz Travel",
+          description: "관광객을 위한 우즈베키스탄 정보 - 다양한 도시, 서비스, 갤러리. 우즈베키스탄의 여행지 선택과 정보 제공 플랫폼입니다.",
+          image: "/images/uz-travel.png",
+          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
+          technologies: ["HTML", "CSS", "JavaScript"],
+          color: "from-cyan-500 to-blue-500",
+        },
+      ],
     },
     contact: {
       title: "연락처",
@@ -1441,6 +1522,7 @@ export default function Portfolio() {
               {[
                 { id: "books", label: t.nav.books },
                 { id: "gallery", label: t.nav.gallery },
+                { id: "my-projects", label: t.nav.myProjects },
                 { id: "notes", label: t.nav.notes, isLink: true },
               ].map((item) => (
                 item.id === "notes" ? (
@@ -1534,6 +1616,7 @@ export default function Portfolio() {
                 {[
                   { id: "books", label: t.nav.books },
                   { id: "gallery", label: t.nav.gallery },
+                  { id: "my-projects", label: t.nav.myProjects },
                   { id: "notes", label: t.nav.notes, isLink: true },
                 ].map((item) => (
                   item.id === "notes" ? (
@@ -2556,6 +2639,89 @@ export default function Portfolio() {
           </div>
         </div>
       )}
+
+      {/* My Projects Section */}
+      <section id="my-projects" className="py-16 sm:py-24 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              <span className="gradient-text">🚀 {t.myProjects.title}</span>
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
+              {t.myProjects.subtitle}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+            {t.myProjects.projects.map((project) => (
+              <div
+                key={project.id}
+                className="group relative bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10"
+              >
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                
+                {/* Project Image/Preview */}
+                <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-20`}></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br ${project.color} flex items-center justify-center shadow-lg`}>
+                        {project.id === 1 ? (
+                          <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        ) : (
+                          <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white">{project.title}</h3>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                </div>
+
+                {/* Content */}
+                <div className="relative p-5 sm:p-6">
+                  <p className="text-slate-400 text-sm sm:text-base mb-4 line-clamp-3">
+                    {project.description}
+                  </p>
+
+                  {/* Technologies */}
+                  <div className="mb-4">
+                    <p className="text-xs text-slate-500 mb-2">{t.myProjects.technologies}:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* View Project Button */}
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${project.color} rounded-lg text-white font-medium text-sm hover:shadow-lg transition-all duration-300`}
+                  >
+                    {t.myProjects.viewProject}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
 {/* Contact Section */}
       <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
