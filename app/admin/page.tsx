@@ -161,7 +161,7 @@ export default function AdminDashboard() {
       case 'super_admin':
         return 'bg-yellow-500/20 text-yellow-400';
       case 'admin':
-        return 'bg-red-500/20 text-red-400';
+        return 'bg-slate-400/20 text-slate-300';
       default:
         return 'bg-green-500/20 text-green-400';
     }
