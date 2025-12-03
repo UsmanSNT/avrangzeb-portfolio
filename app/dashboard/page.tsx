@@ -18,7 +18,9 @@ export default function UserDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [stats, setStats] = useState<Stats>({ notes: 0, gallery: 0, quotes: 0 });
 
   useEffect(() => {
@@ -41,9 +43,9 @@ export default function UserDashboard() {
       const quotesData = await quotesRes.json();
 
       setStats({
-        notes: Array.isArray(notesData) ? notesData.length : 0,
-        gallery: Array.isArray(galleryData) ? galleryData.length : 0,
-        quotes: Array.isArray(quotesData) ? quotesData.length : 0,
+        notes: (notesData?.success && Array.isArray(notesData.data)) ? notesData.data.length : (Array.isArray(notesData) ? notesData.length : 0),
+        gallery: (galleryData?.success && Array.isArray(galleryData.data)) ? galleryData.data.length : (Array.isArray(galleryData) ? galleryData.length : 0),
+        quotes: (quotesData?.success && Array.isArray(quotesData.data)) ? quotesData.data.length : (Array.isArray(quotesData) ? quotesData.length : 0),
       });
     } catch (error) {
       console.error('Stats load error:', error);
@@ -77,17 +79,49 @@ export default function UserDashboard() {
         return;
       }
 
-      if (profile.role === 'admin') {
+      // Admin yoki super_admin bo'lsa admin panelga yo'naltirish
+      if (profile.role === 'admin' || profile.role === 'super_admin') {
         router.push('/admin');
         return;
       }
 
       setUser(profile);
       setFullName(profile.full_name || '');
+      setAvatarUrl(profile.avatar_url);
       setIsLoading(false);
     } catch (error) {
       console.error('Auth check error:', error);
       router.push('/auth/login');
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const result = await res.json();
+      
+      if (result.success) {
+        setAvatarUrl(result.data.url);
+        // Avtomatik saqlash
+        await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            avatar_url: result.data.url
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -101,7 +135,8 @@ export default function UserDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
-          full_name: fullName
+          full_name: fullName,
+          avatar_url: avatarUrl
         })
       });
 
@@ -169,8 +204,40 @@ export default function UserDashboard() {
         {/* Welcome Banner */}
         <div className="bg-gradient-to-r from-cyan-500/20 to-violet-600/20 rounded-2xl p-6 sm:p-8 mb-8 border border-cyan-500/30">
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white">
-              {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
+            <div className="relative">
+              {avatarUrl ? (
+                <img 
+                  src={avatarUrl} 
+                  alt={user?.full_name || 'Avatar'} 
+                  className="w-20 h-20 rounded-full object-cover border-2 border-cyan-500"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white border-2 border-cyan-500">
+                  {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
+                </div>
+              )}
+              {isEditing && (
+                <label className="absolute bottom-0 right-0 p-2 bg-cyan-500 rounded-full cursor-pointer hover:bg-cyan-600 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={isUploadingAvatar}
+                  />
+                  {isUploadingAvatar ? (
+                    <svg className="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
+                </label>
+              )}
             </div>
             <div className="text-center sm:text-left">
               <h2 className="text-2xl font-bold text-white">
@@ -241,7 +308,11 @@ export default function UserDashboard() {
 
             <div>
               <label className="block text-sm text-slate-400 mb-2">Hisob turi</label>
-              <p className="text-white text-lg">Oddiy foydalanuvchi</p>
+              <p className="text-white text-lg">
+                {user?.role === 'super_admin' ? '👑 Super Admin' : 
+                 user?.role === 'admin' ? '🔧 Admin' : 
+                 '👤 Oddiy foydalanuvchi'}
+              </p>
             </div>
 
             <div>
