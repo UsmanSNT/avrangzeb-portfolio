@@ -84,6 +84,7 @@ const translations = {
       addNew: "Yangi fikr qo'shish",
       noQuotes: "Hali fikrlar yo'q",
       addFirst: "Birinchi fikrni qo'shing",
+      viewAll: "Barchasini ko'rish",
       bookTitle: "Kitob nomi",
       bookTitlePlaceholder: "Masalan: Atomik odatlar",
       author: "Muallif",
@@ -254,6 +255,7 @@ const translations = {
       subtitle: "Inspiring thoughts and conclusions from books I've read",
       addNew: "Add New Quote",
       noQuotes: "No quotes yet",
+      viewAll: "View All",
       addFirst: "Add your first quote",
       bookTitle: "Book Title",
       bookTitlePlaceholder: "e.g., Atomic Habits",
@@ -425,6 +427,7 @@ const translations = {
       subtitle: "읽은 책에서 영감을 주는 생각과 결론",
       addNew: "새 인용구 추가",
       noQuotes: "아직 인용구가 없습니다",
+      viewAll: "모두 보기",
       addFirst: "첫 번째 인용구를 추가하세요",
       bookTitle: "책 제목",
       bookTitlePlaceholder: "예: 아주 작은 습관의 힘",
@@ -1950,8 +1953,10 @@ export default function Portfolio() {
               )}
             </div>
           ) : (
+            <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {bookQuotes.map((quote) => {
+              {/* TOP 5 - sorted by likes */}
+              {[...bookQuotes].sort((a, b) => b.likes - a.likes).slice(0, 5).map((quote) => {
                 const isExpanded = expandedQuotes.has(quote.id);
                 const isLongQuote = quote.quote.length > 200;
                 
@@ -2085,6 +2090,22 @@ export default function Portfolio() {
                 </div>
               )})}
             </div>
+            
+            {/* View All Button */}
+            {bookQuotes.length > 5 && (
+              <div className="text-center mt-8">
+                <a
+                  href="/books"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                >
+                  {t.books.viewAll} ({bookQuotes.length})
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>
@@ -2258,8 +2279,10 @@ export default function Portfolio() {
               )}
             </div>
           ) : (
+            <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {galleryItems.map((item) => (
+              {/* TOP 5 gallery items */}
+              {galleryItems.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
                   className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
@@ -2353,6 +2376,22 @@ export default function Portfolio() {
                 </div>
               ))}
             </div>
+            
+            {/* View All Button */}
+            {galleryItems.length > 5 && (
+              <div className="text-center mt-8">
+                <a
+                  href="/gallery"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                >
+                  {t.gallery.viewAll} ({galleryItems.length})
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>
@@ -2903,3 +2942,4 @@ export default function Portfolio() {
     </div>
   );
 }
+
