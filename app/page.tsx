@@ -1006,14 +1006,14 @@ export default function Portfolio() {
         const res = await fetch('/api/book-quotes');
         const result = await res.json();
         if (result.success && result.data) {
-          const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: number }) => ({
+          const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
             bookTitle: q.book_title,
             author: q.author,
             quote: q.quote,
             image: q.image_url,
             likes: q.likes || 0,
-            dislikes: q.dislikes || 0,
+            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
             userReaction: null,
           }));
           setBookQuotes(formattedQuotes);
@@ -1037,13 +1037,13 @@ export default function Portfolio() {
         const res = await fetch('/api/gallery');
         const result = await res.json();
         if (result.success && result.data) {
-          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[]; date: string }) => ({
+          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[]; created_at: string }) => ({
             id: item.id,
             title: item.title,
             description: item.description,
             category: item.category as GalleryItem['category'],
             images: item.images || [],
-            date: item.date,
+            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           }));
           setGalleryItems(formattedItems);
         } else {

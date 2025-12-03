@@ -70,15 +70,15 @@ export default function AdminDashboard() {
 
     // Statistika
     const { count: quotesCount } = await supabase
-      .from('portfolio_book_quotes')
+      .from('portfolio_book_quotes_rows')
       .select('*', { count: 'exact', head: true });
 
     const { count: galleryCount } = await supabase
-      .from('portfolio_gallery')
+      .from('portfolio_gallery_rows')
       .select('*', { count: 'exact', head: true });
 
     const { count: notesCount } = await supabase
-      .from('portfolio_notes')
+      .from('portfolio_notes_rows')
       .select('*', { count: 'exact', head: true });
 
     setStats({

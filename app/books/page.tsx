@@ -167,7 +167,7 @@ export default function BooksPage() {
             quote: q.quote,
             image: q.image_url,
             likes: q.likes || 0,
-            dislikes: q.dislikes || 0,
+            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
             userReaction: null,
           }));
           // Sort by likes (top first)

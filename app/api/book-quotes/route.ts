@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export async function GET() {
   try {
     const { data, error } = await supabase
-      .from('portfolio_book_quotes')
+      .from('portfolio_book_quotes_rows')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     const { book_title, author, quote, image_url } = body;
 
     const { data, error } = await supabase
-      .from('portfolio_book_quotes')
-      .insert([{ book_title, author, quote, image_url }])
+      .from('portfolio_book_quotes_rows')
+      .insert([{ book_title, author, quote, image_url, likes: 0, dislikes: '0' }])
       .select()
       .single();
 
@@ -55,10 +55,13 @@ export async function PUT(request: Request) {
     if (quote !== undefined) updateData.quote = quote;
     if (image_url !== undefined) updateData.image_url = image_url;
     if (likes !== undefined) updateData.likes = likes;
-    if (dislikes !== undefined) updateData.dislikes = dislikes;
-
+    // dislikes ni stringga o'zgartirish (jadvalda text formatida)
+    if (dislikes !== undefined) {
+      updateData.dislikes = String(dislikes);
+    }
+    
     const { data, error } = await supabase
-      .from('portfolio_book_quotes')
+      .from('portfolio_book_quotes_rows')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -89,7 +92,7 @@ export async function DELETE(request: Request) {
     }
 
     const { error } = await supabase
-      .from('portfolio_book_quotes')
+      .from('portfolio_book_quotes_rows')
       .delete()
       .eq('id', id);
 

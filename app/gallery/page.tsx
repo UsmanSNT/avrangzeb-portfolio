@@ -171,7 +171,7 @@ export default function GalleryPage() {
             description: item.description,
             category: item.category as GalleryItem['category'],
             images: item.images || [],
-            date: item.date,
+            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           }));
           setGalleryItems(formattedItems);
         }

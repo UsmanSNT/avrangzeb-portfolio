@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export async function GET() {
   try {
     const { data, error } = await supabase
-      .from('portfolio_gallery')
+      .from('portfolio_gallery_rows')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const { title, description, category, images } = body;
 
     const { data, error } = await supabase
-      .from('portfolio_gallery')
+      .from('portfolio_gallery_rows')
       .insert([{ title, description, category, images: images || [] }])
       .select()
       .single();
@@ -56,7 +56,7 @@ export async function PUT(request: Request) {
     if (images !== undefined) updateData.images = images;
 
     const { data, error } = await supabase
-      .from('portfolio_gallery')
+      .from('portfolio_gallery_rows')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -87,7 +87,7 @@ export async function DELETE(request: Request) {
     }
 
     const { error } = await supabase
-      .from('portfolio_gallery')
+      .from('portfolio_gallery_rows')
       .delete()
       .eq('id', id);
 
