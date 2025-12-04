@@ -1404,18 +1404,26 @@ export default function Portfolio() {
         // Update existing gallery item
         // Session token olish
         const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          alert('Xato: Ma\'lumot yangilash uchun tizimga kiring');
+          return;
+        }
+        
         const { data: { session } } = await supabase.auth.getSession();
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         
         let accessToken = session?.access_token;
-        if (!accessToken && authUser) {
+        if (!accessToken) {
           const { data: { session: newSession } } = await supabase.auth.getSession();
           accessToken = newSession?.access_token;
         }
         
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
+        if (!accessToken) {
+          alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+          return;
         }
+        
+        headers['Authorization'] = `Bearer ${accessToken}`;
         
         const res = await fetch('/api/gallery', {
           method: 'PUT',
