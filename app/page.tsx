@@ -1328,16 +1328,48 @@ export default function Portfolio() {
 
     // Update in database
     try {
-      await fetch('/api/book-quotes', {
+      // Session token olish
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      
+      let accessToken = session?.access_token;
+      if (!accessToken && authUser) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+      
+      const res = await fetch('/api/book-quotes', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           id,
           likes: newLikes,
           dislikes: newDislikes,
         }),
       });
+      
+      const result = await res.json();
+      if (!result.success) {
+        // Agar xato bo'lsa, optimistik update'ni bekor qilish
+        setBookQuotes(bookQuotes.map(q => 
+          q.id === id 
+            ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction }
+            : q
+        ));
+        console.error('Failed to update reaction:', result.error);
+      }
     } catch (error) {
+      // Agar xato bo'lsa, optimistik update'ni bekor qilish
+      setBookQuotes(bookQuotes.map(q => 
+        q.id === id 
+          ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction }
+          : q
+      ));
       console.error('Failed to update reaction:', error);
     }
   };

@@ -254,39 +254,46 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
-    // RLS policy tufayli, agar foydalanuvchi huquqi bo'lmasa, qator topilmaydi
-    const { data: existingQuotes, error: fetchError } = await supabase
-      .from('portfolio_book_quotes_rows')
-      .select('id, user_id')
-      .eq('id', id);
-    
-    const existingQuote = existingQuotes && existingQuotes.length > 0 ? existingQuotes[0] : null;
+    // Agar faqat likes/dislikes yangilanayotgan bo'lsa (reaksiya), authentication tekshirish shart emas
+    // Chunki barcha foydalanuvchilar reaksiya berishi mumkin
+    const isReactionUpdate = likes !== undefined || dislikes !== undefined;
+    const isContentUpdate = book_title !== undefined || author !== undefined || quote !== undefined || image_url !== undefined;
 
-    if (fetchError || !existingQuote) {
-      console.error('Quote not found:', fetchError);
-      return NextResponse.json(
-        { success: false, error: 'Kitob fikri topilmadi yoki sizda unga kirish huquqi yo\'q' },
-        { status: 404 }
-      );
-    }
+    // Agar content yangilanayotgan bo'lsa, huquqni tekshirish
+    if (isContentUpdate) {
+      // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
+      const { data: existingQuotes, error: fetchError } = await supabase
+        .from('portfolio_book_quotes_rows')
+        .select('id, user_id')
+        .eq('id', id);
+      
+      const existingQuote = existingQuotes && existingQuotes.length > 0 ? existingQuotes[0] : null;
 
-    // Foydalanuvchi huquqini tekshirish
-    const { data: profiles, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id);
-    
-    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
+      if (fetchError || !existingQuote) {
+        console.error('Quote not found:', fetchError);
+        return NextResponse.json(
+          { success: false, error: 'Kitob fikri topilmadi yoki sizda unga kirish huquqi yo\'q' },
+          { status: 404 }
+        );
+      }
 
-    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
-    const isOwner = existingQuote.user_id === user.id;
+      // Foydalanuvchi huquqini tekshirish
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id);
+      
+      const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
-    if (!isAdmin && !isOwner) {
-      return NextResponse.json(
-        { success: false, error: 'Sizda bu fikrni yangilash huquqi yo\'q' },
-        { status: 403 }
-      );
+      const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+      const isOwner = existingQuote.user_id === user.id;
+
+      if (!isAdmin && !isOwner) {
+        return NextResponse.json(
+          { success: false, error: 'Sizda bu fikrni yangilash huquqi yo\'q' },
+          { status: 403 }
+        );
+      }
     }
 
     const updateData: Record<string, unknown> = {};
