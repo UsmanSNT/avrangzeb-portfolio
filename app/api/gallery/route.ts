@@ -326,12 +326,22 @@ export async function DELETE(request: Request) {
     const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
     const isOwner = existingItem.user_id === user.id;
 
-    // Agar user_id null bo'lsa va admin bo'lsa, o'chirishga ruxsat berish
-    if (!isAdmin && !isOwner && existingItem.user_id !== null) {
-      return NextResponse.json(
-        { success: false, error: 'Sizda bu elementni o\'chirish huquqi yo\'q' },
-        { status: 403 }
-      );
+    // Agar user_id null bo'lsa, faqat admin o'chira oladi
+    if (existingItem.user_id === null) {
+      if (!isAdmin) {
+        return NextResponse.json(
+          { success: false, error: 'Bu elementni faqat admin o\'chira oladi' },
+          { status: 403 }
+        );
+      }
+    } else {
+      // Agar user_id null emas, owner yoki admin bo'lishi kerak
+      if (!isAdmin && !isOwner) {
+        return NextResponse.json(
+          { success: false, error: 'Sizda bu elementni o\'chirish huquqi yo\'q' },
+          { status: 403 }
+        );
+      }
     }
 
     const { error } = await supabase
