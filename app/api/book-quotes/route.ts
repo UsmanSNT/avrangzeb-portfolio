@@ -207,26 +207,29 @@ export async function PUT(request: Request) {
     }
 
     // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
-    const { data: existingQuote, error: fetchError } = await supabase
+    // RLS policy tufayli, agar foydalanuvchi huquqi bo'lmasa, qator topilmaydi
+    const { data: existingQuotes, error: fetchError } = await supabase
       .from('portfolio_book_quotes_rows')
       .select('id, user_id')
-      .eq('id', id)
-      .single();
+      .eq('id', id);
+    
+    const existingQuote = existingQuotes && existingQuotes.length > 0 ? existingQuotes[0] : null;
 
     if (fetchError || !existingQuote) {
       console.error('Quote not found:', fetchError);
       return NextResponse.json(
-        { success: false, error: 'Kitob fikri topilmadi' },
+        { success: false, error: 'Kitob fikri topilmadi yoki sizda unga kirish huquqi yo\'q' },
         { status: 404 }
       );
     }
 
     // Foydalanuvchi huquqini tekshirish
-    const { data: profile } = await supabase
+    const { data: profiles, error: profileError } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('id', user.id);
+    
+    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
     const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
     const isOwner = existingQuote.user_id === user.id;
@@ -313,26 +316,29 @@ export async function DELETE(request: Request) {
     }
 
     // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
-    const { data: existingQuote, error: fetchError } = await supabase
+    // RLS policy tufayli, agar foydalanuvchi huquqi bo'lmasa, qator topilmaydi
+    const { data: existingQuotes, error: fetchError } = await supabase
       .from('portfolio_book_quotes_rows')
       .select('id, user_id')
-      .eq('id', id)
-      .single();
+      .eq('id', id);
+    
+    const existingQuote = existingQuotes && existingQuotes.length > 0 ? existingQuotes[0] : null;
 
     if (fetchError || !existingQuote) {
       console.error('Quote not found:', fetchError);
       return NextResponse.json(
-        { success: false, error: 'Kitob fikri topilmadi' },
+        { success: false, error: 'Kitob fikri topilmadi yoki sizda unga kirish huquqi yo\'q' },
         { status: 404 }
       );
     }
 
     // Foydalanuvchi huquqini tekshirish
-    const { data: profile } = await supabase
+    const { data: profiles, error: profileError } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
-      .single();
+      .eq('id', user.id);
+    
+    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
     const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
     const isOwner = existingQuote.user_id === user.id;
