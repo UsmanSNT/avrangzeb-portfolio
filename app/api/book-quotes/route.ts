@@ -1,10 +1,69 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+
+// Helper function to create Supabase client
+function createSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
+
+// Helper function to create authenticated Supabase client from request
+async function createAuthenticatedClient(request: Request) {
+  const supabase = createSupabaseClient();
+  
+  // Request header'dan Authorization token olish
+  const authHeader = request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    // Token bilan client yaratish
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (user) {
+      return { supabase, user };
+    }
+  }
+  
+  // Cookie'lardan token olish
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=');
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>);
+    
+    // Supabase cookie nomlarini topish
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const projectRef = supabaseUrl.split('//')[1].split('.')[0];
+    const accessTokenKey = `sb-${projectRef}-auth-token`;
+    const refreshTokenKey = `sb-${projectRef}-auth-refresh-token`;
+    
+    const accessToken = cookies[accessTokenKey];
+    const refreshToken = cookies[refreshTokenKey];
+    
+    if (accessToken && refreshToken) {
+      try {
+        const { data: { session }, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (session && !error) {
+          return { supabase, user: session.user };
+        }
+      } catch (e) {
+        console.error('Session set error:', e);
+      }
+    }
+  }
+  
+  return { supabase, user: null };
+}
 
 // GET - Barcha kitob fikrlarini olish
 export async function GET(request: Request) {
   try {
+    const supabase = createSupabaseClient();
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     
@@ -34,24 +93,10 @@ export async function GET(request: Request) {
 // POST - Yangi kitob fikri qo'shish
 export async function POST(request: Request) {
   try {
-    // Server-side Supabase client yaratish
-    const cookieStore = await cookies();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    // Server-side Supabase client yaratish va authentication tekshirish
+    const { supabase, user } = await createAuthenticatedClient(request);
     
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    });
-
-    // Authentication tekshirish
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      console.error('Auth error:', authError);
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
         { status: 401 }
@@ -104,6 +149,7 @@ export async function POST(request: Request) {
 // PUT - Kitob fikrni yangilash
 export async function PUT(request: Request) {
   try {
+    const supabase = createSupabaseClient();
     const body = await request.json();
     const { id, book_title, author, quote, image_url, likes, dislikes } = body;
 
@@ -139,6 +185,7 @@ export async function PUT(request: Request) {
 // DELETE - Kitob fikrni o'chirish
 export async function DELETE(request: Request) {
   try {
+    const supabase = createSupabaseClient();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
