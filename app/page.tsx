@@ -1497,15 +1497,8 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success && result.data) {
-          const newItem: GalleryItem = {
-            id: result.data.id,
-            title: galleryFormTitle,
-            description: galleryFormDescription,
-            category: galleryFormCategory,
-            images: galleryFormImages,
-            date: today,
-          };
-          setGalleryItems([newItem, ...galleryItems]);
+          // Ma'lumotlarni qayta yuklash
+          await fetchGallery();
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
@@ -1520,16 +1513,44 @@ export default function Portfolio() {
   const deleteGalleryItem = async (id: number) => {
     if (confirm(t.gallery.confirmDelete)) {
       try {
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          alert('Xato: Ma\'lumot o\'chirish uchun tizimga kiring');
+          return;
+        }
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (!accessToken) {
+          alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+          return;
+        }
+        
+        headers['Authorization'] = `Bearer ${accessToken}`;
+        
         const res = await fetch(`/api/gallery?id=${id}`, {
           method: 'DELETE',
+          headers,
         });
         const result = await res.json();
         
         if (result.success) {
-          setGalleryItems(galleryItems.filter(item => item.id !== id));
+          // Ma'lumotlarni qayta yuklash
+          await fetchGallery();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
       } catch (error) {
         console.error('Failed to delete gallery item:', error);
+        alert('Xato: Ma\'lumot o\'chirishda xatolik yuz berdi');
       }
     }
   };
