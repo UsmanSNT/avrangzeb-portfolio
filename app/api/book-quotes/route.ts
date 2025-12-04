@@ -347,6 +347,38 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
+    const { data: existingQuote, error: fetchError } = await supabase
+      .from('portfolio_book_quotes_rows')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingQuote) {
+      console.error('Quote not found:', fetchError);
+      return NextResponse.json(
+        { success: false, error: 'Kitob fikri topilmadi' },
+        { status: 404 }
+      );
+    }
+
+    // Foydalanuvchi huquqini tekshirish
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+    const isOwner = existingQuote.user_id === user.id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { success: false, error: 'Sizda bu fikrni o\'chirish huquqi yo\'q' },
+        { status: 403 }
+      );
+    }
+
     const { error } = await supabase
       .from('portfolio_book_quotes_rows')
       .delete()
@@ -354,8 +386,15 @@ export async function DELETE(request: Request) {
 
     if (error) {
       console.error('Delete error:', error);
+      // RLS policy xatosini aniq ko'rsatish
+      if (error.message?.includes('row-level security')) {
+        return NextResponse.json(
+          { success: false, error: 'Xavfsizlik siyosati: Ma\'lumot o\'chirish huquqi yo\'q' },
+          { status: 403 }
+        );
+      }
       return NextResponse.json(
-        { success: false, error: error.message || 'Failed to delete book quote' },
+        { success: false, error: error.message || 'Ma\'lumot o\'chirilmadi' },
         { status: 500 }
       );
     }
