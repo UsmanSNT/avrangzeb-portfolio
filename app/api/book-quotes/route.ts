@@ -11,111 +11,76 @@ function createSupabaseClient() {
 
 // Helper function to create authenticated Supabase client from request
 async function createAuthenticatedClient(request: Request) {
-  const supabase = createSupabaseClient();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  let accessToken: string | null = null;
   
   // Request header'dan Authorization token olish
   const authHeader = request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    // Token bilan client yaratish
-    const { data: { user } } = await supabase.auth.getUser(token);
-    if (user) {
-      return { supabase, user };
-    }
+    accessToken = authHeader.substring(7);
   }
   
   // Cookie'lardan token olish
-  const cookieHeader = request.headers.get('cookie');
-  if (cookieHeader) {
-    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split('=');
-      acc[key] = decodeURIComponent(value);
-      return acc;
-    }, {} as Record<string, string>);
-    
-    // Supabase cookie nomlarini topish - bir nechta variant
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const projectRef = supabaseUrl.split('//')[1].split('.')[0];
-    
-    // Turli xil cookie nomlarini sinab ko'rish
-    const possibleTokenKeys = [
-      `sb-${projectRef}-auth-token`,
-      `sb-${projectRef}-auth-token-code-verifier`,
-      `sb-access-token`,
-      `supabase.auth.token`,
-    ];
-    
-    const possibleRefreshKeys = [
-      `sb-${projectRef}-auth-refresh-token`,
-      `sb-refresh-token`,
-      `supabase.auth.refresh_token`,
-    ];
-    
-    let accessToken: string | undefined;
-    let refreshToken: string | undefined;
-    
-    for (const key of possibleTokenKeys) {
-      if (cookies[key]) {
-        // Cookie JSON formatida bo'lishi mumkin
-        try {
-          const cookieValue = cookies[key];
-          if (cookieValue.startsWith('{')) {
-            const parsed = JSON.parse(cookieValue);
-            accessToken = parsed.access_token || parsed;
-          } else {
-            accessToken = cookieValue;
-          }
-          break;
-        } catch {
-          accessToken = cookies[key];
-          break;
-        }
-      }
-    }
-    
-    for (const key of possibleRefreshKeys) {
-      if (cookies[key]) {
-        try {
-          const cookieValue = cookies[key];
-          if (cookieValue.startsWith('{')) {
-            const parsed = JSON.parse(cookieValue);
-            refreshToken = parsed.refresh_token || parsed;
-          } else {
-            refreshToken = cookieValue;
-          }
-          break;
-        } catch {
-          refreshToken = cookies[key];
-          break;
-        }
-      }
-    }
-    
-    if (accessToken) {
-      try {
-        // Agar faqat access token bo'lsa, getUser bilan tekshirish
-        const { data: { user }, error } = await supabase.auth.getUser(accessToken);
-        if (user && !error) {
-          return { supabase, user };
-        }
-        
-        // Agar refresh token ham bo'lsa, setSession qilish
-        if (refreshToken) {
-          const { data: { session }, error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (session && !sessionError) {
-            return { supabase, user: session.user };
+  if (!accessToken) {
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = decodeURIComponent(value);
+        return acc;
+      }, {} as Record<string, string>);
+      
+      // Supabase cookie nomlarini topish
+      const projectRef = supabaseUrl.split('//')[1].split('.')[0];
+      const possibleTokenKeys = [
+        `sb-${projectRef}-auth-token`,
+        `sb-access-token`,
+      ];
+      
+      for (const key of possibleTokenKeys) {
+        if (cookies[key]) {
+          try {
+            const cookieValue = cookies[key];
+            if (cookieValue.startsWith('{')) {
+              const parsed = JSON.parse(cookieValue);
+              accessToken = parsed.access_token || parsed;
+            } else {
+              accessToken = cookieValue;
+            }
+            break;
+          } catch {
+            accessToken = cookies[key];
+            break;
           }
         }
-      } catch (e) {
-        console.error('Session set error:', e);
       }
     }
   }
   
-  return { supabase, user: null };
+  if (!accessToken) {
+    return { supabase: createSupabaseClient(), user: null };
+  }
+  
+  // Token bilan authenticated client yaratish
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+  
+  // User'ni tekshirish
+  const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+  
+  if (error || !user) {
+    console.error('Auth error:', error);
+    return { supabase: createSupabaseClient(), user: null };
+  }
+  
+  return { supabase, user };
 }
 
 // GET - Barcha kitob fikrlarini olish
