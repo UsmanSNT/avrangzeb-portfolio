@@ -164,19 +164,26 @@ export default function GalleryPage() {
       try {
         const res = await fetch('/api/gallery');
         const result = await res.json();
-        if (result.success && result.data) {
-          const formattedItems = result.data.map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            category: item.category as GalleryItem['category'],
-            images: item.images || [],
-            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          }));
+        if (result.success && result.data && Array.isArray(result.data)) {
+          const formattedItems = result.data
+            .map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description || '',
+              category: item.category as GalleryItem['category'],
+              images: item.images || [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }))
+            .filter((item: GalleryItem) => item && item.id !== null && item.id !== undefined);
           setGalleryItems(formattedItems);
+        } else {
+          // Agar ma'lumot bo'lmasa, bo'sh array o'rnatish
+          setGalleryItems([]);
         }
       } catch (error) {
         console.error('Failed to fetch gallery:', error);
+        // Xato bo'lsa ham bo'sh array o'rnatish
+        setGalleryItems([]);
       } finally {
         setIsLoading(false);
       }
