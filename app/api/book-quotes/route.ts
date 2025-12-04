@@ -95,7 +95,55 @@ async function createAuthenticatedClient(request: Request) {
   
   if (error || !user) {
     console.error('Auth error:', error);
+    console.error('Cookies:', Object.keys(cookies));
+    console.error('Access token:', accessToken ? 'present' : 'missing');
     return { supabase: createSupabaseClient(), user: null };
+  }
+  
+  // Session'ni tekshirish
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    console.error('No session found');
+    // Agar access token bo'lsa, session o'rnatishga harakat qilamiz
+    if (accessToken) {
+      try {
+        // Refresh token topish
+        const possibleRefreshKeys = [
+          `sb-${projectRef}-auth-refresh-token`,
+          `sb-refresh-token`,
+        ];
+        let refreshToken: string | null = null;
+        for (const key of possibleRefreshKeys) {
+          if (cookies[key]) {
+            try {
+              const cookieValue = cookies[key];
+              if (cookieValue.startsWith('{')) {
+                const parsed = JSON.parse(cookieValue);
+                refreshToken = parsed.refresh_token || parsed;
+              } else {
+                refreshToken = cookieValue;
+              }
+              break;
+            } catch {
+              refreshToken = cookies[key];
+              break;
+            }
+          }
+        }
+        
+        if (refreshToken) {
+          const { data: { session: newSession }, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (newSession && !sessionError) {
+            return { supabase, user: newSession.user };
+          }
+        }
+      } catch (e) {
+        console.error('Session set error:', e);
+      }
+    }
   }
   
   return { supabase, user };
@@ -155,6 +203,12 @@ export async function POST(request: Request) {
       );
     }
 
+    // Session'ni tekshirish va debug
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('Session:', session ? 'present' : 'missing');
+    console.log('User ID:', user.id);
+    console.log('Auth UID check:', await supabase.auth.getUser().then(r => r.data.user?.id));
+    
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
       .insert([{ 
@@ -170,8 +224,45 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Database error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error details:', error.details);
+      console.error('Error hint:', error.hint);
+      
       // RLS policy xatosini aniq ko'rsatish
-      if (error.message?.includes('row-level security')) {
+      if (error.message?.includes('row-level security') || error.code === '42501') {
+        // Session'ni qayta o'rnatishga harakat qilamiz
+        const authHeader = request.headers.get('authorization');
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const token = authHeader.substring(7);
+          try {
+            const { data: { session: newSession }, error: sessionError } = await supabase.auth.setSession({
+              access_token: token,
+              refresh_token: token, // Temporary, as we don't have refresh token
+            });
+            if (!sessionError && newSession) {
+              // Qayta urinib ko'ramiz
+              const { data: retryData, error: retryError } = await supabase
+                .from('portfolio_book_quotes_rows')
+                .insert([{ 
+                  book_title, 
+                  author: author || null, 
+                  quote, 
+                  image_url: image_url || null, 
+                  likes: 0, 
+                  dislikes: '0', 
+                  user_id: user.id 
+                }])
+                .select();
+              
+              if (!retryError && retryData) {
+                return NextResponse.json({ success: true, data: retryData[0] });
+              }
+            }
+          } catch (e) {
+            console.error('Retry error:', e);
+          }
+        }
+        
         return NextResponse.json(
           { success: false, error: 'Xavfsizlik siyosati: Ma\'lumot qo\'shish huquqi yo\'q. Iltimos, tizimga kirib qaytib keling.' },
           { status: 403 }
