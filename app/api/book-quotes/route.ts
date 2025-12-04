@@ -183,8 +183,7 @@ export async function POST(request: Request) {
         dislikes: '0', 
         user_id: user.id 
       }])
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Database error:', error);
@@ -194,7 +193,14 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to create book quote - no data returned' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: data[0] });
   } catch (error: any) {
     console.error('POST error:', error);
     return NextResponse.json(
@@ -235,8 +241,7 @@ export async function PUT(request: Request) {
       .from('portfolio_book_quotes_rows')
       .update(updateData)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Update error:', error);
@@ -246,7 +251,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Book quote not found or update failed' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: data[0] });
   } catch (error: any) {
     console.error('PUT error:', error);
     return NextResponse.json(
