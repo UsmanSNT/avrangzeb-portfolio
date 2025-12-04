@@ -1008,9 +1008,30 @@ export default function Portfolio() {
         console.log('Book quotes API response:', result);
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
-          // localStorage'dan foydalanuvchi reaksiyalarini yuklash
-          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
-          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          // Database'dan foydalanuvchi reaksiyalarini yuklash
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          let reactions: Record<number, 'like' | 'dislike'> = {};
+          
+          if (authUser && result.data.length > 0) {
+            const quoteIds = result.data.map((q: { id: number }) => q.id).join(',');
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              const headers: HeadersInit = {};
+              if (session?.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+              }
+              
+              const reactionsRes = await fetch(`/api/book-quotes/reactions?quoteIds=${quoteIds}`, {
+                headers,
+              });
+              const reactionsResult = await reactionsRes.json();
+              if (reactionsResult.success && reactionsResult.data) {
+                reactions = reactionsResult.data;
+              }
+            } catch (error) {
+              console.error('Failed to fetch reactions:', error);
+            }
+          }
           
           const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
@@ -1261,9 +1282,29 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success && result.data) {
-          // localStorage'dan reaksiyalarni yuklash
-          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
-          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          // Yangi quote uchun reaksiyani database'dan olish
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          let userReaction: 'like' | 'dislike' | null = null;
+          
+          if (authUser) {
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              const headers: HeadersInit = {};
+              if (session?.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+              }
+              
+              const reactionsRes = await fetch(`/api/book-quotes/reactions?quoteIds=${result.data.id}`, {
+                headers,
+              });
+              const reactionsResult = await reactionsRes.json();
+              if (reactionsResult.success && reactionsResult.data && reactionsResult.data[result.data.id]) {
+                userReaction = reactionsResult.data[result.data.id];
+              }
+            } catch (error) {
+              console.error('Failed to fetch reaction for new quote:', error);
+            }
+          }
           
           const newQuote: BookQuote = {
             id: result.data.id,
@@ -1273,7 +1314,7 @@ export default function Portfolio() {
             image: bookFormImage,
             likes: 0,
             dislikes: 0,
-            userReaction: reactions[result.data.id] || null,
+            userReaction: userReaction,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
           closeBookModal();
@@ -1308,6 +1349,13 @@ export default function Portfolio() {
     const quote = bookQuotes.find(q => q.id === id);
     if (!quote) return;
     
+    // Foydalanuvchi tizimga kirmagan bo'lsa, reaksiya berish mumkin emas
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
+      alert('Reaksiya berish uchun tizimga kiring');
+      return;
+    }
+
     let newLikes = quote.likes;
     let newDislikes = quote.dislikes;
     let newReaction: 'like' | 'dislike' | null = reaction;
@@ -1334,25 +1382,13 @@ export default function Portfolio() {
         : q
     ));
 
-    // localStorage'ga saqlash
-    const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
-    const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
-    if (newReaction) {
-      reactions[id] = newReaction;
-    } else {
-      delete reactions[id];
-    }
-    localStorage.setItem('portfolio-book-quote-reactions', JSON.stringify(reactions));
-
-    // Update in database
+    // Update in database - reaksiyani saqlash
     try {
-      // Session token olish
-      const { data: { user: authUser } } = await supabase.auth.getUser();
       const { data: { session } } = await supabase.auth.getSession();
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
       
       let accessToken = session?.access_token;
-      if (!accessToken && authUser) {
+      if (!accessToken) {
         const { data: { session: newSession } } = await supabase.auth.getSession();
         accessToken = newSession?.access_token;
       }
@@ -1361,6 +1397,19 @@ export default function Portfolio() {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
       
+      // Reaksiyani database'ga saqlash
+      const reactionRes = await fetch('/api/book-quotes/reactions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          quote_id: id,
+          reaction_type: newReaction || (reaction === 'like' ? 'dislike' : 'like'), // Toggle uchun
+        }),
+      });
+      
+      const reactionResult = await reactionRes.json();
+      
+      // Likes/dislikes sonini yangilash
       const res = await fetch('/api/book-quotes', {
         method: 'PUT',
         headers,
@@ -1372,14 +1421,32 @@ export default function Portfolio() {
       });
       
       const result = await res.json();
-      if (!result.success) {
+      
+      if (!result.success || !reactionResult.success) {
         // Agar xato bo'lsa, optimistik update'ni bekor qilish
         setBookQuotes(bookQuotes.map(q => 
           q.id === id 
             ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction }
             : q
         ));
-        console.error('Failed to update reaction:', result.error);
+        console.error('Failed to update reaction:', result.error || reactionResult.error);
+      } else {
+        // Reaksiya muvaffaqiyatli saqlandi, yangi reaksiya holatini o'rnatish
+        if (reactionResult.data && reactionResult.data.reaction_type === null) {
+          // Reaksiya o'chirildi
+          setBookQuotes(bookQuotes.map(q => 
+            q.id === id 
+              ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: null }
+              : q
+          ));
+        } else {
+          // Reaksiya qo'shildi yoki yangilandi
+          setBookQuotes(bookQuotes.map(q => 
+            q.id === id 
+              ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: reactionResult.data?.reaction_type || newReaction }
+              : q
+          ));
+        }
       }
     } catch (error) {
       // Agar xato bo'lsa, optimistik update'ni bekor qilish
