@@ -1034,36 +1034,38 @@ export default function Portfolio() {
     fetchBookQuotes();
   }, []);
 
-  // Load gallery items from API
-  useEffect(() => {
-    const fetchGallery = async () => {
-      try {
-        const res = await fetch('/api/gallery');
-        const result = await res.json();
-        console.log('Gallery API response:', result);
-        
-        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
-          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            category: item.category as GalleryItem['category'],
-            images: Array.isArray(item.images) ? item.images : [],
-            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          }));
-          console.log('Formatted gallery items:', formattedItems);
-          setGalleryItems(formattedItems);
-        } else {
-          console.log('No gallery items found, using defaults');
-          setGalleryItems(defaultGalleryItems);
-        }
-      } catch (error) {
-        console.error('Failed to fetch gallery:', error);
+  // Gallery ma'lumotlarini yuklash funksiyasi
+  const fetchGallery = async () => {
+    try {
+      const res = await fetch('/api/gallery');
+      const result = await res.json();
+      console.log('Gallery API response:', result);
+      
+      if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description || '',
+          category: item.category as GalleryItem['category'],
+          images: Array.isArray(item.images) ? item.images : [],
+          date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        }));
+        console.log('Formatted gallery items:', formattedItems);
+        setGalleryItems(formattedItems);
+      } else {
+        console.log('No gallery items found, using defaults');
         setGalleryItems(defaultGalleryItems);
-      } finally {
-        setIsLoadingGallery(false);
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch gallery:', error);
+      setGalleryItems(defaultGalleryItems);
+    } finally {
+      setIsLoadingGallery(false);
+    }
+  };
+
+  // Load gallery items from API on mount
+  useEffect(() => {
     fetchGallery();
   }, []);
 
@@ -1439,11 +1441,20 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success) {
-          setGalleryItems(galleryItems.map(item => 
-            item.id === editingGallery.id 
-              ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
-              : item
-          ));
+          // Ma'lumotlarni qayta yuklash
+          const refreshRes = await fetch('/api/gallery');
+          const refreshResult = await refreshRes.json();
+          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data) && refreshResult.data.length > 0) {
+            const formattedItems = refreshResult.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              category: item.category as GalleryItem['category'],
+              images: Array.isArray(item.images) ? item.images : [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }));
+            setGalleryItems(formattedItems);
+          }
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
