@@ -29,27 +29,85 @@ async function createAuthenticatedClient(request: Request) {
   if (cookieHeader) {
     const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
       const [key, value] = cookie.trim().split('=');
-      acc[key] = value;
+      acc[key] = decodeURIComponent(value);
       return acc;
     }, {} as Record<string, string>);
     
-    // Supabase cookie nomlarini topish
+    // Supabase cookie nomlarini topish - bir nechta variant
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const projectRef = supabaseUrl.split('//')[1].split('.')[0];
-    const accessTokenKey = `sb-${projectRef}-auth-token`;
-    const refreshTokenKey = `sb-${projectRef}-auth-refresh-token`;
     
-    const accessToken = cookies[accessTokenKey];
-    const refreshToken = cookies[refreshTokenKey];
+    // Turli xil cookie nomlarini sinab ko'rish
+    const possibleTokenKeys = [
+      `sb-${projectRef}-auth-token`,
+      `sb-${projectRef}-auth-token-code-verifier`,
+      `sb-access-token`,
+      `supabase.auth.token`,
+    ];
     
-    if (accessToken && refreshToken) {
+    const possibleRefreshKeys = [
+      `sb-${projectRef}-auth-refresh-token`,
+      `sb-refresh-token`,
+      `supabase.auth.refresh_token`,
+    ];
+    
+    let accessToken: string | undefined;
+    let refreshToken: string | undefined;
+    
+    for (const key of possibleTokenKeys) {
+      if (cookies[key]) {
+        // Cookie JSON formatida bo'lishi mumkin
+        try {
+          const cookieValue = cookies[key];
+          if (cookieValue.startsWith('{')) {
+            const parsed = JSON.parse(cookieValue);
+            accessToken = parsed.access_token || parsed;
+          } else {
+            accessToken = cookieValue;
+          }
+          break;
+        } catch {
+          accessToken = cookies[key];
+          break;
+        }
+      }
+    }
+    
+    for (const key of possibleRefreshKeys) {
+      if (cookies[key]) {
+        try {
+          const cookieValue = cookies[key];
+          if (cookieValue.startsWith('{')) {
+            const parsed = JSON.parse(cookieValue);
+            refreshToken = parsed.refresh_token || parsed;
+          } else {
+            refreshToken = cookieValue;
+          }
+          break;
+        } catch {
+          refreshToken = cookies[key];
+          break;
+        }
+      }
+    }
+    
+    if (accessToken) {
       try {
-        const { data: { session }, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-        if (session && !error) {
-          return { supabase, user: session.user };
+        // Agar faqat access token bo'lsa, getUser bilan tekshirish
+        const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+        if (user && !error) {
+          return { supabase, user };
+        }
+        
+        // Agar refresh token ham bo'lsa, setSession qilish
+        if (refreshToken) {
+          const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (session && !sessionError) {
+            return { supabase, user: session.user };
+          }
         }
       } catch (e) {
         console.error('Session set error:', e);
