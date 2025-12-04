@@ -1462,9 +1462,24 @@ export default function Portfolio() {
     try {
       if (editingGallery) {
         // Update existing gallery item
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken && authUser) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
         const res = await fetch('/api/gallery', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             id: editingGallery.id,
             title: galleryFormTitle,
@@ -1487,17 +1502,29 @@ export default function Portfolio() {
         }
       } else {
         // Create new gallery item
-        // Foydalanuvchi ID ni olish
-        const { data: { user } } = await supabase.auth.getUser();
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken && authUser) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
         const res = await fetch('/api/gallery', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             title: galleryFormTitle,
             description: galleryFormDescription,
             category: galleryFormCategory,
             images: galleryFormImages,
-            user_id: user?.id || null,
           }),
         });
         const result = await res.json();
