@@ -314,11 +314,14 @@ export default function BooksPage() {
             userReaction: null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
+          closeBookModal();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
         }
       }
-      closeBookModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error:', error);
+      alert('Xato: ' + (error.message || 'Saqlashda xatolik yuz berdi'));
     }
   };
 

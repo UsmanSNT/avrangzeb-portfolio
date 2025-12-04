@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 // GET - Barcha kitob fikrlarini olish
 export async function GET(request: Request) {
@@ -33,21 +34,68 @@ export async function GET(request: Request) {
 // POST - Yangi kitob fikri qo'shish
 export async function POST(request: Request) {
   try {
+    // Server-side Supabase client yaratish
+    const cookieStore = await cookies();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    });
+
+    // Authentication tekshirish
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { book_title, author, quote, image_url, user_id } = body;
+    const { book_title, author, quote, image_url } = body;
+
+    // Majburiy maydonlarni tekshirish
+    if (!book_title || !quote) {
+      return NextResponse.json(
+        { success: false, error: 'Kitob nomi va fikr majburiy maydonlar' },
+        { status: 400 }
+      );
+    }
 
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
-      .insert([{ book_title, author, quote, image_url, likes: 0, dislikes: '0', user_id }])
+      .insert([{ 
+        book_title, 
+        author: author || null, 
+        quote, 
+        image_url: image_url || null, 
+        likes: 0, 
+        dislikes: '0', 
+        user_id: user.id 
+      }])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to create book quote' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, data });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('POST error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create book quote' },
+      { success: false, error: error.message || 'Failed to create book quote' },
       { status: 500 }
     );
   }

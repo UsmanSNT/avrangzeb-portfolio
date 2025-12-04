@@ -473,3 +473,4 @@ Bu email bilan ro'yxatdan o'tgan foydalanuvchi avtomatik ravishda **admin** roli
 Savollar bo'lsa, Supabase Dashboard'dan tekshiring:
 - https://supabase.com/dashboard/project/yooppxqlzftifwbanhhv
 
+
