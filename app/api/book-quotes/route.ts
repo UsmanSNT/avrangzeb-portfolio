@@ -187,15 +187,23 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Database error:', error);
+      // RLS policy xatosini aniq ko'rsatish
+      if (error.message?.includes('row-level security')) {
+        return NextResponse.json(
+          { success: false, error: 'Xavfsizlik siyosati: Ma\'lumot qo\'shish huquqi yo\'q. Iltimos, tizimga kirib qaytib keling.' },
+          { status: 403 }
+        );
+      }
       return NextResponse.json(
-        { success: false, error: error.message || 'Failed to create book quote' },
+        { success: false, error: error.message || 'Ma\'lumot qo\'shilmadi' },
         { status: 500 }
       );
     }
 
     if (!data || data.length === 0) {
+      console.error('Insert returned no data');
       return NextResponse.json(
-        { success: false, error: 'Failed to create book quote - no data returned' },
+        { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
         { status: 500 }
       );
     }
