@@ -207,7 +207,16 @@ export async function POST(request: Request) {
 // PUT - Kitob fikrni yangilash
 export async function PUT(request: Request) {
   try {
-    const supabase = createSupabaseClient();
+    // Server-side Supabase client yaratish va authentication tekshirish
+    const { supabase, user } = await createAuthenticatedClient(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+    
     const body = await request.json();
     const { id, book_title, author, quote, image_url, likes, dislikes } = body;
 
@@ -243,7 +252,16 @@ export async function PUT(request: Request) {
 // DELETE - Kitob fikrni o'chirish
 export async function DELETE(request: Request) {
   try {
-    const supabase = createSupabaseClient();
+    // Server-side Supabase client yaratish va authentication tekshirish
+    const { supabase, user } = await createAuthenticatedClient(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -259,12 +277,19 @@ export async function DELETE(request: Request) {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Delete error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to delete book quote' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('DELETE error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to delete book quote' },
+      { success: false, error: error.message || 'Failed to delete book quote' },
       { status: 500 }
     );
   }

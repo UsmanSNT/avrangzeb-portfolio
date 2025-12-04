@@ -1191,9 +1191,16 @@ export default function Portfolio() {
     try {
       if (editingQuote) {
         // Update existing quote
+        // Session token olish
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+        
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             id: editingQuote.id,
             book_title: bookFormTitle,
@@ -1261,8 +1268,16 @@ export default function Portfolio() {
   const deleteBookQuote = async (id: number) => {
     if (confirm(t.books.confirmDelete)) {
       try {
+        // Session token olish
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = {};
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+        
         const res = await fetch(`/api/book-quotes?id=${id}`, {
           method: 'DELETE',
+          headers,
         });
         const result = await res.json();
         
