@@ -1067,17 +1067,25 @@ export default function Portfolio() {
         const result = await res.json();
         console.log('Gallery API response:', result);
         
-        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
-          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            category: item.category as GalleryItem['category'],
-            images: Array.isArray(item.images) ? item.images : [],
-            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          }));
-          console.log('Formatted gallery items:', formattedItems);
-          setGalleryItems(formattedItems);
+        if (result.success && result.data && Array.isArray(result.data)) {
+          // Null va undefined qiymatlarni tozalash
+          const validItems = result.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+          
+          if (validItems.length > 0) {
+            const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
+              id: item.id || 0,
+              title: item.title || '',
+              description: item.description || '',
+              category: (item.category || 'other') as GalleryItem['category'],
+              images: Array.isArray(item.images) ? item.images : [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }));
+            console.log('Formatted gallery items:', formattedItems);
+            setGalleryItems(formattedItems);
+          } else {
+            console.log('No valid gallery items found, using defaults');
+            setGalleryItems(defaultGalleryItems);
+          }
         } else {
           console.log('No gallery items found, using defaults');
           setGalleryItems(defaultGalleryItems);
@@ -1674,7 +1682,30 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success) {
+          // Optimistic update - local state'dan o'chirish
           setGalleryItems(galleryItems.filter(item => item.id !== id));
+          
+          // Gallery ma'lumotlarini qayta yuklash (to'g'ri holatni ta'minlash uchun)
+          try {
+            const fetchRes = await fetch('/api/gallery');
+            const fetchResult = await fetchRes.json();
+            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+              if (validItems.length > 0) {
+                const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
+                  id: item.id || 0,
+                  title: item.title || '',
+                  description: item.description || '',
+                  category: (item.category || 'other') as GalleryItem['category'],
+                  images: Array.isArray(item.images) ? item.images : [],
+                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                }));
+                setGalleryItems(formattedItems);
+              }
+            }
+          } catch (fetchError) {
+            console.error('Failed to refresh gallery after delete:', fetchError);
+          }
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }

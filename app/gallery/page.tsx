@@ -164,16 +164,21 @@ export default function GalleryPage() {
       try {
         const res = await fetch('/api/gallery');
         const result = await res.json();
-        if (result.success && result.data) {
-          const formattedItems = result.data.map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            category: item.category as GalleryItem['category'],
-            images: item.images || [],
-            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          }));
-          setGalleryItems(formattedItems);
+        if (result.success && result.data && Array.isArray(result.data)) {
+          // Null va undefined qiymatlarni tozalash
+          const validItems = result.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+          
+          if (validItems.length > 0) {
+            const formattedItems = validItems.map((item: any) => ({
+              id: item.id || 0,
+              title: item.title || '',
+              description: item.description || '',
+              category: (item.category || 'other') as GalleryItem['category'],
+              images: Array.isArray(item.images) ? item.images : [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }));
+            setGalleryItems(formattedItems);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch gallery:', error);
@@ -281,12 +286,38 @@ export default function GalleryPage() {
             images: galleryFormImages,
           }),
         });
-        if (res.ok) {
-          setGalleryItems(galleryItems.map(item =>
-            item.id === editingGallery.id
-              ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
-              : item
-          ));
+        const result = await res.json();
+        
+        if (result.success) {
+          // Gallery ma'lumotlarini qayta yuklash
+          try {
+            const fetchRes = await fetch('/api/gallery');
+            const fetchResult = await fetchRes.json();
+            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+              if (validItems.length > 0) {
+                const formattedItems = validItems.map((item: any) => ({
+                  id: item.id || 0,
+                  title: item.title || '',
+                  description: item.description || '',
+                  category: (item.category || 'other') as GalleryItem['category'],
+                  images: Array.isArray(item.images) ? item.images : [],
+                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                }));
+                setGalleryItems(formattedItems);
+              }
+            }
+          } catch (fetchError) {
+            console.error('Failed to refresh gallery:', fetchError);
+            // Optimistic update
+            setGalleryItems(galleryItems.map(item =>
+              item.id === editingGallery.id
+                ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
+                : item
+            ));
+          }
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
         }
       } else {
         // Session token olish
@@ -316,15 +347,50 @@ export default function GalleryPage() {
         });
         const result = await res.json();
         if (result.success && result.data) {
-          const newItem: GalleryItem = {
-            id: result.data.id,
-            title: galleryFormTitle,
-            description: galleryFormDescription,
-            category: galleryFormCategory,
-            images: galleryFormImages,
-            date: new Date().toISOString().split('T')[0],
-          };
-          setGalleryItems([newItem, ...galleryItems]);
+          // Gallery ma'lumotlarini qayta yuklash
+          try {
+            const fetchRes = await fetch('/api/gallery');
+            const fetchResult = await fetchRes.json();
+            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+              if (validItems.length > 0) {
+                const formattedItems = validItems.map((item: any) => ({
+                  id: item.id || 0,
+                  title: item.title || '',
+                  description: item.description || '',
+                  category: (item.category || 'other') as GalleryItem['category'],
+                  images: Array.isArray(item.images) ? item.images : [],
+                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                }));
+                setGalleryItems(formattedItems);
+              } else {
+                // Optimistic update
+                const newItem: GalleryItem = {
+                  id: result.data.id || Date.now(),
+                  title: galleryFormTitle,
+                  description: galleryFormDescription,
+                  category: galleryFormCategory,
+                  images: galleryFormImages,
+                  date: new Date().toISOString().split('T')[0],
+                };
+                setGalleryItems([newItem, ...galleryItems]);
+              }
+            }
+          } catch (fetchError) {
+            console.error('Failed to refresh gallery:', fetchError);
+            // Optimistic update
+            const newItem: GalleryItem = {
+              id: result.data.id || Date.now(),
+              title: galleryFormTitle,
+              description: galleryFormDescription,
+              category: galleryFormCategory,
+              images: galleryFormImages,
+              date: new Date().toISOString().split('T')[0],
+            };
+            setGalleryItems([newItem, ...galleryItems]);
+          }
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
         }
       }
       closeGalleryModal();
@@ -355,8 +421,35 @@ export default function GalleryPage() {
         method: 'DELETE',
         headers
       });
-      if (res.ok) {
+      const result = await res.json();
+      
+      if (result.success) {
+        // Optimistic update
         setGalleryItems(galleryItems.filter(item => item.id !== id));
+        
+        // Gallery ma'lumotlarini qayta yuklash
+        try {
+          const fetchRes = await fetch('/api/gallery');
+          const fetchResult = await fetchRes.json();
+          if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+            const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+            if (validItems.length > 0) {
+              const formattedItems = validItems.map((item: any) => ({
+                id: item.id || 0,
+                title: item.title || '',
+                description: item.description || '',
+                category: (item.category || 'other') as GalleryItem['category'],
+                images: Array.isArray(item.images) ? item.images : [],
+                date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              }));
+              setGalleryItems(formattedItems);
+            }
+          }
+        } catch (fetchError) {
+          console.error('Failed to refresh gallery after delete:', fetchError);
+        }
+      } else {
+        alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
       }
     } catch (error) {
       console.error('Delete error:', error);
