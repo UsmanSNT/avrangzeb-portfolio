@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
 // Helper function to create Supabase client
 function createSupabaseClient() {
@@ -14,66 +15,83 @@ async function createAuthenticatedClient(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   
-  let accessToken: string | null = null;
-  
   // Request header'dan Authorization token olish
   const authHeader = request.headers.get('authorization');
+  let accessToken: string | null = null;
+  
   if (authHeader && authHeader.startsWith('Bearer ')) {
     accessToken = authHeader.substring(7);
   }
   
   // Cookie'lardan token olish
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies: Record<string, string> = {};
+  
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      if (key && value) {
+        cookies[key] = decodeURIComponent(value);
+      }
+    });
+  }
+  
+  // Supabase cookie nomlarini topish
+  const projectRef = supabaseUrl.split('//')[1].split('.')[0];
+  const possibleTokenKeys = [
+    `sb-${projectRef}-auth-token`,
+    `sb-access-token`,
+  ];
+  
   if (!accessToken) {
-    const cookieHeader = request.headers.get('cookie');
-    if (cookieHeader) {
-      const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = decodeURIComponent(value);
-        return acc;
-      }, {} as Record<string, string>);
-      
-      // Supabase cookie nomlarini topish
-      const projectRef = supabaseUrl.split('//')[1].split('.')[0];
-      const possibleTokenKeys = [
-        `sb-${projectRef}-auth-token`,
-        `sb-access-token`,
-      ];
-      
-      for (const key of possibleTokenKeys) {
-        if (cookies[key]) {
-          try {
-            const cookieValue = cookies[key];
-            if (cookieValue.startsWith('{')) {
-              const parsed = JSON.parse(cookieValue);
-              accessToken = parsed.access_token || parsed;
-            } else {
-              accessToken = cookieValue;
-            }
-            break;
-          } catch {
-            accessToken = cookies[key];
-            break;
+    for (const key of possibleTokenKeys) {
+      if (cookies[key]) {
+        try {
+          const cookieValue = cookies[key];
+          if (cookieValue.startsWith('{')) {
+            const parsed = JSON.parse(cookieValue);
+            accessToken = parsed.access_token || parsed;
+          } else {
+            accessToken = cookieValue;
           }
+          break;
+        } catch {
+          accessToken = cookies[key];
+          break;
         }
       }
     }
   }
   
-  if (!accessToken) {
-    return { supabase: createSupabaseClient(), user: null };
-  }
-  
-  // Token bilan authenticated client yaratish
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+  // createServerClient yaratish - cookie'larni to'g'ri boshqaradi
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return cookies[name];
+      },
+      set(name: string, value: string, options: any) {
+        // API route'da cookie'larni set qilish mumkin emas
+      },
+      remove(name: string, options: any) {
+        // API route'da cookie'larni remove qilish mumkin emas
       },
     },
   });
   
-  // User'ni tekshirish
-  const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+  // Agar access token bo'lsa, session o'rnatish
+  if (accessToken) {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+      if (user && !error) {
+        return { supabase, user };
+      }
+    } catch (e) {
+      console.error('Auth error:', e);
+    }
+  }
+  
+  // User'ni tekshirish (cookie'lardan)
+  const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
     console.error('Auth error:', error);
