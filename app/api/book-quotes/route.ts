@@ -63,87 +63,31 @@ async function createAuthenticatedClient(request: Request) {
     }
   }
   
-  // createServerClient yaratish - cookie'larni to'g'ri boshqaradi
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return cookies[name];
-      },
-      set(name: string, value: string, options: any) {
-        // API route'da cookie'larni set qilish mumkin emas
-      },
-      remove(name: string, options: any) {
-        // API route'da cookie'larni remove qilish mumkin emas
-      },
-    },
-  });
-  
-  // Agar access token bo'lsa, session o'rnatish
-  if (accessToken) {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser(accessToken);
-      if (user && !error) {
-        return { supabase, user };
-      }
-    } catch (e) {
-      console.error('Auth error:', e);
-    }
-  }
-  
-  // User'ni tekshirish (cookie'lardan)
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
-  if (error || !user) {
-    console.error('Auth error:', error);
-    console.error('Cookies:', Object.keys(cookies));
-    console.error('Access token:', accessToken ? 'present' : 'missing');
+  // Agar access token bo'lmasa, null qaytaramiz
+  if (!accessToken) {
     return { supabase: createSupabaseClient(), user: null };
   }
   
-  // Session'ni tekshirish
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    console.error('No session found');
-    // Agar access token bo'lsa, session o'rnatishga harakat qilamiz
-    if (accessToken) {
-      try {
-        // Refresh token topish
-        const possibleRefreshKeys = [
-          `sb-${projectRef}-auth-refresh-token`,
-          `sb-refresh-token`,
-        ];
-        let refreshToken: string | null = null;
-        for (const key of possibleRefreshKeys) {
-          if (cookies[key]) {
-            try {
-              const cookieValue = cookies[key];
-              if (cookieValue.startsWith('{')) {
-                const parsed = JSON.parse(cookieValue);
-                refreshToken = parsed.refresh_token || parsed;
-              } else {
-                refreshToken = cookieValue;
-              }
-              break;
-            } catch {
-              refreshToken = cookies[key];
-              break;
-            }
-          }
-        }
-        
-        if (refreshToken) {
-          const { data: { session: newSession }, error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (newSession && !sessionError) {
-            return { supabase, user: newSession.user };
-          }
-        }
-      } catch (e) {
-        console.error('Session set error:', e);
-      }
-    }
+  // Token bilan authenticated client yaratish
+  // Supabase client'da token'ni header'da yuborish
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+  
+  // User'ni tekshirish
+  const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+  
+  if (error || !user) {
+    console.error('Auth error:', error);
+    return { supabase: createSupabaseClient(), user: null };
   }
   
   return { supabase, user };
