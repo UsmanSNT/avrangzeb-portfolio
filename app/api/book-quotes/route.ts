@@ -238,12 +238,19 @@ export async function PUT(request: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Update error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to update book quote' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, data });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('PUT error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update book quote' },
+      { success: false, error: error.message || 'Failed to update book quote' },
       { status: 500 }
     );
   }
