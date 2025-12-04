@@ -295,7 +295,6 @@ export async function PUT(request: Request) {
           { status: 403 }
         );
       }
-    }
 
       const updateData: Record<string, unknown> = {};
       if (book_title !== undefined) updateData.book_title = book_title;
@@ -340,7 +339,7 @@ export async function PUT(request: Request) {
 
       return NextResponse.json({ success: true, data: data[0] });
     } else if (isReactionUpdate) {
-      // Reaksiya yangilanishi - authentication shart emas, lekin RLS o'chirilgan
+      // Reaksiya yangilanishi - authentication shart emas, chunki RLS o'chirilgan
       const supabase = createSupabaseClient();
       
       const updateData: Record<string, unknown> = {};
@@ -355,23 +354,23 @@ export async function PUT(request: Request) {
         .eq('id', id)
         .select();
 
-    if (error) {
-      console.error('Update error:', error);
-      return NextResponse.json(
-        { success: false, error: error.message || 'Ma\'lumot yangilanmadi' },
-        { status: 500 }
-      );
-    }
+      if (error) {
+        console.error('Reaction update error:', error);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Reaksiya yangilanmadi' },
+          { status: 500 }
+        );
+      }
 
-    if (!data || data.length === 0) {
-      console.error('Update returned no data for id:', id);
-      return NextResponse.json(
-        { success: false, error: 'Ma\'lumot yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
-        { status: 500 }
-      );
-    }
+      if (!data || data.length === 0) {
+        console.error('Reaction update returned no data for id:', id);
+        return NextResponse.json(
+          { success: false, error: 'Reaksiya yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
+          { status: 500 }
+        );
+      }
 
-    return NextResponse.json({ success: true, data: data[0] });
+      return NextResponse.json({ success: true, data: data[0] });
   } catch (error: any) {
     console.error('PUT error:', error);
     return NextResponse.json(
