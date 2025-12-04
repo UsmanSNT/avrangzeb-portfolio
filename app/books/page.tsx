@@ -159,20 +159,25 @@ export default function BooksPage() {
       try {
         const res = await fetch('/api/book-quotes');
         const result = await res.json();
-        if (result.success && result.data) {
-          const formattedQuotes = result.data.map((q: any) => ({
-            id: q.id,
-            bookTitle: q.book_title,
-            author: q.author,
-            quote: q.quote,
-            image: q.image_url,
-            likes: q.likes || 0,
-            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-            userReaction: null,
-          }));
-          // Sort by likes (top first)
-          formattedQuotes.sort((a: BookQuote, b: BookQuote) => b.likes - a.likes);
-          setBookQuotes(formattedQuotes);
+        if (result.success && result.data && Array.isArray(result.data)) {
+          // Null id'larni filter qilish
+          const validQuotes = result.data.filter((q: any) => q && q.id !== null && q.id !== undefined);
+          
+          if (validQuotes.length > 0) {
+            const formattedQuotes = validQuotes.map((q: any) => ({
+              id: q.id,
+              bookTitle: q.book_title || '',
+              author: q.author || '',
+              quote: q.quote || '',
+              image: q.image_url,
+              likes: q.likes || 0,
+              dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
+              userReaction: null,
+            }));
+            // Sort by likes (top first)
+            formattedQuotes.sort((a: BookQuote, b: BookQuote) => b.likes - a.likes);
+            setBookQuotes(formattedQuotes);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch quotes:', error);
