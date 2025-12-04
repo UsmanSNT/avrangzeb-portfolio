@@ -1223,11 +1223,25 @@ export default function Portfolio() {
         }
       } else {
         // Create new quote
-        // Session token olish
+        // Session token olish - getUser() ishlatamiz, chunki u har doim ishlaydi
+        const { data: { user: authUser } } = await supabase.auth.getUser();
         const { data: { session } } = await supabase.auth.getSession();
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`;
+        
+        // Token olish - avval session'dan, keyin getUser() dan
+        let accessToken = session?.access_token;
+        if (!accessToken && authUser) {
+          // Agar session bo'lmasa, getUser() dan token olishga harakat qilamiz
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        } else {
+          console.error('No access token found');
+          alert('Xato: Tizimga kirib qaytib keling.');
+          return;
         }
         
         const res = await fetch('/api/book-quotes', {
@@ -1268,16 +1282,8 @@ export default function Portfolio() {
   const deleteBookQuote = async (id: number) => {
     if (confirm(t.books.confirmDelete)) {
       try {
-        // Session token olish
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = {};
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`;
-        }
-        
         const res = await fetch(`/api/book-quotes?id=${id}`, {
           method: 'DELETE',
-          headers,
         });
         const result = await res.json();
         
