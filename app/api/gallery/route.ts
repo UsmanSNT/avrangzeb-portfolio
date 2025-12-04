@@ -106,14 +106,17 @@ export async function GET(request: Request) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('GET error:', error);
+      console.error('GET gallery error:', error);
       return NextResponse.json(
         { success: false, error: error.message || 'Failed to fetch gallery items' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, data: data || [] });
+    // Null id'larni filter qilish
+    const validData = (data || []).filter((item: any) => item && item.id !== null && item.id !== undefined);
+
+    return NextResponse.json({ success: true, data: validData });
   } catch (error: any) {
     console.error('GET error:', error);
     return NextResponse.json(
