@@ -1008,6 +1008,10 @@ export default function Portfolio() {
         console.log('Book quotes API response:', result);
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          // localStorage'dan foydalanuvchi reaksiyalarini yuklash
+          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          
           const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
             bookTitle: q.book_title,
@@ -1016,7 +1020,7 @@ export default function Portfolio() {
             image: q.image_url,
             likes: q.likes || 0,
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-            userReaction: null,
+            userReaction: reactions[q.id] || null,
           }));
           console.log('Formatted quotes:', formattedQuotes);
           setBookQuotes(formattedQuotes);
@@ -1257,6 +1261,10 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success && result.data) {
+          // localStorage'dan reaksiyalarni yuklash
+          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          
           const newQuote: BookQuote = {
             id: result.data.id,
             bookTitle: bookFormTitle,
@@ -1265,7 +1273,7 @@ export default function Portfolio() {
             image: bookFormImage,
             likes: 0,
             dislikes: 0,
-            userReaction: null,
+            userReaction: reactions[result.data.id] || null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
           closeBookModal();
@@ -1325,6 +1333,16 @@ export default function Portfolio() {
         ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: newReaction }
         : q
     ));
+
+    // localStorage'ga saqlash
+    const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+    const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+    if (newReaction) {
+      reactions[id] = newReaction;
+    } else {
+      delete reactions[id];
+    }
+    localStorage.setItem('portfolio-book-quote-reactions', JSON.stringify(reactions));
 
     // Update in database
     try {
@@ -1491,11 +1509,20 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success) {
-          setGalleryItems(galleryItems.map(item => 
-            item.id === editingGallery.id 
-              ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
-              : item
-          ));
+          // Gallery ma'lumotlarini qayta yuklash
+          const res = await fetch('/api/gallery');
+          const fetchResult = await res.json();
+          if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+            const formattedItems = fetchResult.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              category: item.category as GalleryItem['category'],
+              images: Array.isArray(item.images) ? item.images : [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }));
+            setGalleryItems(formattedItems);
+          }
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
@@ -1530,15 +1557,20 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success && result.data) {
-          const newItem: GalleryItem = {
-            id: result.data.id,
-            title: galleryFormTitle,
-            description: galleryFormDescription,
-            category: galleryFormCategory,
-            images: galleryFormImages,
-            date: today,
-          };
-          setGalleryItems([newItem, ...galleryItems]);
+          // Gallery ma'lumotlarini qayta yuklash
+          const res = await fetch('/api/gallery');
+          const fetchResult = await res.json();
+          if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+            const formattedItems = fetchResult.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              category: item.category as GalleryItem['category'],
+              images: Array.isArray(item.images) ? item.images : [],
+              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            }));
+            setGalleryItems(formattedItems);
+          }
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));

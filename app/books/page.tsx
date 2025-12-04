@@ -160,6 +160,10 @@ export default function BooksPage() {
         const res = await fetch('/api/book-quotes');
         const result = await res.json();
         if (result.success && result.data) {
+          // localStorage'dan foydalanuvchi reaksiyalarini yuklash
+          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          
           const formattedQuotes = result.data.map((q: any) => ({
             id: q.id,
             bookTitle: q.book_title,
@@ -168,7 +172,7 @@ export default function BooksPage() {
             image: q.image_url,
             likes: q.likes || 0,
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-            userReaction: null,
+            userReaction: reactions[q.id] || null,
           }));
           // Sort by likes (top first)
           formattedQuotes.sort((a: BookQuote, b: BookQuote) => b.likes - a.likes);
@@ -317,6 +321,10 @@ export default function BooksPage() {
         });
         const result = await res.json();
         if (result.success && result.data) {
+          // localStorage'dan reaksiyalarni yuklash
+          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+          
           const newQuote: BookQuote = {
             id: result.data.id,
             bookTitle: bookFormTitle,
@@ -325,7 +333,7 @@ export default function BooksPage() {
             image: bookFormImage,
             likes: 0,
             dislikes: 0,
-            userReaction: null,
+            userReaction: reactions[result.data.id] || null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
           closeBookModal();
@@ -388,6 +396,16 @@ export default function BooksPage() {
     if (viewingQuote?.id === id) {
       setViewingQuote({ ...viewingQuote, likes: newLikes, dislikes: newDislikes, userReaction: newReaction });
     }
+
+    // localStorage'ga saqlash
+    const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
+    const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
+    if (newReaction) {
+      reactions[id] = newReaction;
+    } else {
+      delete reactions[id];
+    }
+    localStorage.setItem('portfolio-book-quote-reactions', JSON.stringify(reactions));
 
     try {
       // Session token olish
