@@ -371,6 +371,12 @@ export async function PUT(request: Request) {
       }
 
       return NextResponse.json({ success: true, data: data[0] });
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },
+        { status: 400 }
+      );
+    }
   } catch (error: any) {
     console.error('PUT error:', error);
     return NextResponse.json(
