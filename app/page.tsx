@@ -1585,18 +1585,31 @@ export default function Portfolio() {
         
         if (result.success) {
           // Gallery ma'lumotlarini qayta yuklash
-          const res = await fetch('/api/gallery');
-          const fetchResult = await res.json();
-          if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
-            const formattedItems = fetchResult.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
-              id: item.id,
-              title: item.title,
-              description: item.description,
-              category: item.category as GalleryItem['category'],
-              images: Array.isArray(item.images) ? item.images : [],
-              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            }));
-            setGalleryItems(formattedItems);
+          try {
+            const fetchRes = await fetch('/api/gallery');
+            const fetchResult = await fetchRes.json();
+            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
+              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
+              if (validItems.length > 0) {
+                const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
+                  id: item.id || 0,
+                  title: item.title || '',
+                  description: item.description || '',
+                  category: (item.category || 'other') as GalleryItem['category'],
+                  images: Array.isArray(item.images) ? item.images : [],
+                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                }));
+                setGalleryItems(formattedItems);
+              }
+            }
+          } catch (fetchError) {
+            console.error('Failed to refresh gallery:', fetchError);
+            // Optimistic update - local state'ni yangilash
+            setGalleryItems(galleryItems.map(item => 
+              item.id === editingGallery.id 
+                ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
+                : item
+            ));
           }
           closeGalleryModal();
         } else {
