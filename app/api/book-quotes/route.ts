@@ -234,16 +234,6 @@ export async function POST(request: Request) {
 // PUT - Kitob fikrni yangilash
 export async function PUT(request: Request) {
   try {
-    // Server-side Supabase client yaratish va authentication tekshirish
-    const { supabase, user } = await createAuthenticatedClient(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
-        { status: 401 }
-      );
-    }
-    
     const body = await request.json();
     const { id, book_title, author, quote, image_url, likes, dislikes } = body;
 
@@ -254,13 +244,24 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Agar faqat likes/dislikes yangilanayotgan bo'lsa (reaksiya), authentication tekshirish shart emas
+    // Agar faqat likes/dislikes yangilanayotgan bo'lsa (reaksiya), authentication shart emas
     // Chunki barcha foydalanuvchilar reaksiya berishi mumkin
-    const isReactionUpdate = likes !== undefined || dislikes !== undefined;
+    const isReactionUpdate = (likes !== undefined || dislikes !== undefined) && 
+                             book_title === undefined && author === undefined && 
+                             quote === undefined && image_url === undefined;
     const isContentUpdate = book_title !== undefined || author !== undefined || quote !== undefined || image_url !== undefined;
 
-    // Agar content yangilanayotgan bo'lsa, huquqni tekshirish
+    // Agar content yangilanayotgan bo'lsa, authentication va huquqni tekshirish
     if (isContentUpdate) {
+      // Server-side Supabase client yaratish va authentication tekshirish
+      const { supabase, user } = await createAuthenticatedClient(request);
+      
+      if (!user) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+          { status: 401 }
+        );
+      }
       // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
       const { data: existingQuotes, error: fetchError } = await supabase
         .from('portfolio_book_quotes_rows')
@@ -296,30 +297,63 @@ export async function PUT(request: Request) {
       }
     }
 
-    const updateData: Record<string, unknown> = {};
-    if (book_title !== undefined) updateData.book_title = book_title;
-    if (author !== undefined) updateData.author = author;
-    if (quote !== undefined) updateData.quote = quote;
-    if (image_url !== undefined) updateData.image_url = image_url;
-    if (likes !== undefined) updateData.likes = likes;
-    // dislikes ni stringga o'zgartirish (jadvalda text formatida)
-    if (dislikes !== undefined) {
-      updateData.dislikes = String(dislikes);
-    }
+      const updateData: Record<string, unknown> = {};
+      if (book_title !== undefined) updateData.book_title = book_title;
+      if (author !== undefined) updateData.author = author;
+      if (quote !== undefined) updateData.quote = quote;
+      if (image_url !== undefined) updateData.image_url = image_url;
+      if (likes !== undefined) updateData.likes = likes;
+      // dislikes ni stringga o'zgartirish (jadvalda text formatida)
+      if (dislikes !== undefined) {
+        updateData.dislikes = String(dislikes);
+      }
 
-    // Hech qanday yangilanish bo'lmasa
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },
-        { status: 400 }
-      );
-    }
-    
-    const { data, error } = await supabase
-      .from('portfolio_book_quotes_rows')
-      .update(updateData)
-      .eq('id', id)
-      .select();
+      // Hech qanday yangilanish bo'lmasa
+      if (Object.keys(updateData).length === 0) {
+        return NextResponse.json(
+          { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },
+          { status: 400 }
+        );
+      }
+      
+      const { data, error } = await supabase
+        .from('portfolio_book_quotes_rows')
+        .update(updateData)
+        .eq('id', id)
+        .select();
+
+      if (error) {
+        console.error('Update error:', error);
+        return NextResponse.json(
+          { success: false, error: error.message || 'Ma\'lumot yangilanmadi' },
+          { status: 500 }
+        );
+      }
+
+      if (!data || data.length === 0) {
+        console.error('Update returned no data for id:', id);
+        return NextResponse.json(
+          { success: false, error: 'Ma\'lumot yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true, data: data[0] });
+    } else if (isReactionUpdate) {
+      // Reaksiya yangilanishi - authentication shart emas, lekin RLS o'chirilgan
+      const supabase = createSupabaseClient();
+      
+      const updateData: Record<string, unknown> = {};
+      if (likes !== undefined) updateData.likes = likes;
+      if (dislikes !== undefined) {
+        updateData.dislikes = String(dislikes);
+      }
+      
+      const { data, error } = await supabase
+        .from('portfolio_book_quotes_rows')
+        .update(updateData)
+        .eq('id', id)
+        .select();
 
     if (error) {
       console.error('Update error:', error);
