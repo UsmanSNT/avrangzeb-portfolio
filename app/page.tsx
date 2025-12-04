@@ -1008,31 +1008,6 @@ export default function Portfolio() {
         console.log('Book quotes API response:', result);
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
-          // Database'dan foydalanuvchi reaksiyalarini yuklash
-          const { data: { user: authUser } } = await supabase.auth.getUser();
-          let reactions: Record<number, 'like' | 'dislike'> = {};
-          
-          if (authUser && result.data.length > 0) {
-            const quoteIds = result.data.map((q: { id: number }) => q.id).join(',');
-            try {
-              const { data: { session } } = await supabase.auth.getSession();
-              const headers: HeadersInit = {};
-              if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-              }
-              
-              const reactionsRes = await fetch(`/api/book-quotes/reactions?quoteIds=${quoteIds}`, {
-                headers,
-              });
-              const reactionsResult = await reactionsRes.json();
-              if (reactionsResult.success && reactionsResult.data) {
-                reactions = reactionsResult.data;
-              }
-            } catch (error) {
-              console.error('Failed to fetch reactions:', error);
-            }
-          }
-          
           const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
             bookTitle: q.book_title,
@@ -1041,7 +1016,7 @@ export default function Portfolio() {
             image: q.image_url,
             likes: q.likes || 0,
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-            userReaction: reactions[q.id] || null,
+            userReaction: null,
           }));
           console.log('Formatted quotes:', formattedQuotes);
           setBookQuotes(formattedQuotes);
@@ -1067,25 +1042,17 @@ export default function Portfolio() {
         const result = await res.json();
         console.log('Gallery API response:', result);
         
-        if (result.success && result.data && Array.isArray(result.data)) {
-          // Null va undefined qiymatlarni tozalash
-          const validItems = result.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
-          
-          if (validItems.length > 0) {
-            const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
-              id: item.id || 0,
-              title: item.title || '',
-              description: item.description || '',
-              category: (item.category || 'other') as GalleryItem['category'],
-              images: Array.isArray(item.images) ? item.images : [],
-              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            }));
-            console.log('Formatted gallery items:', formattedItems);
-            setGalleryItems(formattedItems);
-          } else {
-            console.log('No valid gallery items found, using defaults');
-            setGalleryItems(defaultGalleryItems);
-          }
+        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          const formattedItems = result.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            category: item.category as GalleryItem['category'],
+            images: Array.isArray(item.images) ? item.images : [],
+            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          }));
+          console.log('Formatted gallery items:', formattedItems);
+          setGalleryItems(formattedItems);
         } else {
           console.log('No gallery items found, using defaults');
           setGalleryItems(defaultGalleryItems);
@@ -1224,16 +1191,9 @@ export default function Portfolio() {
     try {
       if (editingQuote) {
         // Update existing quote
-        // Session token olish
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`;
-        }
-        
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: editingQuote.id,
             book_title: bookFormTitle,
@@ -1256,30 +1216,9 @@ export default function Portfolio() {
         }
       } else {
         // Create new quote
-        // Session token olish - getUser() ishlatamiz, chunki u har doim ishlaydi
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        
-        // Token olish - avval session'dan, keyin getUser() dan
-        let accessToken = session?.access_token;
-        if (!accessToken && authUser) {
-          // Agar session bo'lmasa, getUser() dan token olishga harakat qilamiz
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          accessToken = newSession?.access_token;
-        }
-        
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        } else {
-          console.error('No access token found');
-          alert('Xato: Tizimga kirib qaytib keling.');
-          return;
-        }
-        
         const res = await fetch('/api/book-quotes', {
           method: 'POST',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             book_title: bookFormTitle,
             author: bookFormAuthor,
@@ -1290,30 +1229,6 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success && result.data) {
-          // Yangi quote uchun reaksiyani database'dan olish
-          const { data: { user: authUser } } = await supabase.auth.getUser();
-          let userReaction: 'like' | 'dislike' | null = null;
-          
-          if (authUser) {
-            try {
-              const { data: { session } } = await supabase.auth.getSession();
-              const headers: HeadersInit = {};
-              if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-              }
-              
-              const reactionsRes = await fetch(`/api/book-quotes/reactions?quoteIds=${result.data.id}`, {
-                headers,
-              });
-              const reactionsResult = await reactionsRes.json();
-              if (reactionsResult.success && reactionsResult.data && reactionsResult.data[result.data.id]) {
-                userReaction = reactionsResult.data[result.data.id];
-              }
-            } catch (error) {
-              console.error('Failed to fetch reaction for new quote:', error);
-            }
-          }
-          
           const newQuote: BookQuote = {
             id: result.data.id,
             bookTitle: bookFormTitle,
@@ -1322,7 +1237,7 @@ export default function Portfolio() {
             image: bookFormImage,
             likes: 0,
             dislikes: 0,
-            userReaction: userReaction,
+            userReaction: null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
           closeBookModal();
@@ -1357,13 +1272,6 @@ export default function Portfolio() {
     const quote = bookQuotes.find(q => q.id === id);
     if (!quote) return;
     
-    // Foydalanuvchi tizimga kirmagan bo'lsa, reaksiya berish mumkin emas
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (!authUser) {
-      alert('Reaksiya berish uchun tizimga kiring');
-      return;
-    }
-
     let newLikes = quote.likes;
     let newDislikes = quote.dislikes;
     let newReaction: 'like' | 'dislike' | null = reaction;
@@ -1390,79 +1298,18 @@ export default function Portfolio() {
         : q
     ));
 
-    // Update in database - reaksiyani saqlash
+    // Update in database
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      
-      let accessToken = session?.access_token;
-      if (!accessToken) {
-        const { data: { session: newSession } } = await supabase.auth.getSession();
-        accessToken = newSession?.access_token;
-      }
-      
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-      
-      // Reaksiyani database'ga saqlash
-      const reactionRes = await fetch('/api/book-quotes/reactions', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          quote_id: id,
-          reaction_type: newReaction || (reaction === 'like' ? 'dislike' : 'like'), // Toggle uchun
-        }),
-      });
-      
-      const reactionResult = await reactionRes.json();
-      
-      // Likes/dislikes sonini yangilash
-      const res = await fetch('/api/book-quotes', {
+      await fetch('/api/book-quotes', {
         method: 'PUT',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id,
           likes: newLikes,
           dislikes: newDislikes,
         }),
       });
-      
-      const result = await res.json();
-      
-      if (!result.success || !reactionResult.success) {
-        // Agar xato bo'lsa, optimistik update'ni bekor qilish
-        setBookQuotes(bookQuotes.map(q => 
-          q.id === id 
-            ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction }
-            : q
-        ));
-        console.error('Failed to update reaction:', result.error || reactionResult.error);
-      } else {
-        // Reaksiya muvaffaqiyatli saqlandi, yangi reaksiya holatini o'rnatish
-        if (reactionResult.data && reactionResult.data.reaction_type === null) {
-          // Reaksiya o'chirildi
-          setBookQuotes(bookQuotes.map(q => 
-            q.id === id 
-              ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: null }
-              : q
-          ));
-        } else {
-          // Reaksiya qo'shildi yoki yangilandi
-          setBookQuotes(bookQuotes.map(q => 
-            q.id === id 
-              ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: reactionResult.data?.reaction_type || newReaction }
-              : q
-          ));
-        }
-      }
     } catch (error) {
-      // Agar xato bo'lsa, optimistik update'ni bekor qilish
-      setBookQuotes(bookQuotes.map(q => 
-        q.id === id 
-          ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction }
-          : q
-      ));
       console.error('Failed to update reaction:', error);
     }
   };
@@ -1555,24 +1402,9 @@ export default function Portfolio() {
     try {
       if (editingGallery) {
         // Update existing gallery item
-        // Session token olish
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        
-        let accessToken = session?.access_token;
-        if (!accessToken && authUser) {
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          accessToken = newSession?.access_token;
-        }
-        
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        
         const res = await fetch('/api/gallery', {
           method: 'PUT',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: editingGallery.id,
             title: galleryFormTitle,
@@ -1584,81 +1416,42 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success) {
-          // Gallery ma'lumotlarini qayta yuklash
-          try {
-            const fetchRes = await fetch('/api/gallery');
-            const fetchResult = await fetchRes.json();
-            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
-              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
-              if (validItems.length > 0) {
-                const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
-                  id: item.id || 0,
-                  title: item.title || '',
-                  description: item.description || '',
-                  category: (item.category || 'other') as GalleryItem['category'],
-                  images: Array.isArray(item.images) ? item.images : [],
-                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                }));
-                setGalleryItems(formattedItems);
-              }
-            }
-          } catch (fetchError) {
-            console.error('Failed to refresh gallery:', fetchError);
-            // Optimistic update - local state'ni yangilash
-            setGalleryItems(galleryItems.map(item => 
-              item.id === editingGallery.id 
-                ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
-                : item
-            ));
-          }
+          setGalleryItems(galleryItems.map(item => 
+            item.id === editingGallery.id 
+              ? { ...item, title: galleryFormTitle, description: galleryFormDescription, category: galleryFormCategory, images: galleryFormImages }
+              : item
+          ));
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
         }
       } else {
         // Create new gallery item
-        // Session token olish
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        
-        let accessToken = session?.access_token;
-        if (!accessToken && authUser) {
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          accessToken = newSession?.access_token;
-        }
-        
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        
+        // Foydalanuvchi ID ni olish
+        const { data: { user } } = await supabase.auth.getUser();
         const res = await fetch('/api/gallery', {
           method: 'POST',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: galleryFormTitle,
             description: galleryFormDescription,
             category: galleryFormCategory,
             images: galleryFormImages,
+            user_id: user?.id || null,
           }),
         });
         const result = await res.json();
         
         if (result.success && result.data) {
-          // Gallery ma'lumotlarini qayta yuklash
-          const res = await fetch('/api/gallery');
-          const fetchResult = await res.json();
-          if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
-            const formattedItems = fetchResult.data.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string }) => ({
-              id: item.id,
-              title: item.title,
-              description: item.description,
-              category: item.category as GalleryItem['category'],
-              images: Array.isArray(item.images) ? item.images : [],
-              date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            }));
-            setGalleryItems(formattedItems);
-          }
+          const newItem: GalleryItem = {
+            id: result.data.id,
+            title: galleryFormTitle,
+            description: galleryFormDescription,
+            category: galleryFormCategory,
+            images: galleryFormImages,
+            date: today,
+          };
+          setGalleryItems([newItem, ...galleryItems]);
           closeGalleryModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
@@ -1673,58 +1466,16 @@ export default function Portfolio() {
   const deleteGalleryItem = async (id: number) => {
     if (confirm(t.gallery.confirmDelete)) {
       try {
-        // Session token olish
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = {};
-        
-        let accessToken = session?.access_token;
-        if (!accessToken && authUser) {
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          accessToken = newSession?.access_token;
-        }
-        
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        
         const res = await fetch(`/api/gallery?id=${id}`, {
           method: 'DELETE',
-          headers,
         });
         const result = await res.json();
         
         if (result.success) {
-          // Optimistic update - local state'dan o'chirish
           setGalleryItems(galleryItems.filter(item => item.id !== id));
-          
-          // Gallery ma'lumotlarini qayta yuklash (to'g'ri holatni ta'minlash uchun)
-          try {
-            const fetchRes = await fetch('/api/gallery');
-            const fetchResult = await fetchRes.json();
-            if (fetchResult.success && fetchResult.data && Array.isArray(fetchResult.data)) {
-              const validItems = fetchResult.data.filter((item: any) => item && item.id !== null && item.id !== undefined);
-              if (validItems.length > 0) {
-                const formattedItems = validItems.map((item: { id: number; title: string; description: string; category: string; images: string[] | null; created_at: string | null }) => ({
-                  id: item.id || 0,
-                  title: item.title || '',
-                  description: item.description || '',
-                  category: (item.category || 'other') as GalleryItem['category'],
-                  images: Array.isArray(item.images) ? item.images : [],
-                  date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                }));
-                setGalleryItems(formattedItems);
-              }
-            }
-          } catch (fetchError) {
-            console.error('Failed to refresh gallery after delete:', fetchError);
-          }
-        } else {
-          alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
       } catch (error) {
         console.error('Failed to delete gallery item:', error);
-        alert('O\'chirishda xatolik yuz berdi');
       }
     }
   };

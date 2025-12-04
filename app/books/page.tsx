@@ -160,31 +160,6 @@ export default function BooksPage() {
         const res = await fetch('/api/book-quotes');
         const result = await res.json();
         if (result.success && result.data) {
-          // Database'dan foydalanuvchi reaksiyalarini yuklash
-          const { data: { user: authUser } } = await supabase.auth.getUser();
-          let reactions: Record<number, 'like' | 'dislike'> = {};
-          
-          if (authUser && result.data.length > 0) {
-            const quoteIds = result.data.map((q: any) => q.id).join(',');
-            try {
-              const { data: { session } } = await supabase.auth.getSession();
-              const headers: HeadersInit = {};
-              if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-              }
-              
-              const reactionsRes = await fetch(`/api/book-quotes/reactions?quoteIds=${quoteIds}`, {
-                headers,
-              });
-              const reactionsResult = await reactionsRes.json();
-              if (reactionsResult.success && reactionsResult.data) {
-                reactions = reactionsResult.data;
-              }
-            } catch (error) {
-              console.error('Failed to fetch reactions:', error);
-            }
-          }
-          
           const formattedQuotes = result.data.map((q: any) => ({
             id: q.id,
             bookTitle: q.book_title,
@@ -193,7 +168,7 @@ export default function BooksPage() {
             image: q.image_url,
             likes: q.likes || 0,
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-            userReaction: reactions[q.id] || null,
+            userReaction: null,
           }));
           // Sort by likes (top first)
           formattedQuotes.sort((a: BookQuote, b: BookQuote) => b.likes - a.likes);
@@ -297,16 +272,9 @@ export default function BooksPage() {
 
     try {
       if (editingQuote) {
-        // Session token olish
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`;
-        }
-        
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: editingQuote.id,
             book_title: bookFormTitle,
@@ -323,16 +291,9 @@ export default function BooksPage() {
           ));
         }
       } else {
-        // Session token olish
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`;
-        }
-        
         const res = await fetch('/api/book-quotes', {
           method: 'POST',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             book_title: bookFormTitle,
             author: bookFormAuthor,
@@ -342,10 +303,6 @@ export default function BooksPage() {
         });
         const result = await res.json();
         if (result.success && result.data) {
-          // localStorage'dan reaksiyalarni yuklash
-          const savedReactions = localStorage.getItem('portfolio-book-quote-reactions');
-          const reactions: Record<number, 'like' | 'dislike'> = savedReactions ? JSON.parse(savedReactions) : {};
-          
           const newQuote: BookQuote = {
             id: result.data.id,
             bookTitle: bookFormTitle,
@@ -354,7 +311,7 @@ export default function BooksPage() {
             image: bookFormImage,
             likes: 0,
             dislikes: 0,
-            userReaction: reactions[result.data.id] || null,
+            userReaction: null,
           };
           setBookQuotes([newQuote, ...bookQuotes]);
           closeBookModal();
@@ -371,17 +328,7 @@ export default function BooksPage() {
   const deleteQuote = async (id: number) => {
     if (!confirm(t.confirmDelete)) return;
     try {
-      // Session token olish
-      const { data: { session } } = await supabase.auth.getSession();
-      const headers: HeadersInit = {};
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
-      }
-      
-      const res = await fetch(`/api/book-quotes?id=${id}`, { 
-        method: 'DELETE',
-        headers,
-      });
+      const res = await fetch(`/api/book-quotes?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         setBookQuotes(bookQuotes.filter(q => q.id !== id));
       }
@@ -418,83 +365,13 @@ export default function BooksPage() {
       setViewingQuote({ ...viewingQuote, likes: newLikes, dislikes: newDislikes, userReaction: newReaction });
     }
 
-    // Foydalanuvchi tizimga kirmagan bo'lsa, reaksiya berish mumkin emas
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (!authUser) {
-      alert('Reaksiya berish uchun tizimga kiring');
-      // Optimistic update'ni bekor qilish
-      setBookQuotes(bookQuotes.map(q =>
-        q.id === id ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction } : q
-      ));
-      if (viewingQuote?.id === id) {
-        setViewingQuote({ ...viewingQuote, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction });
-      }
-      return;
-    }
-
     try {
-      // Session token olish
-      const { data: { session } } = await supabase.auth.getSession();
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      
-      let accessToken = session?.access_token;
-      if (!accessToken) {
-        const { data: { session: newSession } } = await supabase.auth.getSession();
-        accessToken = newSession?.access_token;
-      }
-      
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-      
-      // Reaksiyani database'ga saqlash
-      const reactionRes = await fetch('/api/book-quotes/reactions', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          quote_id: id,
-          reaction_type: newReaction || (reaction === 'like' ? 'dislike' : 'like'),
-        }),
-      });
-      
-      const reactionResult = await reactionRes.json();
-      
-      // Likes/dislikes sonini yangilash
-      const res = await fetch('/api/book-quotes', {
+      await fetch('/api/book-quotes', {
         method: 'PUT',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, likes: newLikes, dislikes: newDislikes }),
       });
-      
-      const result = await res.json();
-      
-      if (!result.success || !reactionResult.success) {
-        // Agar xato bo'lsa, optimistik update'ni bekor qilish
-        setBookQuotes(bookQuotes.map(q =>
-          q.id === id ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction } : q
-        ));
-        if (viewingQuote?.id === id) {
-          setViewingQuote({ ...viewingQuote, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction });
-        }
-        console.error('Reaction error:', result.error || reactionResult.error);
-      } else {
-        // Reaksiya muvaffaqiyatli saqlandi, yangi reaksiya holatini o'rnatish
-        const finalReaction = reactionResult.data?.reaction_type === null ? null : (reactionResult.data?.reaction_type || newReaction);
-        setBookQuotes(bookQuotes.map(q =>
-          q.id === id ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: finalReaction } : q
-        ));
-        if (viewingQuote?.id === id) {
-          setViewingQuote({ ...viewingQuote, likes: newLikes, dislikes: newDislikes, userReaction: finalReaction });
-        }
-      }
     } catch (error) {
-      // Agar xato bo'lsa, optimistik update'ni bekor qilish
-      setBookQuotes(bookQuotes.map(q =>
-        q.id === id ? { ...q, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction } : q
-      ));
-      if (viewingQuote?.id === id) {
-        setViewingQuote({ ...viewingQuote, likes: quote.likes, dislikes: quote.dislikes, userReaction: quote.userReaction });
-      }
       console.error('Reaction error:', error);
     }
   };

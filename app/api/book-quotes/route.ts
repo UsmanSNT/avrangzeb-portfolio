@@ -112,18 +112,9 @@ export async function GET(request: Request) {
     
     const { data, error } = await query;
 
-    if (error) {
-      console.error('GET book quotes error:', error);
-      return NextResponse.json(
-        { success: false, error: error.message || 'Failed to fetch book quotes' },
-        { status: 500 }
-      );
-    }
+    if (error) throw error;
 
-    // Null id'larni filter qilish
-    const validData = (data || []).filter((item: any) => item && item.id !== null && item.id !== undefined);
-
-    return NextResponse.json({ success: true, data: validData });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch book quotes' },
