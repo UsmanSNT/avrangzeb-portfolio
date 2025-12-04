@@ -342,7 +342,17 @@ export default function BooksPage() {
   const deleteQuote = async (id: number) => {
     if (!confirm(t.confirmDelete)) return;
     try {
-      const res = await fetch(`/api/book-quotes?id=${id}`, { method: 'DELETE' });
+      // Session token olish
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+      
+      const res = await fetch(`/api/book-quotes?id=${id}`, { 
+        method: 'DELETE',
+        headers,
+      });
       if (res.ok) {
         setBookQuotes(bookQuotes.filter(q => q.id !== id));
       }
