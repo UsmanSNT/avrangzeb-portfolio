@@ -1553,16 +1553,35 @@ export default function Portfolio() {
   const deleteGalleryItem = async (id: number) => {
     if (confirm(t.gallery.confirmDelete)) {
       try {
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = {};
+        
+        let accessToken = session?.access_token;
+        if (!accessToken && authUser) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
         const res = await fetch(`/api/gallery?id=${id}`, {
           method: 'DELETE',
+          headers,
         });
         const result = await res.json();
         
         if (result.success) {
           setGalleryItems(galleryItems.filter(item => item.id !== id));
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
       } catch (error) {
         console.error('Failed to delete gallery item:', error);
+        alert('O\'chirishda xatolik yuz berdi');
       }
     }
   };
