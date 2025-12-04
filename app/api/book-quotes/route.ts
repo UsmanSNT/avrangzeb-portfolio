@@ -203,11 +203,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Session'ni tekshirish va debug
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('Session:', session ? 'present' : 'missing');
-    console.log('User ID:', user.id);
-    console.log('Auth UID check:', await supabase.auth.getUser().then(r => r.data.user?.id));
     
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
