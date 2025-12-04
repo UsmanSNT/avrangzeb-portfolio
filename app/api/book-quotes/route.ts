@@ -226,6 +226,45 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { id, book_title, author, quote, image_url, likes, dislikes } = body;
 
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Avval qator mavjudligini va foydalanuvchi huquqini tekshirish
+    const { data: existingQuote, error: fetchError } = await supabase
+      .from('portfolio_book_quotes_rows')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingQuote) {
+      console.error('Quote not found:', fetchError);
+      return NextResponse.json(
+        { success: false, error: 'Kitob fikri topilmadi' },
+        { status: 404 }
+      );
+    }
+
+    // Foydalanuvchi huquqini tekshirish
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+    const isOwner = existingQuote.user_id === user.id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { success: false, error: 'Sizda bu fikrni yangilash huquqi yo\'q' },
+        { status: 403 }
+      );
+    }
+
     const updateData: Record<string, unknown> = {};
     if (book_title !== undefined) updateData.book_title = book_title;
     if (author !== undefined) updateData.author = author;
@@ -235,6 +274,14 @@ export async function PUT(request: Request) {
     // dislikes ni stringga o'zgartirish (jadvalda text formatida)
     if (dislikes !== undefined) {
       updateData.dislikes = String(dislikes);
+    }
+
+    // Hech qanday yangilanish bo'lmasa
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },
+        { status: 400 }
+      );
     }
     
     const { data, error } = await supabase
@@ -246,15 +293,16 @@ export async function PUT(request: Request) {
     if (error) {
       console.error('Update error:', error);
       return NextResponse.json(
-        { success: false, error: error.message || 'Failed to update book quote' },
+        { success: false, error: error.message || 'Ma\'lumot yangilanmadi' },
         { status: 500 }
       );
     }
 
     if (!data || data.length === 0) {
+      console.error('Update returned no data for id:', id);
       return NextResponse.json(
-        { success: false, error: 'Book quote not found or update failed' },
-        { status: 404 }
+        { success: false, error: 'Ma\'lumot yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
+        { status: 500 }
       );
     }
 
@@ -262,7 +310,7 @@ export async function PUT(request: Request) {
   } catch (error: any) {
     console.error('PUT error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to update book quote' },
+      { success: false, error: error.message || 'Ma\'lumot yangilashda xatolik yuz berdi' },
       { status: 500 }
     );
   }
