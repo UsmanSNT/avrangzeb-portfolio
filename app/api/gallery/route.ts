@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 
 // Helper function to create unauthenticated Supabase client
 function createSupabaseClient() {
@@ -13,35 +11,72 @@ function createSupabaseClient() {
 
 // Helper function to create authenticated Supabase client from request
 async function createAuthenticatedClient(request: Request) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, '', options);
-        },
-      },
-    }
-  );
-
-  // Authorization header'dan token olish
-  const authHeader = request.headers.get('Authorization');
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    await supabase.auth.setSession({
-      access_token: token,
-      refresh_token: '',
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  // Request header'dan Authorization token olish
+  const authHeader = request.headers.get('authorization');
+  let accessToken: string | null = null;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    accessToken = authHeader.substring(7);
+  }
+  
+  // Cookie'lardan token olish
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies: Record<string, string> = {};
+  
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      if (key && value) {
+        cookies[key] = decodeURIComponent(value);
+      }
     });
   }
-
+  
+  // Supabase cookie nomlarini topish
+  const projectRef = supabaseUrl.split('//')[1].split('.')[0];
+  const possibleTokenKeys = [
+    `sb-${projectRef}-auth-token`,
+    `sb-access-token`,
+  ];
+  
+  if (!accessToken) {
+    for (const key of possibleTokenKeys) {
+      if (cookies[key]) {
+        try {
+          const cookieValue = cookies[key];
+          if (cookieValue.startsWith('{')) {
+            const parsed = JSON.parse(cookieValue);
+            accessToken = parsed.access_token || parsed;
+          } else {
+            accessToken = cookieValue;
+          }
+          break;
+        } catch {
+          accessToken = cookies[key];
+          break;
+        }
+      }
+    }
+  }
+  
+  // Agar token topilmasa, unauthenticated client qaytarish
+  if (!accessToken) {
+    const supabase = createSupabaseClient();
+    return { supabase, user: null };
+  }
+  
+  // Authenticated client yaratish
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+  
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
