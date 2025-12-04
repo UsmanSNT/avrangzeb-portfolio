@@ -255,9 +255,24 @@ export default function GalleryPage() {
 
     try {
       if (editingGallery) {
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken && authUser) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
         const res = await fetch('/api/gallery', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             id: editingGallery.id,
             title: galleryFormTitle,
