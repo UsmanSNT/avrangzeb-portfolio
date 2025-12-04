@@ -19,12 +19,22 @@ export async function GET(request: Request) {
     
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('GET gallery error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to fetch gallery items' },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
+    // Null id'larni filter qilish
+    const validData = (data || []).filter((item: any) => item && item.id !== null && item.id !== undefined);
+
+    return NextResponse.json({ success: true, data: validData });
+  } catch (error: any) {
+    console.error('GET gallery error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch gallery items' },
+      { success: false, error: error.message || 'Failed to fetch gallery items' },
       { status: 500 }
     );
   }
@@ -36,18 +46,38 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, description, category, images, user_id } = body;
 
+    if (!title) {
+      return NextResponse.json(
+        { success: false, error: 'Sarlavha majburiy maydon' },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabase
       .from('portfolio_gallery_rows')
-      .insert([{ title, description, category, images: images || [], user_id }])
-      .select()
-      .single();
+      .insert([{ title, description: description || null, category: category || 'other', images: images || [], user_id }])
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Gallery insert error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to create gallery item' },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to create gallery item - no data returned' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: data[0] });
+  } catch (error: any) {
+    console.error('POST gallery error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create gallery item' },
+      { success: false, error: error.message || 'Failed to create gallery item' },
       { status: 500 }
     );
   }
@@ -59,25 +89,52 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { id, title, description, category, images } = body;
 
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'ID is required' },
+        { status: 400 }
+      );
+    }
+
     const updateData: Record<string, unknown> = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (category !== undefined) updateData.category = category;
     if (images !== undefined) updateData.images = images;
 
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabase
       .from('portfolio_gallery_rows')
       .update(updateData)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Gallery update error:', error);
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to update gallery item' },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Galereya elementi topilmadi yoki yangilash amalga oshmadi' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: data[0] });
+  } catch (error: any) {
+    console.error('PUT gallery error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update gallery item' },
+      { success: false, error: error.message || 'Failed to update gallery item' },
       { status: 500 }
     );
   }
