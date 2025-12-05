@@ -1367,9 +1367,13 @@ export default function Portfolio() {
         const result = await res.json();
         
         if (result.success) {
+          console.log('Quote deleted successfully');
+          // Kichik kechikish - ma'lumotlar database'dan o'chirilishini kutish
+          await new Promise(resolve => setTimeout(resolve, 300));
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
         } else {
+          console.error('Failed to delete quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
       } catch (error) {

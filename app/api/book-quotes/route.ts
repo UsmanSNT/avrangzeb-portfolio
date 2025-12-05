@@ -339,24 +339,43 @@ export async function PUT(request: Request) {
         .from('portfolio_book_quotes_rows')
         .update(updateData)
         .eq('id', id)
-        .select();
+        .select('*');
 
       if (error) {
-        console.error('Update error:', error);
+        console.error('PUT request - Update error:', error);
+        console.error('PUT request - Error code:', error.code);
+        console.error('PUT request - Error message:', error.message);
         return NextResponse.json(
           { success: false, error: error.message || 'Ma\'lumot yangilanmadi' },
           { status: 500 }
         );
       }
 
-      if (!data || data.length === 0) {
-        console.error('Update returned no data for id:', id);
-        return NextResponse.json(
-          { success: false, error: 'Ma\'lumot yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
-          { status: 500 }
-        );
+      if (!data || data.length === 0 || !data[0] || !data[0].id) {
+        console.error('PUT request - Update returned no data for id:', id);
+        console.error('PUT request - Data:', data);
+        
+        // Qayta urinib ko'ramiz - yangilangan ma'lumotni o'qib olish
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const { data: retryData, error: retryError } = await supabase
+          .from('portfolio_book_quotes_rows')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (retryError || !retryData || !retryData.id) {
+          console.error('PUT request - Retry fetch error:', retryError);
+          return NextResponse.json(
+            { success: false, error: 'Ma\'lumot yangilandi, lekin o\'qib bo\'lmadi. Iltimos, sahifani yangilang.' },
+            { status: 500 }
+          );
+        }
+        
+        console.log('PUT request - Retry fetch successful, data:', retryData);
+        return NextResponse.json({ success: true, data: retryData });
       }
 
+      console.log('PUT request - Update successful, data:', data[0]);
       return NextResponse.json({ success: true, data: data[0] });
     } else if (isReactionUpdate) {
       // Reaksiya yangilanishi - authentication shart emas, chunki RLS o'chirilgan
