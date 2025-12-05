@@ -313,7 +313,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, book_title, author, quote, image_url, likes, dislikes } = body;
+    const { id, book_title, author, quote, image_url, likes, dislikes, reaction } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -322,11 +322,9 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Agar faqat likes/dislikes yangilanayotgan bo'lsa (reaksiya), authentication shart emas
-    // Chunki barcha foydalanuvchilar reaksiya berishi mumkin
-    const isReactionUpdate = (likes !== undefined || dislikes !== undefined) && 
-                             book_title === undefined && author === undefined && 
-                             quote === undefined && image_url === undefined;
+    // Agar reaction field yuborilgan bo'lsa, bu reaction update
+    const isReactionUpdate = reaction !== undefined;
+    // Agar content field'lar yuborilgan bo'lsa, bu content update
     const isContentUpdate = book_title !== undefined || author !== undefined || quote !== undefined || image_url !== undefined;
 
     // Agar content yangilanayotgan bo'lsa, authentication va huquqni tekshirish
