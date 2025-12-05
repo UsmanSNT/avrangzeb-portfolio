@@ -883,30 +883,54 @@ export default function Portfolio() {
     setContactError("");
     setContactSuccess(false);
 
+    // Validation
+    if (!contactName.trim()) {
+      setContactError("Ism maydoni to'ldirilishi kerak");
+      setIsContactSending(false);
+      return;
+    }
+
+    if (!contactTelegram.trim()) {
+      setContactError("Telegram maydoni to'ldirilishi kerak");
+      setIsContactSending(false);
+      return;
+    }
+
+    if (!contactMessage.trim()) {
+      setContactError("Xabar maydoni to'ldirilishi kerak");
+      setIsContactSending(false);
+      return;
+    }
+
     try {
+      console.log('Sending contact form:', { name: contactName, telegram: contactTelegram });
+      
       const res = await fetch('/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: contactName,
-          telegram: contactTelegram,
-          message: contactMessage
+          name: contactName.trim(),
+          telegram: contactTelegram.trim(),
+          message: contactMessage.trim()
         })
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      console.log('Contact form response:', data);
+
+      if (res.ok && data.success) {
         setContactSuccess(true);
         setContactName("");
         setContactTelegram("");
         setContactMessage("");
-        // 3 soniyadan keyin success xabarini o'chirish
+        // 5 soniyadan keyin success xabarini o'chirish
         setTimeout(() => setContactSuccess(false), 5000);
       } else {
-        const data = await res.json();
-        setContactError(data.error || "Xabar yuborishda xatolik");
+        setContactError(data.error || "Xabar yuborishda xatolik yuz berdi");
       }
-    } catch (error) {
-      setContactError("Xabar yuborishda xatolik yuz berdi");
+    } catch (error: any) {
+      console.error('Contact form error:', error);
+      setContactError(error.message || "Xabar yuborishda xatolik yuz berdi");
     } finally {
       setIsContactSending(false);
     }

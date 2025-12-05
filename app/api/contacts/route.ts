@@ -110,26 +110,81 @@ export async function GET() {
 // Yangi xabar yuborish
 export async function POST(request: NextRequest) {
   try {
-    const { name, telegram, message } = await request.json();
+    const body = await request.json();
+    const { name, telegram, message } = body;
 
-    if (!name || !telegram || !message) {
-      return NextResponse.json({ error: 'Barcha maydonlar to\'ldirilishi kerak' }, { status: 400 });
+    console.log('POST /api/contacts - Request body:', { name, telegram, message: message?.substring(0, 50) + '...' });
+
+    // Validation
+    if (!name || !name.trim()) {
+      return NextResponse.json({ error: 'Ism maydoni to\'ldirilishi kerak' }, { status: 400 });
+    }
+
+    if (!telegram || !telegram.trim()) {
+      return NextResponse.json({ error: 'Telegram maydoni to\'ldirilishi kerak' }, { status: 400 });
+    }
+
+    if (!message || !message.trim()) {
+      return NextResponse.json({ error: 'Xabar maydoni to\'ldirilishi kerak' }, { status: 400 });
     }
 
     // Database'ga saqlash
+    console.log('POST /api/contacts - Inserting to database...');
     const { data, error } = await supabase
       .from('portfolio_contacts')
-      .insert([{ name, telegram, message }])
+      .insert([{ 
+        name: name.trim(), 
+        telegram: telegram.trim(), 
+        message: message.trim() 
+      }])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('POST /api/contacts - Database error:', error);
+      console.error('POST /api/contacts - Error code:', error.code);
+      console.error('POST /api/contacts - Error message:', error.message);
+      console.error('POST /api/contacts - Error details:', error.details);
+      console.error('POST /api/contacts - Error hint:', error.hint);
+      
+      // RLS policy xatosini aniq ko'rsatish
+      if (error.message?.includes('row-level security') || error.code === '42501') {
+        return NextResponse.json({ 
+          error: 'Xavfsizlik siyosati: Xabar yuborish huquqi yo\'q' 
+        }, { status: 403 });
+      }
+      
+      return NextResponse.json({ 
+        error: error.message || 'Xabar saqlashda xatolik yuz berdi' 
+      }, { status: 500 });
+    }
 
-    // Telegram'ga yuborish (agar sozlangan bo'lsa)
-    const telegramSent = await sendTelegramMessage(name, telegram, message);
+    if (!data || !data.id) {
+      console.error('POST /api/contacts - Insert returned no data or invalid ID:', data);
+      return NextResponse.json({ 
+        error: 'Xabar saqlandi, lekin ma\'lumot olinmadi' 
+      }, { status: 500 });
+    }
+
+    console.log('POST /api/contacts - Data saved successfully:', data);
+
+    // Telegram'ga yuborish (agar sozlangan bo'lsa) - async, xato bo'lsa ham davom etadi
+    let telegramSent = false;
+    try {
+      telegramSent = await sendTelegramMessage(name.trim(), telegram.trim(), message.trim());
+      console.log('POST /api/contacts - Telegram notification sent:', telegramSent);
+    } catch (telegramError) {
+      console.error('POST /api/contacts - Telegram error (non-blocking):', telegramError);
+    }
     
-    // Email'ga yuborish (agar sozlangan bo'lsa)
-    const emailSent = await sendEmailNotification(name, telegram, message);
+    // Email'ga yuborish (agar sozlangan bo'lsa) - async, xato bo'lsa ham davom etadi
+    let emailSent = false;
+    try {
+      emailSent = await sendEmailNotification(name.trim(), telegram.trim(), message.trim());
+      console.log('POST /api/contacts - Email notification sent:', emailSent);
+    } catch (emailError) {
+      console.error('POST /api/contacts - Email error (non-blocking):', emailError);
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -140,9 +195,11 @@ export async function POST(request: NextRequest) {
       },
       data 
     });
-  } catch (error) {
-    console.error('Send contact error:', error);
-    return NextResponse.json({ error: 'Xabar yuborishda xatolik' }, { status: 500 });
+  } catch (error: any) {
+    console.error('POST /api/contacts - Unexpected error:', error);
+    return NextResponse.json({ 
+      error: error.message || 'Xabar yuborishda kutilmagan xatolik yuz berdi' 
+    }, { status: 500 });
   }
 }
 
