@@ -1292,6 +1292,7 @@ export default function Portfolio() {
         }
       } else {
         // Create new quote
+        console.log('Creating new quote:', { book_title: bookFormTitle, author: bookFormAuthor, quote: bookFormQuote });
         const res = await fetch('/api/book-quotes', {
           method: 'POST',
           headers,
@@ -1303,12 +1304,15 @@ export default function Portfolio() {
           }),
         });
         const result = await res.json();
+        console.log('POST response:', result);
         
         if (result.success && result.data) {
+          console.log('Quote created successfully:', result.data);
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
           closeBookModal();
         } else {
+          console.error('Failed to create quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
         }
       }

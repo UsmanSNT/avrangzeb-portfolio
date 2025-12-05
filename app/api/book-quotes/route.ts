@@ -129,7 +129,10 @@ export async function POST(request: Request) {
     // Server-side Supabase client yaratish va authentication tekshirish
     const { supabase, user } = await createAuthenticatedClient(request);
     
+    console.log('POST request - user:', user ? user.id : 'null');
+    
     if (!user) {
+      console.error('POST request - No user found');
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
         { status: 401 }
@@ -138,6 +141,8 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { book_title, author, quote, image_url } = body;
+    
+    console.log('POST request - body:', { book_title, author, quote: quote?.substring(0, 50) + '...' });
 
     // Majburiy maydonlarni tekshirish
     if (!book_title || !quote) {
@@ -147,6 +152,8 @@ export async function POST(request: Request) {
       );
     }
 
+    
+    console.log('POST request - Inserting data with user_id:', user.id);
     
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
@@ -162,10 +169,11 @@ export async function POST(request: Request) {
       .select();
 
     if (error) {
-      console.error('Database error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error details:', error.details);
-      console.error('Error hint:', error.hint);
+      console.error('POST request - Database error:', error);
+      console.error('POST request - Error code:', error.code);
+      console.error('POST request - Error details:', error.details);
+      console.error('POST request - Error hint:', error.hint);
+      console.error('POST request - Error message:', error.message);
       
       // RLS policy xatosini aniq ko'rsatish
       if (error.message?.includes('row-level security') || error.code === '42501') {
