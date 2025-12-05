@@ -1308,8 +1308,14 @@ export default function Portfolio() {
         
         if (result.success && result.data) {
           console.log('Quote created successfully:', result.data);
+          // Kichik kechikish - ma'lumotlar database'ga yozilishini kutish
+          await new Promise(resolve => setTimeout(resolve, 300));
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
+          // Yana bir bor tekshirish - agar hali ko'rinmasa
+          setTimeout(async () => {
+            await fetchBookQuotes();
+          }, 1000);
           closeBookModal();
         } else {
           console.error('Failed to create quote:', result);

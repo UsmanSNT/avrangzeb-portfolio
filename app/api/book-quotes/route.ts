@@ -229,13 +229,36 @@ export async function POST(request: Request) {
     }
 
     if (!data || data.length === 0) {
-      console.error('Insert returned no data');
-      return NextResponse.json(
-        { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
-        { status: 500 }
-      );
+      console.error('POST request - Insert returned no data');
+      console.error('POST request - This might be an RLS policy issue');
+      
+      // Qayta urinib ko'ramiz - ba'zida birinchi urinishda ishlamaydi
+      const { data: retryData, error: retryError } = await supabase
+        .from('portfolio_book_quotes_rows')
+        .insert([insertData])
+        .select();
+      
+      if (retryError) {
+        console.error('POST request - Retry error:', retryError);
+        return NextResponse.json(
+          { success: false, error: retryError.message || 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
+          { status: 500 }
+        );
+      }
+      
+      if (!retryData || retryData.length === 0) {
+        console.error('POST request - Retry also returned no data');
+        return NextResponse.json(
+          { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
+          { status: 500 }
+        );
+      }
+      
+      console.log('POST request - Retry successful, data:', retryData);
+      return NextResponse.json({ success: true, data: retryData[0] });
     }
 
+    console.log('POST request - Insert successful, returning data:', data[0]);
     return NextResponse.json({ success: true, data: data[0] });
   } catch (error: any) {
     console.error('POST error:', error);
