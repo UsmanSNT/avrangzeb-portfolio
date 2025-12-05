@@ -103,6 +103,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('portfolio_book_quotes_rows')
       .select('*')
+      .not('id', 'is', null) // NULL ID'larni filter qilish
       .order('created_at', { ascending: false });
     
     // Agar userId berilgan bo'lsa, faqat o'sha foydalanuvchining ma'lumotlarini olish
@@ -112,12 +113,19 @@ export async function GET(request: Request) {
     
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('GET book quotes error:', error);
+      throw error;
+    }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
+    // Qo'shimcha filter - NULL ID'larni o'chirish
+    const validData = (data || []).filter((item: any) => item && item.id !== null && item.id !== undefined);
+
+    return NextResponse.json({ success: true, data: validData });
+  } catch (error: any) {
+    console.error('GET book quotes error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch book quotes' },
+      { success: false, error: error.message || 'Failed to fetch book quotes' },
       { status: 500 }
     );
   }
@@ -167,10 +175,11 @@ export async function POST(request: Request) {
     
     console.log('POST request - Insert data:', insertData);
     
+    // INSERT operatsiyasini bajarish
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
       .insert([insertData])
-      .select();
+      .select('*'); // Barcha maydonlarni qaytarish
     
     console.log('POST request - Insert result - data:', data);
     console.log('POST request - Insert result - error:', error);
@@ -184,39 +193,6 @@ export async function POST(request: Request) {
       
       // RLS policy xatosini aniq ko'rsatish
       if (error.message?.includes('row-level security') || error.code === '42501') {
-        // Session'ni qayta o'rnatishga harakat qilamiz
-        const authHeader = request.headers.get('authorization');
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const token = authHeader.substring(7);
-          try {
-            const { data: { session: newSession }, error: sessionError } = await supabase.auth.setSession({
-              access_token: token,
-              refresh_token: token, // Temporary, as we don't have refresh token
-            });
-            if (!sessionError && newSession) {
-              // Qayta urinib ko'ramiz
-              const { data: retryData, error: retryError } = await supabase
-                .from('portfolio_book_quotes_rows')
-                .insert([{ 
-                  book_title, 
-                  author: author || null, 
-                  quote, 
-                  image_url: image_url || null, 
-                  likes: 0, 
-                  dislikes: '0', 
-                  user_id: user.id 
-                }])
-                .select();
-              
-              if (!retryError && retryData) {
-                return NextResponse.json({ success: true, data: retryData[0] });
-              }
-            }
-          } catch (e) {
-            console.error('Retry error:', e);
-          }
-        }
-        
         return NextResponse.json(
           { success: false, error: 'Xavfsizlik siyosati: Ma\'lumot qo\'shish huquqi yo\'q. Iltimos, tizimga kirib qaytib keling.' },
           { status: 403 }
@@ -228,34 +204,40 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!data || data.length === 0) {
-      console.error('POST request - Insert returned no data');
-      console.error('POST request - This might be an RLS policy issue');
+    // Ma'lumotlar to'g'ri qaytganini tekshirish
+    if (!data || data.length === 0 || !data[0] || !data[0].id) {
+      console.error('POST request - Insert returned no data or invalid data');
+      console.error('POST request - Data:', data);
       
-      // Qayta urinib ko'ramiz - ba'zida birinchi urinishda ishlamaydi
+      // 1 soniya kutib, qayta urinib ko'ramiz
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Qayta urinib ko'ramiz
       const { data: retryData, error: retryError } = await supabase
         .from('portfolio_book_quotes_rows')
-        .insert([insertData])
-        .select();
+        .select('*')
+        .eq('book_title', book_title)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
       
       if (retryError) {
-        console.error('POST request - Retry error:', retryError);
+        console.error('POST request - Retry fetch error:', retryError);
         return NextResponse.json(
-          { success: false, error: retryError.message || 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
+          { success: false, error: 'Ma\'lumot qo\'shildi, lekin o\'qib bo\'lmadi. Iltimos, sahifani yangilang.' },
           { status: 500 }
         );
       }
       
-      if (!retryData || retryData.length === 0) {
-        console.error('POST request - Retry also returned no data');
-        return NextResponse.json(
-          { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
-          { status: 500 }
-        );
+      if (retryData && retryData.length > 0 && retryData[0].id) {
+        console.log('POST request - Retry fetch successful, data:', retryData[0]);
+        return NextResponse.json({ success: true, data: retryData[0] });
       }
       
-      console.log('POST request - Retry successful, data:', retryData);
-      return NextResponse.json({ success: true, data: retryData[0] });
+      return NextResponse.json(
+        { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
+        { status: 500 }
+      );
     }
 
     console.log('POST request - Insert successful, returning data:', data[0]);

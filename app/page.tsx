@@ -1051,25 +1051,34 @@ export default function Portfolio() {
   // Book quotes ma'lumotlarini yuklash funksiyasi
   const fetchBookQuotes = async () => {
     try {
+      setIsLoadingQuotes(true);
       const res = await fetch('/api/book-quotes');
       const result = await res.json();
       console.log('Book quotes API response:', result);
       
-      if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+      if (result.success && result.data && Array.isArray(result.data)) {
+        // NULL ID'larni filter qilish va formatlash
         const formattedQuotes = result.data
-          .filter((q: any) => q && q.id !== null && q.id !== undefined)
+          .filter((q: any) => q && q.id !== null && q.id !== undefined && q.id !== '')
           .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
-            id: q.id,
-            bookTitle: q.book_title,
-            author: q.author,
-            quote: q.quote,
+            id: Number(q.id), // ID'ni number ga o'zgartirish
+            bookTitle: q.book_title || '',
+            author: q.author || '',
+            quote: q.quote || '',
             image: null,
-            likes: q.likes || 0,
-            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
+            likes: Number(q.likes) || 0,
+            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (Number(q.dislikes) || 0),
             userReaction: null,
           }));
+        
         console.log('Formatted quotes:', formattedQuotes);
-        setBookQuotes(formattedQuotes);
+        
+        if (formattedQuotes.length > 0) {
+          setBookQuotes(formattedQuotes);
+        } else {
+          console.log('No valid quotes found, using defaults');
+          setBookQuotes(defaultBookQuotes);
+        }
       } else {
         console.log('No quotes found, using defaults');
         setBookQuotes(defaultBookQuotes);
@@ -1308,15 +1317,12 @@ export default function Portfolio() {
         
         if (result.success && result.data) {
           console.log('Quote created successfully:', result.data);
+          // Modal'ni yopish
+          closeBookModal();
           // Kichik kechikish - ma'lumotlar database'ga yozilishini kutish
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 500));
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
-          // Yana bir bor tekshirish - agar hali ko'rinmasa
-          setTimeout(async () => {
-            await fetchBookQuotes();
-          }, 1000);
-          closeBookModal();
         } else {
           console.error('Failed to create quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
