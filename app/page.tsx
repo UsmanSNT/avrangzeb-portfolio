@@ -1085,21 +1085,38 @@ export default function Portfolio() {
             return true;
           })
           .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => {
-            const idNum = Number(q.id);
-            const likesNum = Number(q.likes) || 0;
-            const dislikesNum = typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (Number(q.dislikes) || 0);
-            
-            return {
-              id: idNum,
-              bookTitle: q.book_title || '',
-              author: q.author || '',
-              quote: q.quote || '',
-              image: null,
-              likes: likesNum,
-              dislikes: dislikesNum,
-              userReaction: null,
-            };
-          });
+            try {
+              const idNum = Number(q.id);
+              const likesNum = Number(q.likes) || 0;
+              // dislikes ni to'g'ri parse qilish - agar string bo'lsa va "-1" kabi bo'lsa
+              let dislikesNum = 0;
+              if (typeof q.dislikes === 'string') {
+                const parsed = parseInt(q.dislikes);
+                dislikesNum = isNaN(parsed) ? 0 : Math.max(0, parsed); // Manfiy sonlarni 0 ga o'zgartirish
+              } else {
+                dislikesNum = Number(q.dislikes) || 0;
+                if (dislikesNum < 0) dislikesNum = 0;
+              }
+              
+              const formatted = {
+                id: idNum,
+                bookTitle: q.book_title || '',
+                author: q.author || '',
+                quote: q.quote || '',
+                image: null,
+                likes: likesNum,
+                dislikes: dislikesNum,
+                userReaction: null,
+              };
+              
+              console.log('Formatted quote:', formatted);
+              return formatted;
+            } catch (error) {
+              console.error('Error formatting quote:', q, error);
+              return null;
+            }
+          })
+          .filter((q: any) => q !== null); // null qiymatlarni o'chirish
         
         console.log('Formatted quotes count:', formattedQuotes.length);
         console.log('Formatted quotes:', formattedQuotes);
