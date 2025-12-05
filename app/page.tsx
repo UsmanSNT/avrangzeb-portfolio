@@ -1048,38 +1048,42 @@ export default function Portfolio() {
     migrateOldData();
   }, []);
 
-  // Load book quotes from API
-  useEffect(() => {
-    const fetchBookQuotes = async () => {
-      try {
-        const res = await fetch('/api/book-quotes');
-        const result = await res.json();
-        console.log('Book quotes API response:', result);
-        
-        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
-          const formattedQuotes = result.data.map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
+  // Book quotes ma'lumotlarini yuklash funksiyasi
+  const fetchBookQuotes = async () => {
+    try {
+      const res = await fetch('/api/book-quotes');
+      const result = await res.json();
+      console.log('Book quotes API response:', result);
+      
+      if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+        const formattedQuotes = result.data
+          .filter((q: any) => q && q.id !== null && q.id !== undefined)
+          .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
             id: q.id,
             bookTitle: q.book_title,
             author: q.author,
             quote: q.quote,
-            image: q.image_url,
+            image: null,
             likes: q.likes || 0,
             dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
             userReaction: null,
           }));
-          console.log('Formatted quotes:', formattedQuotes);
-          setBookQuotes(formattedQuotes);
-        } else {
-          console.log('No quotes found, using defaults');
-          setBookQuotes(defaultBookQuotes);
-        }
-      } catch (error) {
-        console.error('Failed to fetch book quotes:', error);
+        console.log('Formatted quotes:', formattedQuotes);
+        setBookQuotes(formattedQuotes);
+      } else {
+        console.log('No quotes found, using defaults');
         setBookQuotes(defaultBookQuotes);
-      } finally {
-        setIsLoadingQuotes(false);
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch book quotes:', error);
+      setBookQuotes(defaultBookQuotes);
+    } finally {
+      setIsLoadingQuotes(false);
+    }
+  };
+
+  // Load book quotes from API on mount
+  useEffect(() => {
     fetchBookQuotes();
   }, []);
 
@@ -1281,23 +1285,7 @@ export default function Portfolio() {
         
         if (result.success) {
           // Ma'lumotlarni qayta yuklash
-          const refreshRes = await fetch('/api/book-quotes');
-          const refreshResult = await refreshRes.json();
-          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
-            const formattedQuotes = refreshResult.data
-              .filter((item: any) => item && item.id !== null && item.id !== undefined)
-              .map((item: any) => ({
-                id: item.id,
-                bookTitle: item.book_title,
-                author: item.author,
-                quote: item.quote,
-                image: null,
-                likes: item.likes || 0,
-                dislikes: item.dislikes || 0,
-                userReaction: null,
-              }));
-            setBookQuotes(formattedQuotes);
-          }
+          await fetchBookQuotes();
           closeBookModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
@@ -1318,23 +1306,7 @@ export default function Portfolio() {
         
         if (result.success && result.data) {
           // Ma'lumotlarni qayta yuklash
-          const refreshRes = await fetch('/api/book-quotes');
-          const refreshResult = await refreshRes.json();
-          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
-            const formattedQuotes = refreshResult.data
-              .filter((item: any) => item && item.id !== null && item.id !== undefined)
-              .map((item: any) => ({
-                id: item.id,
-                bookTitle: item.book_title,
-                author: item.author,
-                quote: item.quote,
-                image: null,
-                likes: item.likes || 0,
-                dislikes: item.dislikes || 0,
-                userReaction: null,
-              }));
-            setBookQuotes(formattedQuotes);
-          }
+          await fetchBookQuotes();
           closeBookModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
@@ -1380,23 +1352,7 @@ export default function Portfolio() {
         
         if (result.success) {
           // Ma'lumotlarni qayta yuklash
-          const refreshRes = await fetch('/api/book-quotes');
-          const refreshResult = await refreshRes.json();
-          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
-            const formattedQuotes = refreshResult.data
-              .filter((item: any) => item && item.id !== null && item.id !== undefined)
-              .map((item: any) => ({
-                id: item.id,
-                bookTitle: item.book_title,
-                author: item.author,
-                quote: item.quote,
-                image: null,
-                likes: item.likes || 0,
-                dislikes: item.dislikes || 0,
-                userReaction: null,
-              }));
-            setBookQuotes(formattedQuotes);
-          }
+          await fetchBookQuotes();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
