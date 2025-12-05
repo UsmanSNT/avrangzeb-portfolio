@@ -1137,7 +1137,7 @@ export default function Portfolio() {
       setBookFormTitle(quote.bookTitle);
       setBookFormAuthor(quote.author);
       setBookFormQuote(quote.quote);
-      setBookFormImage(quote.image);
+      setBookFormImage(null); // Rasmlarni olib tashladik
     } else {
       setEditingQuote(null);
       setBookFormTitle("");
