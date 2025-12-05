@@ -560,7 +560,9 @@ export async function PUT(request: Request) {
       // portfolio_book_quotes_rows table'ni yangilash
       // Note: Bu table'ni yangilash shart emas, chunki reaction count'lar har safar hisoblanadi
       // Lekin backward compatibility uchun saqlab qolamiz
-      const { data: updatedQuote, error: updateQuoteError } = await supabase
+      // RLS policy muammosi bo'lishi mumkin, shuning uchun try-catch qo'shamiz
+      let updatedQuote: any = null;
+      const { data: updateResult, error: updateQuoteError } = await supabase
         .from('portfolio_book_quotes_rows')
         .update({ 
           likes: finalLikesCount,
@@ -577,8 +579,8 @@ export async function PUT(request: Request) {
         console.error('Update quote error details:', updateQuoteError.details);
         console.error('Update quote error hint:', updateQuoteError.hint);
         
-        // Agar update xato bersa, lekin reaction saqlangan bo'lsa, 
-        // faqat reaction ma'lumotlarini qaytaramiz
+        // Agar update xato bersa (RLS policy muammosi bo'lishi mumkin),
+        // faqat quote ma'lumotlarini o'qib olamiz
         const { data: quoteData, error: fetchQuoteError } = await supabase
           .from('portfolio_book_quotes_rows')
           .select('*')
@@ -586,22 +588,23 @@ export async function PUT(request: Request) {
           .single();
         
         if (fetchQuoteError || !quoteData) {
-          return NextResponse.json(
-            { success: false, error: 'Quote yangilashda xatolik: ' + (updateQuoteError.message || 'Noma\'lum xatolik') },
-            { status: 500 }
-          );
+          console.error('Fetch quote error:', fetchQuoteError);
+          // Agar quote topilmasa ham, reaction saqlangan bo'lgani uchun muvaffaqiyatli deb qaytaramiz
+          // Frontend reaction count'larni GET request'dan oladi
+          return NextResponse.json({ 
+            success: true, 
+            data: {
+              id: id,
+              likes: finalLikesCount,
+              dislikes: finalDislikesCount,
+              userReaction: reaction || null,
+            }
+          });
         }
         
-        // Reaction count'larni qo'shib qaytaramiz
-        return NextResponse.json({ 
-          success: true, 
-          data: {
-            ...quoteData,
-            likes: finalLikesCount,
-            dislikes: finalDislikesCount,
-            userReaction: reaction || null,
-          }
-        });
+        updatedQuote = quoteData;
+      } else {
+        updatedQuote = updateResult;
       }
       
       // User'ning reaction'ini qo'shish
