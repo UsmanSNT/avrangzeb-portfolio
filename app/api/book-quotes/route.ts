@@ -100,7 +100,19 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     
+    // User'ning reaction'larini olish uchun authentication token olish
+    let currentUserId: string | null = null;
+    try {
+      const { supabase: authSupabase, user } = await createAuthenticatedClient(request);
+      if (user) {
+        currentUserId = user.id;
+      }
+    } catch (error) {
+      console.log('GET book quotes - No authenticated user, reactions will be null');
+    }
+    
     console.log('GET book quotes - userId:', userId);
+    console.log('GET book quotes - currentUserId (for reactions):', currentUserId);
     
     // Avval barcha ma'lumotlarni olish (NULL ID'larsiz)
     let query = supabase
@@ -146,9 +158,53 @@ export async function GET(request: Request) {
       }));
 
     console.log('GET book quotes - valid data count:', validData.length);
-    console.log('GET book quotes - valid data:', validData);
+    
+    // Agar authenticated user bo'lsa, reaction'larni olish
+    let userReactions: Record<number, 'like' | 'dislike'> = {};
+    if (currentUserId && validData.length > 0) {
+      const quoteIds = validData.map((item: any) => item.id);
+      const { data: reactionsData, error: reactionsError } = await supabase
+        .from('book_quote_reactions')
+        .select('quote_id, reaction_type')
+        .eq('user_id', currentUserId)
+        .in('quote_id', quoteIds);
+      
+      if (!reactionsError && reactionsData) {
+        reactionsData.forEach((reaction: any) => {
+          userReactions[Number(reaction.quote_id)] = reaction.reaction_type;
+        });
+        console.log('GET book quotes - user reactions:', userReactions);
+      }
+    }
+    
+    // Har bir quote uchun reaction count'larni va user reaction'ni hisoblash
+    const quotesWithReactions = await Promise.all(
+      validData.map(async (quote: any) => {
+        const quoteId = Number(quote.id);
+        
+        // Reaction count'larni olish
+        const { count: likesCount } = await supabase
+          .from('book_quote_reactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('quote_id', quoteId)
+          .eq('reaction_type', 'like');
+        
+        const { count: dislikesCount } = await supabase
+          .from('book_quote_reactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('quote_id', quoteId)
+          .eq('reaction_type', 'dislike');
+        
+        return {
+          ...quote,
+          likes: likesCount || 0,
+          dislikes: dislikesCount || 0,
+          userReaction: userReactions[quoteId] || null,
+        };
+      })
+    );
 
-    return NextResponse.json({ success: true, data: validData });
+    return NextResponse.json({ success: true, data: quotesWithReactions });
   } catch (error: any) {
     console.error('GET book quotes error:', error);
     return NextResponse.json(
@@ -380,38 +436,152 @@ export async function PUT(request: Request) {
       console.log('PUT request - Update successful, data:', data[0]);
       return NextResponse.json({ success: true, data: data[0] });
     } else if (isReactionUpdate) {
-      // Reaksiya yangilanishi - authentication shart emas, chunki RLS o'chirilgan
-      const supabase = createSupabaseClient();
+      // Reaksiya yangilanishi - authentication kerak
+      const { supabase, user } = await createAuthenticatedClient(request);
       
-      const updateData: Record<string, unknown> = {};
-      if (likes !== undefined) updateData.likes = likes;
-      if (dislikes !== undefined) {
-        updateData.dislikes = String(dislikes);
+      if (!user) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Reaksiya berish uchun tizimga kiring.' },
+          { status: 401 }
+        );
       }
       
-      const { data, error } = await supabase
+      // Reaction type'ni aniqlash
+      let reactionType: 'like' | 'dislike' | null = null;
+      if (likes !== undefined && dislikes !== undefined) {
+        // Frontend'dan kelgan ma'lumotga qarab aniqlash
+        // Agar likes oshgan bo'lsa, like
+        // Agar dislikes oshgan bo'lsa, dislike
+        // Agar ikkalasi ham kamaygan bo'lsa, reaction o'chirilgan
+      }
+      
+      // Avval mavjud reaction'ni topish
+      const { data: existingReaction, error: fetchReactionError } = await supabase
+        .from('book_quote_reactions')
+        .select('*')
+        .eq('quote_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (fetchReactionError && fetchReactionError.code !== 'PGRST116') {
+        console.error('Fetch reaction error:', fetchReactionError);
+        return NextResponse.json(
+          { success: false, error: 'Reaksiya tekshirishda xatolik' },
+          { status: 500 }
+        );
+      }
+      
+      // Frontend'dan kelgan ma'lumotga qarab reaction type'ni aniqlash
+      // Bu frontend'dan kelgan likes/dislikes qiymatiga qarab aniqlanadi
+      // Lekin biz frontend'dan reaction type'ni to'g'ridan-to'g'ri olishimiz kerak
+      // Hozircha frontend'dan reaction type yuborilmayapti, shuning uchun eski logikani ishlatamiz
+      
+      // Frontend'dan reaction type yuborilishi kerak
+      const { reaction } = body; // 'like', 'dislike', yoki null (o'chirish)
+      
+      if (reaction === null && existingReaction) {
+        // Reaction o'chirish
+        const { error: deleteError } = await supabase
+          .from('book_quote_reactions')
+          .delete()
+          .eq('quote_id', id)
+          .eq('user_id', user.id);
+        
+        if (deleteError) {
+          console.error('Delete reaction error:', deleteError);
+          return NextResponse.json(
+            { success: false, error: 'Reaksiya o\'chirishda xatolik' },
+            { status: 500 }
+          );
+        }
+      } else if (reaction === 'like' || reaction === 'dislike') {
+        // Reaction qo'shish yoki yangilash (UPSERT)
+        const reactionData = {
+          quote_id: id,
+          user_id: user.id,
+          reaction_type: reaction,
+        };
+        
+        if (existingReaction) {
+          // Update
+          const { error: updateError } = await supabase
+            .from('book_quote_reactions')
+            .update({ reaction_type: reaction, updated_at: new Date().toISOString() })
+            .eq('quote_id', id)
+            .eq('user_id', user.id);
+          
+          if (updateError) {
+            console.error('Update reaction error:', updateError);
+            return NextResponse.json(
+              { success: false, error: 'Reaksiya yangilashda xatolik' },
+              { status: 500 }
+            );
+          }
+        } else {
+          // Insert
+          const { error: insertError } = await supabase
+            .from('book_quote_reactions')
+            .insert([reactionData]);
+          
+          if (insertError) {
+            console.error('Insert reaction error:', insertError);
+            return NextResponse.json(
+              { success: false, error: 'Reaksiya qo\'shishda xatolik' },
+              { status: 500 }
+            );
+          }
+        }
+      }
+      
+      // Reaction count'larni hisoblash
+      const { count: likesCount } = await supabase
+        .from('book_quote_reactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('quote_id', id)
+        .eq('reaction_type', 'like');
+      
+      const { count: dislikesCount } = await supabase
+        .from('book_quote_reactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('quote_id', id)
+        .eq('reaction_type', 'dislike');
+      
+      // portfolio_book_quotes_rows table'ni yangilash
+      const { data: updatedQuote, error: updateQuoteError } = await supabase
         .from('portfolio_book_quotes_rows')
-        .update(updateData)
+        .update({ 
+          likes: likesCount,
+          dislikes: String(dislikesCount)
+        })
         .eq('id', id)
-        .select();
-
-      if (error) {
-        console.error('Reaction update error:', error);
+        .select()
+        .single();
+      
+      if (updateQuoteError) {
+        console.error('Update quote error:', updateQuoteError);
         return NextResponse.json(
-          { success: false, error: error.message || 'Reaksiya yangilanmadi' },
+          { success: false, error: 'Quote yangilashda xatolik' },
           { status: 500 }
         );
       }
-
-      if (!data || data.length === 0) {
-        console.error('Reaction update returned no data for id:', id);
-        return NextResponse.json(
-          { success: false, error: 'Reaksiya yangilanmadi. Iltimos, qayta urinib ko\'ring.' },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ success: true, data: data[0] });
+      
+      // User'ning reaction'ini qo'shish
+      const { data: userReactionData } = await supabase
+        .from('book_quote_reactions')
+        .select('reaction_type')
+        .eq('quote_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      return NextResponse.json({ 
+        success: true, 
+        data: {
+          ...updatedQuote,
+          likes: likesCount,
+          dislikes: dislikesCount,
+          userReaction: userReactionData?.reaction_type || null,
+        }
+      });
     } else {
       return NextResponse.json(
         { success: false, error: 'Yangilanish uchun ma\'lumot kiritilmagan' },

@@ -1487,45 +1487,89 @@ export default function Portfolio() {
     const quote = bookQuotes.find(q => q.id === id);
     if (!quote) return;
     
-    let newLikes = quote.likes;
-    let newDislikes = quote.dislikes;
-    let newReaction: 'like' | 'dislike' | null = reaction;
-
-    // If clicking the same reaction, remove it
-    if (quote.userReaction === reaction) {
-      if (reaction === 'like') newLikes--;
-      else newDislikes--;
-      newReaction = null;
-    } else {
-      // Remove old reaction if exists
-      if (quote.userReaction === 'like') newLikes--;
-      else if (quote.userReaction === 'dislike') newDislikes--;
-      
-      // Add new reaction
-      if (reaction === 'like') newLikes++;
-      else newDislikes++;
+    // Agar user tizimga kirmagan bo'lsa, reaction berish mumkin emas
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
+      alert('Reaksiya berish uchun tizimga kiring');
+      return;
     }
-
+    
+    // Agar bir xil reaction bosilgan bo'lsa, o'chirish
+    let newReaction: 'like' | 'dislike' | null = reaction;
+    if (quote.userReaction === reaction) {
+      newReaction = null; // Reaction o'chirish
+    }
+    
     // Optimistic update
-    setBookQuotes(bookQuotes.map(q => 
-      q.id === id 
-        ? { ...q, likes: newLikes, dislikes: newDislikes, userReaction: newReaction }
-        : q
-    ));
+    const updatedQuotes = bookQuotes.map(q => {
+      if (q.id === id) {
+        // Reaction count'larni hisoblash
+        let newLikes = q.likes;
+        let newDislikes = q.dislikes;
+        
+        // Eski reaction'ni olib tashlash
+        if (q.userReaction === 'like') newLikes--;
+        else if (q.userReaction === 'dislike') newDislikes--;
+        
+        // Yangi reaction'ni qo'shish
+        if (newReaction === 'like') newLikes++;
+        else if (newReaction === 'dislike') newDislikes++;
+        
+        return { ...q, likes: newLikes, dislikes: newDislikes, userReaction: newReaction };
+      }
+      return q;
+    });
+    
+    setBookQuotes(updatedQuotes);
 
     // Update in database
     try {
-      await fetch('/api/book-quotes', {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+      
+      const res = await fetch('/api/book-quotes', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           id,
-          likes: newLikes,
-          dislikes: newDislikes,
+          reaction: newReaction, // Reaction type'ni yuborish
         }),
       });
-    } catch (error) {
+      
+      const result = await res.json();
+      
+      if (result.success && result.data) {
+        // Database'dan kelgan to'g'ri ma'lumotlar bilan yangilash
+        setBookQuotes(bookQuotes.map(q => 
+          q.id === id 
+            ? {
+                ...q,
+                likes: result.data.likes || q.likes,
+                dislikes: result.data.dislikes || q.dislikes,
+                userReaction: result.data.userReaction || null,
+              }
+            : q
+        ));
+      } else {
+        // Xato bo'lsa, eski holatga qaytarish
+        setBookQuotes(bookQuotes);
+        alert('Xato: ' + (result.error || 'Reaksiya yangilanmadi'));
+      }
+    } catch (error: any) {
       console.error('Failed to update reaction:', error);
+      // Xato bo'lsa, eski holatga qaytarish
+      setBookQuotes(bookQuotes);
+      alert('Xato: Reaksiya yangilanmadi');
     }
   };
 
