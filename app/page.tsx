@@ -1240,27 +1240,63 @@ export default function Portfolio() {
     }
     
     try {
+      // Session token olish
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('Xato: Ma\'lumot saqlash uchun tizimga kiring');
+        return;
+      }
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (!accessToken) {
+        alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+        return;
+      }
+      
+      headers['Authorization'] = `Bearer ${accessToken}`;
+      
       if (editingQuote) {
         // Update existing quote
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             id: editingQuote.id,
             book_title: bookFormTitle,
             author: bookFormAuthor,
             quote: bookFormQuote,
-            image_url: bookFormImage,
+            image_url: null, // Rasmlarni olib tashladik
           }),
         });
         const result = await res.json();
         
         if (result.success) {
-          setBookQuotes(bookQuotes.map(q => 
-            q.id === editingQuote.id 
-              ? { ...q, bookTitle: bookFormTitle, author: bookFormAuthor, quote: bookFormQuote, image: bookFormImage }
-              : q
-          ));
+          // Ma'lumotlarni qayta yuklash
+          const refreshRes = await fetch('/api/book-quotes');
+          const refreshResult = await refreshRes.json();
+          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
+            const formattedQuotes = refreshResult.data
+              .filter((item: any) => item && item.id !== null && item.id !== undefined)
+              .map((item: any) => ({
+                id: item.id,
+                bookTitle: item.book_title,
+                author: item.author,
+                quote: item.quote,
+                image: null,
+                likes: item.likes || 0,
+                dislikes: item.dislikes || 0,
+                userReaction: null,
+              }));
+            setBookQuotes(formattedQuotes);
+          }
           closeBookModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
@@ -1269,28 +1305,35 @@ export default function Portfolio() {
         // Create new quote
         const res = await fetch('/api/book-quotes', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             book_title: bookFormTitle,
             author: bookFormAuthor,
             quote: bookFormQuote,
-            image_url: bookFormImage,
+            image_url: null, // Rasmlarni olib tashladik
           }),
         });
         const result = await res.json();
         
         if (result.success && result.data) {
-          const newQuote: BookQuote = {
-            id: result.data.id,
-            bookTitle: bookFormTitle,
-            author: bookFormAuthor,
-            quote: bookFormQuote,
-            image: bookFormImage,
-            likes: 0,
-            dislikes: 0,
-            userReaction: null,
-          };
-          setBookQuotes([newQuote, ...bookQuotes]);
+          // Ma'lumotlarni qayta yuklash
+          const refreshRes = await fetch('/api/book-quotes');
+          const refreshResult = await refreshRes.json();
+          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
+            const formattedQuotes = refreshResult.data
+              .filter((item: any) => item && item.id !== null && item.id !== undefined)
+              .map((item: any) => ({
+                id: item.id,
+                bookTitle: item.book_title,
+                author: item.author,
+                quote: item.quote,
+                image: null,
+                likes: item.likes || 0,
+                dislikes: item.dislikes || 0,
+                userReaction: null,
+              }));
+            setBookQuotes(formattedQuotes);
+          }
           closeBookModal();
         } else {
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
@@ -1305,16 +1348,60 @@ export default function Portfolio() {
   const deleteBookQuote = async (id: number) => {
     if (confirm(t.books.confirmDelete)) {
       try {
+        // Session token olish
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          alert('Xato: Ma\'lumot o\'chirish uchun tizimga kiring');
+          return;
+        }
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (!accessToken) {
+          alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+          return;
+        }
+        
+        headers['Authorization'] = `Bearer ${accessToken}`;
+        
         const res = await fetch(`/api/book-quotes?id=${id}`, {
           method: 'DELETE',
+          headers,
         });
         const result = await res.json();
         
         if (result.success) {
-          setBookQuotes(bookQuotes.filter(q => q.id !== id));
+          // Ma'lumotlarni qayta yuklash
+          const refreshRes = await fetch('/api/book-quotes');
+          const refreshResult = await refreshRes.json();
+          if (refreshResult.success && refreshResult.data && Array.isArray(refreshResult.data)) {
+            const formattedQuotes = refreshResult.data
+              .filter((item: any) => item && item.id !== null && item.id !== undefined)
+              .map((item: any) => ({
+                id: item.id,
+                bookTitle: item.book_title,
+                author: item.author,
+                quote: item.quote,
+                image: null,
+                likes: item.likes || 0,
+                dislikes: item.dislikes || 0,
+                userReaction: null,
+              }));
+            setBookQuotes(formattedQuotes);
+          }
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
         }
       } catch (error) {
         console.error('Failed to delete book quote:', error);
+        alert('Xato: Ma\'lumot o\'chirishda xatolik yuz berdi');
       }
     }
   };
@@ -2280,51 +2367,6 @@ export default function Portfolio() {
             </div>
             
             <form onSubmit={handleBookSubmit} className="p-4 sm:p-6 space-y-4">
-              {/* Image Upload */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
-                  {t.books.imageLabel}
-                </label>
-                <div className="relative">
-                  {bookFormImage ? (
-                    <div className="relative rounded-xl overflow-hidden">
-                      <img
-                        src={bookFormImage}
-                        alt="Preview"
-                        className="w-full h-40 object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setBookFormImage(null)}
-                        className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-lg text-white hover:bg-red-600 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : isUploading ? (
-                    <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mb-2"></div>
-                      <span className="text-sm text-cyan-400">Yuklanmoqda...</span>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
-                      <svg className="w-8 h-8 text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-sm text-slate-500">{t.books.uploadImage}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
               {/* Book Title */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
