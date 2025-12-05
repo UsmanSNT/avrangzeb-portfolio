@@ -1263,7 +1263,7 @@ export default function Portfolio() {
       
       headers['Authorization'] = `Bearer ${accessToken}`;
       
-      if (editingQuote) {
+      if (editingQuote && editingQuote.id) {
         // Update existing quote
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
