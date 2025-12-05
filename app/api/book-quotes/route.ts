@@ -100,6 +100,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     
+    console.log('GET book quotes - userId:', userId);
+    
+    // Avval barcha ma'lumotlarni olish (NULL ID'larsiz)
     let query = supabase
       .from('portfolio_book_quotes_rows')
       .select('*')
@@ -113,13 +116,37 @@ export async function GET(request: Request) {
     
     const { data, error } = await query;
 
+    console.log('GET book quotes - data count:', data?.length || 0);
+    console.log('GET book quotes - error:', error);
+
     if (error) {
       console.error('GET book quotes error:', error);
+      console.error('GET book quotes error code:', error.code);
+      console.error('GET book quotes error message:', error.message);
       throw error;
     }
 
-    // Qo'shimcha filter - NULL ID'larni o'chirish
-    const validData = (data || []).filter((item: any) => item && item.id !== null && item.id !== undefined);
+    // Qo'shimcha filter - NULL ID'larni va boshqa muammolarni o'chirish
+    const validData = (data || [])
+      .filter((item: any) => {
+        // NULL yoki undefined ID'larni o'chirish
+        if (!item || item.id === null || item.id === undefined || item.id === '') {
+          return false;
+        }
+        // ID'ni number ga o'zgartirish mumkinligini tekshirish
+        const idNum = Number(item.id);
+        if (isNaN(idNum) || idNum <= 0) {
+          return false;
+        }
+        return true;
+      })
+      .map((item: any) => ({
+        ...item,
+        id: Number(item.id), // ID'ni number ga o'zgartirish
+      }));
+
+    console.log('GET book quotes - valid data count:', validData.length);
+    console.log('GET book quotes - valid data:', validData);
 
     return NextResponse.json({ success: true, data: validData });
   } catch (error: any) {

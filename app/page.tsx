@@ -1052,39 +1052,73 @@ export default function Portfolio() {
   const fetchBookQuotes = async () => {
     try {
       setIsLoadingQuotes(true);
+      console.log('Fetching book quotes...');
+      
       const res = await fetch('/api/book-quotes');
+      
+      if (!res.ok) {
+        console.error('Failed to fetch book quotes - response not ok:', res.status, res.statusText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const result = await res.json();
       console.log('Book quotes API response:', result);
+      console.log('Book quotes API response - success:', result.success);
+      console.log('Book quotes API response - data:', result.data);
+      console.log('Book quotes API response - data length:', result.data?.length || 0);
       
       if (result.success && result.data && Array.isArray(result.data)) {
         // NULL ID'larni filter qilish va formatlash
         const formattedQuotes = result.data
-          .filter((q: any) => q && q.id !== null && q.id !== undefined && q.id !== '')
-          .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => ({
-            id: Number(q.id), // ID'ni number ga o'zgartirish
-            bookTitle: q.book_title || '',
-            author: q.author || '',
-            quote: q.quote || '',
-            image: null,
-            likes: Number(q.likes) || 0,
-            dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (Number(q.dislikes) || 0),
-            userReaction: null,
-          }));
+          .filter((q: any) => {
+            // NULL yoki undefined ID'larni o'chirish
+            if (!q || q.id === null || q.id === undefined || q.id === '') {
+              console.log('Filtering out quote with invalid ID:', q);
+              return false;
+            }
+            // ID'ni number ga o'zgartirish mumkinligini tekshirish
+            const idNum = Number(q.id);
+            if (isNaN(idNum) || idNum <= 0) {
+              console.log('Filtering out quote with invalid ID number:', q.id);
+              return false;
+            }
+            return true;
+          })
+          .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => {
+            const idNum = Number(q.id);
+            const likesNum = Number(q.likes) || 0;
+            const dislikesNum = typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (Number(q.dislikes) || 0);
+            
+            return {
+              id: idNum,
+              bookTitle: q.book_title || '',
+              author: q.author || '',
+              quote: q.quote || '',
+              image: null,
+              likes: likesNum,
+              dislikes: dislikesNum,
+              userReaction: null,
+            };
+          });
         
+        console.log('Formatted quotes count:', formattedQuotes.length);
         console.log('Formatted quotes:', formattedQuotes);
         
         if (formattedQuotes.length > 0) {
+          console.log('Setting book quotes:', formattedQuotes);
           setBookQuotes(formattedQuotes);
         } else {
-          console.log('No valid quotes found, using defaults');
+          console.log('No valid quotes found after filtering, using defaults');
           setBookQuotes(defaultBookQuotes);
         }
       } else {
-        console.log('No quotes found, using defaults');
+        console.log('API response not successful or no data, using defaults');
+        console.log('Result:', result);
         setBookQuotes(defaultBookQuotes);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch book quotes:', error);
+      console.error('Error details:', error.message, error.stack);
       setBookQuotes(defaultBookQuotes);
     } finally {
       setIsLoadingQuotes(false);
