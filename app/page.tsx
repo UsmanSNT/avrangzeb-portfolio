@@ -1078,7 +1078,23 @@ export default function Portfolio() {
       setIsLoadingQuotes(true);
       console.log('Fetching book quotes...');
       
-      const res = await fetch('/api/book-quotes');
+      // Authentication token olish (user reaction'larini olish uchun)
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = {};
+      
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+      
+      const res = await fetch('/api/book-quotes', {
+        headers,
+      });
       
       if (!res.ok) {
         console.error('Failed to fetch book quotes - response not ok:', res.status, res.statusText);
@@ -1108,7 +1124,7 @@ export default function Portfolio() {
             }
             return true;
           })
-          .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number }) => {
+          .map((q: { id: number; book_title: string; author: string; quote: string; image_url: string | null; likes: number; dislikes: string | number; userReaction?: 'like' | 'dislike' | null }) => {
             try {
               const idNum = Number(q.id);
               const likesNum = Number(q.likes) || 0;
@@ -1122,6 +1138,9 @@ export default function Portfolio() {
                 if (dislikesNum < 0) dislikesNum = 0;
               }
               
+              // API'dan kelgan userReaction'ni ishlatish
+              const userReaction = (q.userReaction === 'like' || q.userReaction === 'dislike') ? q.userReaction : null;
+              
               const formatted = {
                 id: idNum,
                 bookTitle: q.book_title || '',
@@ -1130,7 +1149,7 @@ export default function Portfolio() {
                 image: null,
                 likes: likesNum,
                 dislikes: dislikesNum,
-                userReaction: null,
+                userReaction: userReaction, // API'dan kelgan userReaction'ni ishlatish
               };
               
               console.log('Formatted quote:', formatted);

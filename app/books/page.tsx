@@ -172,7 +172,7 @@ export default function BooksPage() {
               image: q.image_url,
               likes: q.likes || 0,
               dislikes: typeof q.dislikes === 'string' ? parseInt(q.dislikes) || 0 : (q.dislikes || 0),
-              userReaction: null,
+              userReaction: (q.userReaction === 'like' || q.userReaction === 'dislike') ? q.userReaction : null, // API'dan kelgan userReaction'ni ishlatish
             }));
             // Sort by likes (top first)
             formattedQuotes.sort((a: BookQuote, b: BookQuote) => b.likes - a.likes);
