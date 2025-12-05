@@ -532,24 +532,39 @@ export async function PUT(request: Request) {
       }
       
       // Reaction count'larni hisoblash
-      const { count: likesCount } = await supabase
+      const { count: likesCount, error: likesCountError } = await supabase
         .from('book_quote_reactions')
         .select('*', { count: 'exact', head: true })
         .eq('quote_id', id)
         .eq('reaction_type', 'like');
       
-      const { count: dislikesCount } = await supabase
+      if (likesCountError) {
+        console.error('Likes count error:', likesCountError);
+      }
+      
+      const { count: dislikesCount, error: dislikesCountError } = await supabase
         .from('book_quote_reactions')
         .select('*', { count: 'exact', head: true })
         .eq('quote_id', id)
         .eq('reaction_type', 'dislike');
       
+      if (dislikesCountError) {
+        console.error('Dislikes count error:', dislikesCountError);
+      }
+      
+      const finalLikesCount = likesCount || 0;
+      const finalDislikesCount = dislikesCount || 0;
+      
+      console.log('Reaction counts - likes:', finalLikesCount, 'dislikes:', finalDislikesCount);
+      
       // portfolio_book_quotes_rows table'ni yangilash
+      // Note: Bu table'ni yangilash shart emas, chunki reaction count'lar har safar hisoblanadi
+      // Lekin backward compatibility uchun saqlab qolamiz
       const { data: updatedQuote, error: updateQuoteError } = await supabase
         .from('portfolio_book_quotes_rows')
         .update({ 
-          likes: likesCount,
-          dislikes: String(dislikesCount)
+          likes: finalLikesCount,
+          dislikes: String(finalDislikesCount)
         })
         .eq('id', id)
         .select()
@@ -557,10 +572,36 @@ export async function PUT(request: Request) {
       
       if (updateQuoteError) {
         console.error('Update quote error:', updateQuoteError);
-        return NextResponse.json(
-          { success: false, error: 'Quote yangilashda xatolik' },
-          { status: 500 }
-        );
+        console.error('Update quote error code:', updateQuoteError.code);
+        console.error('Update quote error message:', updateQuoteError.message);
+        console.error('Update quote error details:', updateQuoteError.details);
+        console.error('Update quote error hint:', updateQuoteError.hint);
+        
+        // Agar update xato bersa, lekin reaction saqlangan bo'lsa, 
+        // faqat reaction ma'lumotlarini qaytaramiz
+        const { data: quoteData, error: fetchQuoteError } = await supabase
+          .from('portfolio_book_quotes_rows')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (fetchQuoteError || !quoteData) {
+          return NextResponse.json(
+            { success: false, error: 'Quote yangilashda xatolik: ' + (updateQuoteError.message || 'Noma\'lum xatolik') },
+            { status: 500 }
+          );
+        }
+        
+        // Reaction count'larni qo'shib qaytaramiz
+        return NextResponse.json({ 
+          success: true, 
+          data: {
+            ...quoteData,
+            likes: finalLikesCount,
+            dislikes: finalDislikesCount,
+            userReaction: reaction || null,
+          }
+        });
       }
       
       // User'ning reaction'ini qo'shish
