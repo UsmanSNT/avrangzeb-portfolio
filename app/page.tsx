@@ -1263,8 +1263,9 @@ export default function Portfolio() {
       
       headers['Authorization'] = `Bearer ${accessToken}`;
       
-      if (editingQuote && editingQuote.id) {
+      if (editingQuote && editingQuote.id !== null && editingQuote.id !== undefined) {
         // Update existing quote
+        console.log('Updating quote with ID:', editingQuote.id);
         const res = await fetch('/api/book-quotes', {
           method: 'PUT',
           headers,
