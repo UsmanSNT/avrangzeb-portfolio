@@ -135,23 +135,46 @@ export default function UserDashboard() {
     setIsSaving(true);
 
     try {
+      // Authentication token olish
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      console.log('Saving profile:', { userId: user.id, full_name: fullName, avatar_url: avatarUrl });
+
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           userId: user.id,
-          full_name: fullName,
-          avatar_url: avatarUrl
+          full_name: fullName.trim() || null,
+          avatar_url: avatarUrl || null
         })
       });
 
-      if (res.ok) {
-        const updated = await res.json();
-        setUser(updated);
+      const result = await res.json();
+      console.log('Profile update response:', result);
+
+      if (res.ok && result.id) {
+        setUser(result);
         setIsEditing(false);
+        alert('Ma\'lumotlar muvaffaqiyatli saqlandi!');
+      } else {
+        console.error('Profile update failed:', result);
+        alert('Xato: ' + (result.error || 'Ma\'lumotlar saqlanmadi'));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile update error:', error);
+      alert('Xato: ' + (error.message || 'Ma\'lumotlar saqlashda xatolik yuz berdi'));
     } finally {
       setIsSaving(false);
     }
