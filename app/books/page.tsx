@@ -157,7 +157,23 @@ export default function BooksPage() {
   useEffect(() => {
     const fetchQuotes = async () => {
       try {
-        const res = await fetch('/api/book-quotes');
+        // Authentication token olish (user reaction'larini olish uchun)
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = {};
+        
+        let accessToken = session?.access_token;
+        if (!accessToken) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
+        const res = await fetch('/api/book-quotes', {
+          headers,
+        });
         const result = await res.json();
         if (result.success && result.data && Array.isArray(result.data)) {
           // Null id'larni filter qilish
