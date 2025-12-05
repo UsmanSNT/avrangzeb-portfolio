@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { existsSync } from 'fs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -75,6 +76,14 @@ export async function POST(request: Request) {
       try {
         // Rasmni o'qish
         const filePath = join(process.cwd(), 'public', 'images', fileName);
+        
+        // Fayl mavjudligini tekshirish
+        if (!existsSync(filePath)) {
+          console.error(`File not found: ${filePath}`);
+          results.push({ fileName, success: false, error: 'File not found' });
+          continue;
+        }
+        
         const fileBuffer = await readFile(filePath);
 
         // Supabase Storage ga yuklash
