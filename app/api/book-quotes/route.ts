@@ -155,18 +155,25 @@ export async function POST(request: Request) {
     
     console.log('POST request - Inserting data with user_id:', user.id);
     
+    const insertData = { 
+      book_title, 
+      author: author || null, 
+      quote, 
+      image_url: image_url || null, 
+      likes: 0, 
+      dislikes: '0', 
+      user_id: user.id 
+    };
+    
+    console.log('POST request - Insert data:', insertData);
+    
     const { data, error } = await supabase
       .from('portfolio_book_quotes_rows')
-      .insert([{ 
-        book_title, 
-        author: author || null, 
-        quote, 
-        image_url: image_url || null, 
-        likes: 0, 
-        dislikes: '0', 
-        user_id: user.id 
-      }])
+      .insert([insertData])
       .select();
+    
+    console.log('POST request - Insert result - data:', data);
+    console.log('POST request - Insert result - error:', error);
 
     if (error) {
       console.error('POST request - Database error:', error);
