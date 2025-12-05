@@ -1291,12 +1291,18 @@ export default function Portfolio() {
           }),
         });
         const result = await res.json();
+        console.log('PUT response:', result);
         
         if (result.success) {
+          console.log('Quote updated successfully:', result.data);
+          // Modal'ni yopish
+          closeBookModal();
+          // Kichik kechikish - ma'lumotlar database'ga yozilishini kutish
+          await new Promise(resolve => setTimeout(resolve, 500));
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
-          closeBookModal();
         } else {
+          console.error('Failed to update quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
         }
       } else {
