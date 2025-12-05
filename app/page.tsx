@@ -1373,18 +1373,32 @@ export default function Portfolio() {
         console.log('POST response:', result);
         
         if (result.success) {
-          console.log('Quote created successfully:', result.data || result.message);
+          console.log('Quote created successfully:', result.data);
+          
+          // Agar data bo'lsa, optimistik yangilanish
+          if (result.data && result.data.id) {
+            const newQuote = {
+              id: Number(result.data.id),
+              bookTitle: result.data.book_title || bookFormTitle,
+              author: result.data.author || bookFormAuthor,
+              quote: result.data.quote || bookFormQuote,
+              image: null,
+              likes: Number(result.data.likes) || 0,
+              dislikes: typeof result.data.dislikes === 'string' ? parseInt(result.data.dislikes) || 0 : (Number(result.data.dislikes) || 0),
+              userReaction: null,
+            };
+            
+            // State'ga to'g'ridan-to'g'ri qo'shish
+            setBookQuotes(prev => [newQuote, ...prev]);
+            console.log('Quote added to state:', newQuote);
+          }
+          
           // Modal'ni yopish
           closeBookModal();
-          // Kichik kechikish - ma'lumotlar database'ga yozilishini kutish
-          await new Promise(resolve => setTimeout(resolve, 800));
-          // Ma'lumotlarni qayta yuklash
-          await fetchBookQuotes();
           
-          // Agar message bo'lsa, foydalanuvchiga ko'rsatish
-          if (result.message) {
-            alert(result.message);
-          }
+          // Ma'lumotlarni qayta yuklash (database'dan to'liq ma'lumot olish uchun)
+          await new Promise(resolve => setTimeout(resolve, 300));
+          await fetchBookQuotes();
         } else {
           console.error('Failed to create quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));

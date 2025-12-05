@@ -202,12 +202,16 @@ export async function POST(request: Request) {
     
     console.log('POST request - Insert data:', insertData);
     
-    // INSERT operatsiyasini bajarish - avval select'siz
-    const { error: insertError } = await supabase
+    // INSERT operatsiyasini bajarish - .select().single() bilan to'g'ridan-to'g'ri qaytaradi
+    // Endi id avtomatik generate qilinadi (DEFAULT nextval(...))
+    const { data: insertedData, error: insertError } = await supabase
       .from('portfolio_book_quotes_rows')
-      .insert([insertData]);
+      .insert([insertData])
+      .select()
+      .single();
     
-    console.log('POST request - Insert error:', insertError);
+    console.log('POST request - Insert result - data:', insertedData);
+    console.log('POST request - Insert result - error:', insertError);
 
     if (insertError) {
       console.error('POST request - Database error:', insertError);
@@ -224,65 +228,21 @@ export async function POST(request: Request) {
         );
       }
       return NextResponse.json(
-        { success: false, error: insertError.message || 'Ma\'lumot qo\'shilmadi' },
+        { success: false, error: insertError.message || 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
         { status: 500 }
       );
     }
 
-    // INSERT muvaffaqiyatli bo'ldi, endi yangilangan ma'lumotni o'qib olamiz
-    // Kichik kechikish - database'ga yozilishini kutish
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Yangilangan ma'lumotni o'qib olish
-    const { data: insertedData, error: selectError } = await supabase
-      .from('portfolio_book_quotes_rows')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('book_title', book_title)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    
-    console.log('POST request - Select result - data:', insertedData);
-    console.log('POST request - Select result - error:', selectError);
-
-    if (selectError) {
-      console.error('POST request - Select error after insert:', selectError);
-      // Agar select xato bersa, lekin insert muvaffaqiyatli bo'lgan bo'lsa, 
-      // foydalanuvchiga muvaffaqiyatli qo'shilganini aytamiz
+    // INSERT muvaffaqiyatli va ma'lumot qaytarildi
+    if (!insertedData || !insertedData.id || insertedData.id === null) {
+      console.error('POST request - Insert returned no data or invalid ID:', insertedData);
       return NextResponse.json(
-        { success: true, message: 'Ma\'lumot qo\'shildi. Iltimos, sahifani yangilang.' },
-        { status: 200 }
+        { success: false, error: 'Ma\'lumot qo\'shildi, lekin ID olinmadi. Iltimos, sahifani yangilang.' },
+        { status: 500 }
       );
     }
 
-    if (!insertedData || !insertedData.id) {
-      console.error('POST request - Select returned no data or invalid data');
-      console.error('POST request - Data:', insertedData);
-      
-      // Yana bir bor urinib ko'ramiz
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const { data: retryData, error: retryError } = await supabase
-        .from('portfolio_book_quotes_rows')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (retryError || !retryData || !retryData.id) {
-        console.error('POST request - Retry fetch error:', retryError);
-        return NextResponse.json(
-          { success: true, message: 'Ma\'lumot qo\'shildi. Iltimos, sahifani yangilang.' },
-          { status: 200 }
-        );
-      }
-      
-      console.log('POST request - Retry fetch successful, data:', retryData);
-      return NextResponse.json({ success: true, data: retryData });
-    }
-
-    console.log('POST request - Insert and select successful, returning data:', insertedData);
+    console.log('POST request - Insert successful, returning data:', insertedData);
     return NextResponse.json({ success: true, data: insertedData });
   } catch (error: any) {
     console.error('POST error:', error);
