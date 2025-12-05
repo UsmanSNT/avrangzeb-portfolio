@@ -1565,6 +1565,61 @@ export default function Portfolio() {
     setCurrentImageIndex(0);
   };
 
+  // Sertifikat rasmlarini qo'shish funksiyasi (admin uchun)
+  const addCertificateImages = async () => {
+    if (!isAdmin) {
+      alert('Xato: Bu funksiya faqat admin uchun');
+      return;
+    }
+
+    if (!confirm('6 ta sertifikat rasmini gallery\'ga qo\'shishni xohlaysizmi?')) {
+      return;
+    }
+
+    try {
+      // Session token olish
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('Xato: Tizimga kiring');
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+
+      if (!accessToken) {
+        alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+        return;
+      }
+
+      headers['Authorization'] = `Bearer ${accessToken}`;
+
+      const res = await fetch('/api/gallery/add-certificates', {
+        method: 'POST',
+        headers,
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert(result.message || 'Sertifikatlar muvaffaqiyatli qo\'shildi!');
+        // Gallery ma'lumotlarini yangilash
+        await fetchGallery();
+      } else {
+        alert('Xato: ' + (result.error || 'Sertifikatlar qo\'shilmadi'));
+      }
+    } catch (error) {
+      console.error('Failed to add certificates:', error);
+      alert('Xato: Sertifikatlar qo\'shishda xatolik yuz berdi');
+    }
+  };
+
   const nextImage = () => {
     if (viewingGallery) {
       setCurrentImageIndex((prev) => (prev + 1) % viewingGallery.images.length);
@@ -2352,15 +2407,27 @@ export default function Portfolio() {
               {t.gallery.subtitle}
             </p>
             {isAdmin && (
-              <button
-                onClick={() => openGalleryModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                {t.gallery.addNew}
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={() => openGalleryModal()}
+                  className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  {t.gallery.addNew}
+                </button>
+                <button
+                  onClick={addCertificateImages}
+                  className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-emerald-500/30 transition-all text-sm sm:text-base"
+                  title="Public/images/ ichidagi 6 ta sertifikat rasmini qo'shish"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Sertifikatlarni qo'shish
+                </button>
+              </div>
             )}
           </div>
 
