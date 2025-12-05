@@ -1321,14 +1321,19 @@ export default function Portfolio() {
         const result = await res.json();
         console.log('POST response:', result);
         
-        if (result.success && result.data) {
-          console.log('Quote created successfully:', result.data);
+        if (result.success) {
+          console.log('Quote created successfully:', result.data || result.message);
           // Modal'ni yopish
           closeBookModal();
           // Kichik kechikish - ma'lumotlar database'ga yozilishini kutish
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 800));
           // Ma'lumotlarni qayta yuklash
           await fetchBookQuotes();
+          
+          // Agar message bo'lsa, foydalanuvchiga ko'rsatish
+          if (result.message) {
+            alert(result.message);
+          }
         } else {
           console.error('Failed to create quote:', result);
           alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));

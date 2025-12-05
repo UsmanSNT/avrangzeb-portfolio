@@ -175,73 +175,88 @@ export async function POST(request: Request) {
     
     console.log('POST request - Insert data:', insertData);
     
-    // INSERT operatsiyasini bajarish
-    const { data, error } = await supabase
+    // INSERT operatsiyasini bajarish - avval select'siz
+    const { error: insertError } = await supabase
       .from('portfolio_book_quotes_rows')
-      .insert([insertData])
-      .select('*'); // Barcha maydonlarni qaytarish
+      .insert([insertData]);
     
-    console.log('POST request - Insert result - data:', data);
-    console.log('POST request - Insert result - error:', error);
+    console.log('POST request - Insert error:', insertError);
 
-    if (error) {
-      console.error('POST request - Database error:', error);
-      console.error('POST request - Error code:', error.code);
-      console.error('POST request - Error details:', error.details);
-      console.error('POST request - Error hint:', error.hint);
-      console.error('POST request - Error message:', error.message);
+    if (insertError) {
+      console.error('POST request - Database error:', insertError);
+      console.error('POST request - Error code:', insertError.code);
+      console.error('POST request - Error details:', insertError.details);
+      console.error('POST request - Error hint:', insertError.hint);
+      console.error('POST request - Error message:', insertError.message);
       
       // RLS policy xatosini aniq ko'rsatish
-      if (error.message?.includes('row-level security') || error.code === '42501') {
+      if (insertError.message?.includes('row-level security') || insertError.code === '42501') {
         return NextResponse.json(
           { success: false, error: 'Xavfsizlik siyosati: Ma\'lumot qo\'shish huquqi yo\'q. Iltimos, tizimga kirib qaytib keling.' },
           { status: 403 }
         );
       }
       return NextResponse.json(
-        { success: false, error: error.message || 'Ma\'lumot qo\'shilmadi' },
+        { success: false, error: insertError.message || 'Ma\'lumot qo\'shilmadi' },
         { status: 500 }
       );
     }
 
-    // Ma'lumotlar to'g'ri qaytganini tekshirish
-    if (!data || data.length === 0 || !data[0] || !data[0].id) {
-      console.error('POST request - Insert returned no data or invalid data');
-      console.error('POST request - Data:', data);
+    // INSERT muvaffaqiyatli bo'ldi, endi yangilangan ma'lumotni o'qib olamiz
+    // Kichik kechikish - database'ga yozilishini kutish
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Yangilangan ma'lumotni o'qib olish
+    const { data: insertedData, error: selectError } = await supabase
+      .from('portfolio_book_quotes_rows')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('book_title', book_title)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    console.log('POST request - Select result - data:', insertedData);
+    console.log('POST request - Select result - error:', selectError);
+
+    if (selectError) {
+      console.error('POST request - Select error after insert:', selectError);
+      // Agar select xato bersa, lekin insert muvaffaqiyatli bo'lgan bo'lsa, 
+      // foydalanuvchiga muvaffaqiyatli qo'shilganini aytamiz
+      return NextResponse.json(
+        { success: true, message: 'Ma\'lumot qo\'shildi. Iltimos, sahifani yangilang.' },
+        { status: 200 }
+      );
+    }
+
+    if (!insertedData || !insertedData.id) {
+      console.error('POST request - Select returned no data or invalid data');
+      console.error('POST request - Data:', insertedData);
       
-      // 1 soniya kutib, qayta urinib ko'ramiz
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Qayta urinib ko'ramiz
+      // Yana bir bor urinib ko'ramiz
+      await new Promise(resolve => setTimeout(resolve, 500));
       const { data: retryData, error: retryError } = await supabase
         .from('portfolio_book_quotes_rows')
         .select('*')
-        .eq('book_title', book_title)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .single();
       
-      if (retryError) {
+      if (retryError || !retryData || !retryData.id) {
         console.error('POST request - Retry fetch error:', retryError);
         return NextResponse.json(
-          { success: false, error: 'Ma\'lumot qo\'shildi, lekin o\'qib bo\'lmadi. Iltimos, sahifani yangilang.' },
-          { status: 500 }
+          { success: true, message: 'Ma\'lumot qo\'shildi. Iltimos, sahifani yangilang.' },
+          { status: 200 }
         );
       }
       
-      if (retryData && retryData.length > 0 && retryData[0].id) {
-        console.log('POST request - Retry fetch successful, data:', retryData[0]);
-        return NextResponse.json({ success: true, data: retryData[0] });
-      }
-      
-      return NextResponse.json(
-        { success: false, error: 'Ma\'lumot qo\'shilmadi. Iltimos, qayta urinib ko\'ring.' },
-        { status: 500 }
-      );
+      console.log('POST request - Retry fetch successful, data:', retryData);
+      return NextResponse.json({ success: true, data: retryData });
     }
 
-    console.log('POST request - Insert successful, returning data:', data[0]);
-    return NextResponse.json({ success: true, data: data[0] });
+    console.log('POST request - Insert and select successful, returning data:', insertedData);
+    return NextResponse.json({ success: true, data: insertedData });
   } catch (error: any) {
     console.error('POST error:', error);
     return NextResponse.json(
