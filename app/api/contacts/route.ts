@@ -370,4 +370,3 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'O\'chirishda xatolik' }, { status: 500 });
   }
 }
-
