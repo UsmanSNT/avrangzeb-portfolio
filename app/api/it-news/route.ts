@@ -126,22 +126,40 @@ export async function GET(request: Request) {
     }
 
     // Barcha news'larni olish
+    // Avval oddiy select qilamiz (user_profiles join RLS muammosi bo'lishi mumkin)
     const { data, error } = await supabase
       .from('portfolio_it_news')
-      .select('*, user_profiles(full_name, avatar_url)')
+      .select('id, title, content, image_url, views, created_at, updated_at, user_id')
       .order('created_at', { ascending: false });
 
-    console.log('IT News GET - Raw data:', data);
+    console.log('IT News GET - Raw data:', JSON.stringify(data, null, 2));
     console.log('IT News GET - Error:', error);
+    console.log('IT News GET - Data type:', typeof data);
+    console.log('IT News GET - Is array:', Array.isArray(data));
+    console.log('IT News GET - Data length:', Array.isArray(data) ? data.length : 'N/A');
 
     if (error) {
       console.error('Error fetching news:', error);
-      return NextResponse.json({ error: 'News yuklanmadi' }, { status: 500 });
+      return NextResponse.json({ error: 'News yuklanmadi', details: error.message }, { status: 500 });
     }
 
     // NULL ID'larni filtrlash
-    const filteredData = (data || []).filter(item => item && item.id != null);
-    console.log('IT News GET - Filtered data:', filteredData);
+    const filteredData = (data || []).filter(item => {
+      const isValid = item && item.id != null;
+      if (!isValid) {
+        console.warn('Filtered out invalid item:', item);
+      }
+      return isValid;
+    });
+    
+    console.log('IT News GET - Filtered data:', JSON.stringify(filteredData, null, 2));
+    console.log('IT News GET - Filtered count:', filteredData.length);
+
+    // Agar ma'lumotlar bo'sh bo'lsa, bo'sh array qaytaramiz
+    if (!filteredData || filteredData.length === 0) {
+      console.warn('No IT News data found');
+      return NextResponse.json([]);
+    }
 
     return NextResponse.json(filteredData);
   } catch (error) {

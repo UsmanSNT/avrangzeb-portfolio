@@ -1327,19 +1327,34 @@ export default function Portfolio() {
   const fetchITNews = async () => {
     try {
       setIsLoadingITNews(true);
-      const res = await fetch('/api/it-news');
+      console.log('Fetching IT News...');
+      
+      const res = await fetch('/api/it-news', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store', // Cache'ni o'chirish
+      });
+      
+      console.log('IT News Response status:', res.status);
+      console.log('IT News Response ok:', res.ok);
       
       if (!res.ok) {
-        console.error('Failed to fetch IT news: HTTP', res.status);
+        const errorText = await res.text();
+        console.error('Failed to fetch IT news: HTTP', res.status, errorText);
         setItNews([]);
         return;
       }
       
       const result = await res.json();
+      console.log('IT News API response type:', typeof result);
       console.log('IT News API response:', result);
+      console.log('IT News API response is array:', Array.isArray(result));
+      console.log('IT News API response length:', Array.isArray(result) ? result.length : 'N/A');
       
       // API array qaytaradi, lekin error bo'lsa object bo'lishi mumkin
-      if (result.error) {
+      if (result && result.error) {
         console.error('API error:', result.error);
         setItNews([]);
         return;
@@ -1347,28 +1362,44 @@ export default function Portfolio() {
       
       // Agar result array bo'lsa
       if (Array.isArray(result)) {
+        console.log('Processing array with', result.length, 'items');
         const formattedNews = result
-          .filter((item: any) => item && item.id != null)
-          .map((item: any) => ({
-            id: Number(item.id),
-            title: item.title || '',
-            content: item.content || '',
-            image_url: item.image_url || null,
-            views: Number(item.views) || 0,
-            created_at: item.created_at || new Date().toISOString(),
-            user_profiles: item.user_profiles || null,
-          }));
+          .filter((item: any) => {
+            const isValid = item && item.id != null;
+            if (!isValid) {
+              console.warn('Filtered out invalid item:', item);
+            }
+            return isValid;
+          })
+          .map((item: any) => {
+            const formatted = {
+              id: Number(item.id),
+              title: item.title || '',
+              content: item.content || '',
+              image_url: item.image_url || null,
+              views: Number(item.views) || 0,
+              created_at: item.created_at || new Date().toISOString(),
+              user_profiles: item.user_profiles || null,
+            };
+            console.log('Formatted item:', formatted);
+            return formatted;
+          });
+        console.log('Formatted IT News count:', formattedNews.length);
         console.log('Formatted IT News:', formattedNews);
         setItNews(formattedNews);
       } else {
         console.warn('Unexpected API response format:', result);
+        console.warn('Response type:', typeof result);
         setItNews([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch IT news:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       setItNews([]);
     } finally {
       setIsLoadingITNews(false);
+      console.log('IT News fetch completed');
     }
   };
 
