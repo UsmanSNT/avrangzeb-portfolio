@@ -93,7 +93,7 @@ const jsonLd = {
   alternateName: ['Abdujalilov Avrangzeb', '압둘잘릴로프 아브랑젭'],
   description: 'Network Administrator & Cybersecurity Student at Woosuk University, South Korea',
   url: 'https://avrangzeb-portfolio.vercel.app',
-  image: 'https://avrangzeb-portfolio.vercel.app/images/profile.jpg',
+  image: 'https://avrangzeb-portfolio.vercel.app/images/profile.png',
   email: 'avrangzebabdujalilov@gmail.com',
   telephone: '+82-10-2349-2777',
   jobTitle: 'Network Administrator Student',
