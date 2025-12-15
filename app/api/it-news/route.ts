@@ -131,13 +131,17 @@ export async function GET(request: Request) {
       .select('*, user_profiles(full_name, avatar_url)')
       .order('created_at', { ascending: false });
 
+    console.log('IT News GET - Raw data:', data);
+    console.log('IT News GET - Error:', error);
+
     if (error) {
       console.error('Error fetching news:', error);
       return NextResponse.json({ error: 'News yuklanmadi' }, { status: 500 });
     }
 
     // NULL ID'larni filtrlash
-    const filteredData = (data || []).filter(item => item.id != null);
+    const filteredData = (data || []).filter(item => item && item.id != null);
+    console.log('IT News GET - Filtered data:', filteredData);
 
     return NextResponse.json(filteredData);
   } catch (error) {

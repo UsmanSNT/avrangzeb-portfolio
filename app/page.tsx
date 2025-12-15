@@ -1328,11 +1328,27 @@ export default function Portfolio() {
     try {
       setIsLoadingITNews(true);
       const res = await fetch('/api/it-news');
-      const result = await res.json();
       
-      if (Array.isArray(result) && result.length > 0) {
+      if (!res.ok) {
+        console.error('Failed to fetch IT news: HTTP', res.status);
+        setItNews([]);
+        return;
+      }
+      
+      const result = await res.json();
+      console.log('IT News API response:', result);
+      
+      // API array qaytaradi, lekin error bo'lsa object bo'lishi mumkin
+      if (result.error) {
+        console.error('API error:', result.error);
+        setItNews([]);
+        return;
+      }
+      
+      // Agar result array bo'lsa
+      if (Array.isArray(result)) {
         const formattedNews = result
-          .filter((item: any) => item.id != null)
+          .filter((item: any) => item && item.id != null)
           .map((item: any) => ({
             id: Number(item.id),
             title: item.title || '',
@@ -1342,8 +1358,10 @@ export default function Portfolio() {
             created_at: item.created_at || new Date().toISOString(),
             user_profiles: item.user_profiles || null,
           }));
+        console.log('Formatted IT News:', formattedNews);
         setItNews(formattedNews);
       } else {
+        console.warn('Unexpected API response format:', result);
         setItNews([]);
       }
     } catch (error) {
