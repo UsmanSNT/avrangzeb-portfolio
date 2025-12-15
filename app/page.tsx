@@ -16,6 +16,7 @@ const translations = {
       projects: "Maqsadlar",
       books: "Kitob fikrlari",
       gallery: "Galereya",
+      itNews: "IT News",
       myProjects: "Loyihalar",
       notes: "Qaydlar",
       contact: "Aloqa",
@@ -134,6 +135,30 @@ const translations = {
       viewAll: "Barchasini ko'rish",
       close: "Yopish",
     },
+    itNews: {
+      title: "IT News",
+      subtitle: "Axborot texnologiyalari yangiliklari va maqolalar",
+      addNew: "Yangi yangilik qo'shish",
+      noNews: "Hali yangiliklar yo'q",
+      addFirst: "Birinchi yangilikni qo'shing",
+      newsTitle: "Sarlavha",
+      newsTitlePlaceholder: "Masalan: Yangi AI texnologiyasi",
+      newsContent: "Mazmun",
+      newsContentPlaceholder: "Yangilik mazmunini yozing...",
+      imageLabel: "Rasm (ixtiyoriy)",
+      uploadImage: "Rasm yuklash",
+      changeImage: "Rasmni o'zgartirish",
+      views: "ko'rishlar",
+      share: "Yuborish",
+      cancel: "Bekor qilish",
+      save: "Saqlash",
+      add: "Qo'shish",
+      editTitle: "Yangilikni tahrirlash",
+      addTitle: "Yangi yangilik qo'shish",
+      confirmDelete: "Bu yangilikni o'chirishni xohlaysizmi?",
+      shared: "Yuborildi",
+      shareError: "Yuborishda xatolik",
+    },
     myProjects: {
       title: "Loyihalarim",
       subtitle: "Men yaratgan web loyihalar",
@@ -188,6 +213,7 @@ const translations = {
       projects: "Goals",
       books: "Book Quotes",
       gallery: "Gallery",
+      itNews: "IT News",
       myProjects: "Projects",
       notes: "Notes",
       contact: "Contact",
@@ -306,6 +332,30 @@ const translations = {
       viewAll: "View All",
       close: "Close",
     },
+    itNews: {
+      title: "IT News",
+      subtitle: "Information technology news and articles",
+      addNew: "Add New News",
+      noNews: "No news yet",
+      addFirst: "Add your first news",
+      newsTitle: "Title",
+      newsTitlePlaceholder: "e.g., New AI Technology",
+      newsContent: "Content",
+      newsContentPlaceholder: "Write the news content...",
+      imageLabel: "Image (optional)",
+      uploadImage: "Upload Image",
+      changeImage: "Change Image",
+      views: "views",
+      share: "Share",
+      cancel: "Cancel",
+      save: "Save",
+      add: "Add",
+      editTitle: "Edit News",
+      addTitle: "Add New News",
+      confirmDelete: "Are you sure you want to delete this news?",
+      shared: "Shared",
+      shareError: "Error sharing",
+    },
     myProjects: {
       title: "My Projects",
       subtitle: "Web projects I've created",
@@ -360,6 +410,7 @@ const translations = {
       projects: "목표",
       books: "책 인용구",
       gallery: "갤러리",
+      itNews: "IT 뉴스",
       myProjects: "프로젝트",
       notes: "노트",
       contact: "연락처",
@@ -477,6 +528,30 @@ const translations = {
       confirmDelete: "이 갤러리를 삭제하시겠습니까?",
       viewAll: "모두 보기",
       close: "닫기",
+    },
+    itNews: {
+      title: "IT 뉴스",
+      subtitle: "정보기술 뉴스 및 기사",
+      addNew: "새 뉴스 추가",
+      noNews: "아직 뉴스가 없습니다",
+      addFirst: "첫 번째 뉴스를 추가하세요",
+      newsTitle: "제목",
+      newsTitlePlaceholder: "예: 새로운 AI 기술",
+      newsContent: "내용",
+      newsContentPlaceholder: "뉴스 내용을 작성하세요...",
+      imageLabel: "이미지 (선택사항)",
+      uploadImage: "이미지 업로드",
+      changeImage: "이미지 변경",
+      views: "조회수",
+      share: "공유",
+      cancel: "취소",
+      save: "저장",
+      add: "추가",
+      editTitle: "뉴스 편집",
+      addTitle: "새 뉴스 추가",
+      confirmDelete: "이 뉴스를 삭제하시겠습니까?",
+      shared: "공유됨",
+      shareError: "공유 오류",
     },
     myProjects: {
       title: "내 프로젝트",
@@ -702,6 +777,20 @@ interface GalleryItem {
   date: string;
 }
 
+// IT News interface
+interface ITNews {
+  id: number;
+  title: string;
+  content: string;
+  image_url: string | null;
+  views: number;
+  created_at: string;
+  user_profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+}
+
 // Default gallery items - kod orqali qo'shiladi
 const defaultGalleryItems: GalleryItem[] = [
   {
@@ -797,6 +886,15 @@ export default function Portfolio() {
   // Book quote viewing state
   const [viewingQuote, setViewingQuote] = useState<BookQuote | null>(null);
   const [expandedQuotes, setExpandedQuotes] = useState<Set<number>>(new Set());
+
+  // IT News state
+  const [itNews, setItNews] = useState<ITNews[]>([]);
+  const [isITNewsModalOpen, setIsITNewsModalOpen] = useState(false);
+  const [editingITNews, setEditingITNews] = useState<ITNews | null>(null);
+  const [itNewsFormTitle, setItNewsFormTitle] = useState("");
+  const [itNewsFormContent, setItNewsFormContent] = useState("");
+  const [itNewsFormImage, setItNewsFormImage] = useState<string | null>(null);
+  const [isLoadingITNews, setIsLoadingITNews] = useState(true);
 
   const toggleQuoteExpand = (id: number) => {
     setExpandedQuotes(prev => {
@@ -1223,6 +1321,42 @@ export default function Portfolio() {
   // Load gallery items from API on mount
   useEffect(() => {
     fetchGallery();
+  }, []);
+
+  // IT News ma'lumotlarini yuklash funksiyasi
+  const fetchITNews = async () => {
+    try {
+      setIsLoadingITNews(true);
+      const res = await fetch('/api/it-news');
+      const result = await res.json();
+      
+      if (Array.isArray(result) && result.length > 0) {
+        const formattedNews = result
+          .filter((item: any) => item.id != null)
+          .map((item: any) => ({
+            id: Number(item.id),
+            title: item.title || '',
+            content: item.content || '',
+            image_url: item.image_url || null,
+            views: Number(item.views) || 0,
+            created_at: item.created_at || new Date().toISOString(),
+            user_profiles: item.user_profiles || null,
+          }));
+        setItNews(formattedNews);
+      } else {
+        setItNews([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch IT news:', error);
+      setItNews([]);
+    } finally {
+      setIsLoadingITNews(false);
+    }
+  };
+
+  // Load IT News from API on mount
+  useEffect(() => {
+    fetchITNews();
   }, []);
 
   // Save language to localStorage
@@ -1864,6 +1998,228 @@ export default function Portfolio() {
     }
   };
 
+  // IT News functions
+  const openITNewsModal = (news?: ITNews) => {
+    if (news) {
+      setEditingITNews(news);
+      setItNewsFormTitle(news.title);
+      setItNewsFormContent(news.content);
+      setItNewsFormImage(news.image_url);
+    } else {
+      setEditingITNews(null);
+      setItNewsFormTitle("");
+      setItNewsFormContent("");
+      setItNewsFormImage(null);
+    }
+    setIsITNewsModalOpen(true);
+  };
+
+  const closeITNewsModal = () => {
+    setIsITNewsModalOpen(false);
+    setEditingITNews(null);
+    setItNewsFormTitle("");
+    setItNewsFormContent("");
+    setItNewsFormImage(null);
+  };
+
+  const handleITNewsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      try {
+        const compressedBase64 = await compressImage(file, 1200, 0.7);
+        const arr = compressedBase64.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const compressedFile = new File([u8arr], file.name, { type: mime });
+        
+        const formData = new FormData();
+        formData.append('file', compressedFile);
+        formData.append('folder', 'it-news');
+        
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          setItNewsFormImage(result.data.url);
+        } else {
+          alert('Rasm yuklanmadi: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Rasm yuklashda xatolik yuz berdi');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const handleITNewsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!itNewsFormTitle.trim() || !itNewsFormContent.trim()) {
+      alert('Sarlavha va mazmunni kiriting!');
+      return;
+    }
+    
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('Xato: Ma\'lumot saqlash uchun tizimga kiring');
+        return;
+      }
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      
+      let accessToken = session?.access_token;
+      if (!accessToken) {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        accessToken = newSession?.access_token;
+      }
+      
+      if (!accessToken) {
+        alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+        return;
+      }
+      
+      headers['Authorization'] = `Bearer ${accessToken}`;
+      
+      if (editingITNews && editingITNews.id) {
+        // Update existing news
+        const res = await fetch('/api/it-news', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            id: editingITNews.id,
+            title: itNewsFormTitle.trim(),
+            content: itNewsFormContent.trim(),
+            image_url: itNewsFormImage?.trim() || null,
+          }),
+        });
+        const result = await res.json();
+        
+        if (result.id) {
+          closeITNewsModal();
+          await new Promise(resolve => setTimeout(resolve, 300));
+          await fetchITNews();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot yangilanmadi'));
+        }
+      } else {
+        // Create new news
+        const res = await fetch('/api/it-news', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            title: itNewsFormTitle.trim(),
+            content: itNewsFormContent.trim(),
+            image_url: itNewsFormImage?.trim() || null,
+          }),
+        });
+        const result = await res.json();
+        
+        if (result.id) {
+          closeITNewsModal();
+          await new Promise(resolve => setTimeout(resolve, 300));
+          await fetchITNews();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot saqlanmadi'));
+        }
+      }
+    } catch (error: any) {
+      console.error('Failed to save IT news:', error);
+      alert('Xato: ' + (error.message || 'Saqlashda xatolik yuz berdi'));
+    }
+  };
+
+  const deleteITNews = async (id: number) => {
+    if (confirm(t.itNews.confirmDelete)) {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          alert('Xato: Ma\'lumot o\'chirish uchun tizimga kiring');
+          return;
+        }
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        
+        let accessToken = session?.access_token;
+        if (!accessToken) {
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          accessToken = newSession?.access_token;
+        }
+        
+        if (!accessToken) {
+          alert('Xato: Session topilmadi. Iltimos, tizimga qayta kiring.');
+          return;
+        }
+        
+        headers['Authorization'] = `Bearer ${accessToken}`;
+        
+        const res = await fetch(`/api/it-news?id=${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+          await fetchITNews();
+        } else {
+          alert('Xato: ' + (result.error || 'Ma\'lumot o\'chirilmadi'));
+        }
+      } catch (error) {
+        console.error('Failed to delete IT news:', error);
+        alert('Xato: Ma\'lumot o\'chirishda xatolik yuz berdi');
+      }
+    }
+  };
+
+  const incrementNewsViews = async (id: number) => {
+    try {
+      await fetch(`/api/it-news?id=${id}&incrementViews=true`, {
+        method: 'PUT',
+      });
+      await fetchITNews();
+    } catch (error) {
+      console.error('Failed to increment views:', error);
+    }
+  };
+
+  const shareITNews = async (news: ITNews) => {
+    try {
+      const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
+      const shareText = `${news.title}\n\n${news.content.substring(0, 200)}...\n\n${newsUrl}`;
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: news.title,
+          text: shareText,
+          url: newsUrl,
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareText);
+        alert(t.itNews.shared);
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Share error:', error);
+        alert(t.itNews.shareError);
+      }
+    }
+  };
+
   const languageLabels = {
     uz: { flag: "🇺🇿", name: "O'zbek" },
     en: { flag: "🇺🇸", name: "English" },
@@ -1904,6 +2260,7 @@ export default function Portfolio() {
               {[
                 { id: "books", label: t.nav.books },
                 { id: "gallery", label: t.nav.gallery },
+                { id: "it-news", label: t.nav.itNews },
                 { id: "my-projects", label: t.nav.myProjects },
                 { id: "notes", label: t.nav.notes, isLink: true },
               ].map((item) => (
@@ -1998,6 +2355,7 @@ export default function Portfolio() {
                 {[
                   { id: "books", label: t.nav.books },
                   { id: "gallery", label: t.nav.gallery },
+                  { id: "it-news", label: t.nav.itNews },
                   { id: "my-projects", label: t.nav.myProjects },
                   { id: "notes", label: t.nav.notes, isLink: true },
                 ].map((item) => (
@@ -2935,6 +3293,257 @@ export default function Portfolio() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* IT News Section */}
+      <section id="it-news" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              <span className="gradient-text">📰 {t.itNews.title}</span>
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+              {t.itNews.subtitle}
+            </p>
+            {isAdmin && (
+              <button
+                onClick={() => openITNewsModal()}
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {t.itNews.addNew}
+              </button>
+            )}
+          </div>
+
+          {isLoadingITNews ? (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+            </div>
+          ) : itNews.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
+                <span className="text-4xl">📰</span>
+              </div>
+              <p className="text-slate-500 mb-4">{t.itNews.noNews}</p>
+              {isAdmin && (
+                <button
+                  onClick={() => openITNewsModal()}
+                  className="text-cyan-400 hover:underline"
+                >
+                  {t.itNews.addFirst}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {itNews.map((news) => (
+                <div
+                  key={news.id}
+                  id={`it-news-${news.id}`}
+                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer"
+                  onClick={() => {
+                    incrementNewsViews(news.id);
+                  }}
+                >
+                  {/* Image */}
+                  {news.image_url && (
+                    <div className="relative h-48 sm:h-56 overflow-hidden">
+                      <img
+                        src={news.image_url}
+                        alt={news.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                    </div>
+                  )}
+                  
+                  {/* Content */}
+                  <div className="p-4 sm:p-5">
+                    <h3 className="font-semibold text-slate-200 text-base sm:text-lg mb-2 line-clamp-2">
+                      {news.title}
+                    </h3>
+                    
+                    <p className="text-slate-400 text-sm line-clamp-3 mb-4">
+                      {news.content}
+                    </p>
+                    
+                    {/* Meta info */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>{news.views} {t.itNews.views}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            shareITNews(news);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                          title={t.itNews.share}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zM8.684 13.342c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01z" />
+                          </svg>
+                        </button>
+                        
+                        {/* Edit/Delete - faqat admin uchun */}
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openITNewsModal(news);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                              title="Edit"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteITNews(news.id);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                              title="Delete"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* IT News Modal */}
+      {isITNewsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-100">
+                {editingITNews ? t.itNews.editTitle : t.itNews.addTitle}
+              </h3>
+              <button
+                onClick={closeITNewsModal}
+                className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleITNewsSubmit} className="p-4 sm:p-6 space-y-4">
+              {/* Image Upload */}
+              {itNewsFormImage && (
+                <div className="relative">
+                  <img src={itNewsFormImage} alt="Preview" className="w-full h-48 object-cover rounded-xl" />
+                  <button
+                    type="button"
+                    onClick={() => setItNewsFormImage(null)}
+                    className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              
+              {!itNewsFormImage && (
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                    {t.itNews.imageLabel}
+                  </label>
+                  {isUploading ? (
+                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500 mb-1"></div>
+                      <span className="text-xs text-cyan-400">Yuklanmoqda...</span>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
+                      <svg className="w-6 h-6 text-slate-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <span className="text-xs text-slate-500">{t.itNews.uploadImage}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleITNewsImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
+              {/* Title */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                  {t.itNews.newsTitle} *
+                </label>
+                <input
+                  type="text"
+                  value={itNewsFormTitle}
+                  onChange={(e) => setItNewsFormTitle(e.target.value)}
+                  required
+                  placeholder={t.itNews.newsTitlePlaceholder}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                />
+              </div>
+
+              {/* Content */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                  {t.itNews.newsContent} *
+                </label>
+                <textarea
+                  value={itNewsFormContent}
+                  onChange={(e) => setItNewsFormContent(e.target.value)}
+                  required
+                  rows={6}
+                  placeholder={t.itNews.newsContentPlaceholder}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeITNewsModal}
+                  className="flex-1 py-2.5 sm:py-3 px-4 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-colors text-sm sm:text-base"
+                >
+                  {t.itNews.cancel}
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                >
+                  {editingITNews ? t.itNews.save : t.itNews.add}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

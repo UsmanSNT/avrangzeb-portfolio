@@ -11,12 +11,13 @@ export default function AdminDashboard() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'users' | 'quotes' | 'gallery' | 'notes'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'quotes' | 'gallery' | 'notes' | 'it-news'>('users');
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalQuotes: 0,
     totalGallery: 0,
-    totalNotes: 0
+    totalNotes: 0,
+    totalITNews: 0
   });
 
   // Check if current user is super_admin
@@ -90,11 +91,16 @@ export default function AdminDashboard() {
       .from('portfolio_notes_rows')
       .select('*', { count: 'exact', head: true });
 
+    const { count: itNewsCount } = await supabase
+      .from('portfolio_it_news')
+      .select('*', { count: 'exact', head: true });
+
     setStats({
       totalUsers: usersData?.length || 0,
       totalQuotes: quotesCount || 0,
       totalGallery: galleryCount || 0,
-      totalNotes: notesCount || 0
+      totalNotes: notesCount || 0,
+      totalITNews: itNewsCount || 0
     });
   };
 
@@ -339,6 +345,20 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats.totalITNews}</p>
+                <p className="text-sm text-slate-400">IT News</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -347,6 +367,7 @@ export default function AdminDashboard() {
             { id: 'users', label: 'Foydalanuvchilar', icon: '👥' },
             { id: 'quotes', label: 'Iqtiboslar', icon: '📚' },
             { id: 'gallery', label: 'Galereya', icon: '🖼️' },
+            { id: 'it-news', label: 'IT News', icon: '📰' },
             { id: 'notes', label: 'Qaydlar', icon: '📝' },
           ].map((tab) => (
             <button
@@ -550,6 +571,18 @@ export default function AdminDashboard() {
                 </Link>
               </div>
               <p className="text-slate-400">Jami {stats.totalGallery} ta galereya elementi mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
+            </div>
+          )}
+
+          {activeTab === 'it-news' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">IT News</h3>
+                <Link href="/#it-news" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                  Barchasini ko&apos;rish →
+                </Link>
+              </div>
+              <p className="text-slate-400">Jami {stats.totalITNews} ta IT News mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
             </div>
           )}
 
