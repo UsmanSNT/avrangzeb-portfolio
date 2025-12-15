@@ -895,6 +895,7 @@ export default function Portfolio() {
   const [itNewsFormContent, setItNewsFormContent] = useState("");
   const [itNewsFormImage, setItNewsFormImage] = useState<string | null>(null);
   const [isLoadingITNews, setIsLoadingITNews] = useState(true);
+  const [viewingNews, setViewingNews] = useState<ITNews | null>(null);
 
   const toggleQuoteExpand = (id: number) => {
     setExpandedQuotes(prev => {
@@ -1407,6 +1408,22 @@ export default function Portfolio() {
   useEffect(() => {
     fetchITNews();
   }, []);
+
+  // ESC tugmasi bilan news viewer'ni yopish
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && viewingNews) {
+        closeNewsViewer();
+      }
+    };
+
+    if (viewingNews) {
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [viewingNews]);
 
   // Save language to localStorage
   const changeLanguage = (lang: Language) => {
@@ -2236,10 +2253,21 @@ export default function Portfolio() {
 
   const incrementNewsViews = async (id: number) => {
     try {
-      await fetch(`/api/it-news?id=${id}&incrementViews=true`, {
+      const res = await fetch(`/api/it-news?id=${id}&incrementViews=true`, {
         method: 'PUT',
       });
-      await fetchITNews();
+      if (res.ok) {
+        // Optimistic update - views sonini darhol yangilash
+        setItNews(prevNews => 
+          prevNews.map(news => 
+            news.id === id 
+              ? { ...news, views: news.views + 1 }
+              : news
+          )
+        );
+        // Background'da to'liq ma'lumotlarni yangilash
+        fetchITNews().catch(err => console.error('Failed to refresh news:', err));
+      }
     } catch (error) {
       console.error('Failed to increment views:', error);
     }
@@ -2267,6 +2295,21 @@ export default function Portfolio() {
         alert(t.itNews.shareError);
       }
     }
+  };
+
+  // IT News Viewer functions
+  const openNewsViewer = async (news: ITNews) => {
+    setViewingNews(news);
+    // Ko'rishlar sonini oshirish
+    await incrementNewsViews(news.id);
+    // Scroll to top va body overflow'ni o'chirish
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeNewsViewer = () => {
+    setViewingNews(null);
+    document.body.style.overflow = '';
   };
 
   const languageLabels = {
@@ -3396,7 +3439,7 @@ export default function Portfolio() {
                   id={`it-news-${news.id}`}
                   className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer"
                   onClick={() => {
-                    incrementNewsViews(news.id);
+                    openNewsViewer(news);
                   }}
                 >
                   {/* Image */}
@@ -3593,6 +3636,100 @@ export default function Portfolio() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* IT News Viewer Modal - O'qish uchun */}
+      {viewingNews && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-4xl bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl my-8">
+            {/* Header */}
+            <div className="sticky top-0 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 p-4 sm:p-6 flex items-center justify-between z-10">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-100 pr-4">
+                {viewingNews.title}
+              </h2>
+              <div className="flex items-center gap-2">
+                {/* Share button */}
+                <button
+                  onClick={() => shareITNews(viewingNews)}
+                  className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                  title={t.itNews.share}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zM8.684 13.342c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01z" />
+                  </svg>
+                </button>
+                {/* Edit button - faqat admin uchun */}
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      closeNewsViewer();
+                      setTimeout(() => openITNewsModal(viewingNews), 100);
+                    }}
+                    className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                    title="Edit"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                )}
+                {/* Close button */}
+                <button
+                  onClick={closeNewsViewer}
+                  className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                  title="Close"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Content - Scrollable */}
+            <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
+              {/* Image */}
+              {viewingNews.image_url && (
+                <div className="w-full h-64 sm:h-80 lg:h-96 overflow-hidden">
+                  <img
+                    src={viewingNews.image_url}
+                    alt={viewingNews.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* News Content */}
+              <div className="p-4 sm:p-6 lg:p-8">
+                {/* Meta info */}
+                <div className="flex items-center gap-4 mb-6 text-sm text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>{viewingNews.views} {t.itNews.views}</span>
+                  </div>
+                  {viewingNews.created_at && (
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{new Date(viewingNews.created_at).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content text */}
+                <div className="prose prose-invert max-w-none">
+                  <div className="text-slate-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
+                    {viewingNews.content}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
