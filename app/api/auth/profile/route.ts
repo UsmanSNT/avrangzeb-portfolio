@@ -80,8 +80,8 @@ async function createAuthenticatedClient(request: Request) {
     },
   });
   
-  // User'ni tekshirish
-  const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+  // User'ni tekshirish (token headerda bo'lgani uchun parametr kerak emas)
+  const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
     console.error('Auth error:', error);

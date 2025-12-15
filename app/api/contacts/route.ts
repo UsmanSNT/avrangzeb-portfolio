@@ -1,5 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Helper function to create authenticated Supabase client from request
+async function createAuthenticatedClient(request: Request) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  // Request header'dan Authorization token olish
+  const authHeader = request.headers.get('authorization');
+  let accessToken: string | null = null;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    accessToken = authHeader.substring(7);
+  }
+  
+  // Cookie'lardan token olish
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies: Record<string, string> = {};
+  
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      if (key && value) {
+        cookies[key] = decodeURIComponent(value);
+      }
+    });
+  }
+  
+  // Supabase cookie nomlarini topish
+  const projectRef = supabaseUrl.split('//')[1].split('.')[0];
+  const possibleTokenKeys = [
+    `sb-${projectRef}-auth-token`,
+    `sb-access-token`,
+  ];
+  
+  if (!accessToken) {
+    for (const key of possibleTokenKeys) {
+      if (cookies[key]) {
+        try {
+          const cookieValue = cookies[key];
+          if (cookieValue.startsWith('{')) {
+            const parsed = JSON.parse(cookieValue);
+            accessToken = parsed.access_token || parsed;
+          } else {
+            accessToken = cookieValue;
+          }
+          break;
+        } catch {
+          accessToken = cookies[key];
+          break;
+        }
+      }
+    }
+  }
+  
+  // Agar token topilmasa, unauthenticated client qaytarish
+  if (!accessToken) {
+    return { supabase: supabase, user: null };
+  }
+  
+  // Authenticated client yaratish
+  const authenticatedSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+  
+  const { data: { user }, error } = await authenticatedSupabase.auth.getUser();
+
+  if (error || !user) {
+    console.error('Auth error:', error);
+    return { supabase: supabase, user: null };
+  }
+  return { supabase: authenticatedSupabase, user };
+}
 
 // Telegram xabar yuborish
 async function sendTelegramMessage(name: string, telegram: string, message: string) {
@@ -206,9 +283,34 @@ export async function POST(request: NextRequest) {
 // Xabarni o'qilgan deb belgilash
 export async function PUT(request: NextRequest) {
   try {
+    // Authentication tekshirish
+    const { supabase: authSupabase, user } = await createAuthenticatedClient(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+
+    // Admin yoki super_admin bo'lishi kerak
+    const { data: profileData } = await authSupabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profileData?.role === 'admin' || profileData?.role === 'super_admin';
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const { id, is_read } = await request.json();
 
-    const { error } = await supabase
+    const { error } = await authSupabase
       .from('portfolio_contacts')
       .update({ is_read })
       .eq('id', id);
@@ -224,6 +326,31 @@ export async function PUT(request: NextRequest) {
 // Xabarni o'chirish
 export async function DELETE(request: NextRequest) {
   try {
+    // Authentication tekshirish
+    const { supabase: authSupabase, user } = await createAuthenticatedClient(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+
+    // Admin yoki super_admin bo'lishi kerak
+    const { data: profileData } = await authSupabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profileData?.role === 'admin' || profileData?.role === 'super_admin';
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -231,7 +358,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID kerak' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { error } = await authSupabase
       .from('portfolio_contacts')
       .delete()
       .eq('id', id);

@@ -82,8 +82,8 @@ async function createAuthenticatedClient(request: Request) {
     },
   });
   
-  // User'ni tekshirish
-  const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+  // User'ni tekshirish (token headerda bo'lgani uchun parametr kerak emas)
+  const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
     console.error('Auth error:', error);
@@ -252,7 +252,7 @@ export async function POST(request: Request) {
       quote, 
       image_url: image_url || null, 
       likes: 0, 
-      dislikes: '0', 
+      dislikes: 0, 
       user_id: user.id 
     };
     
@@ -378,9 +378,9 @@ export async function PUT(request: Request) {
       if (quote !== undefined) updateData.quote = quote;
       if (image_url !== undefined) updateData.image_url = image_url;
       if (likes !== undefined) updateData.likes = likes;
-      // dislikes ni stringga o'zgartirish (jadvalda text formatida)
+      // dislikes ni stringga o'zgartirish (jadvalda text formatida bo'lsa ham, number sifatida saqlaymiz)
       if (dislikes !== undefined) {
-        updateData.dislikes = String(dislikes);
+        updateData.dislikes = typeof dislikes === 'number' ? dislikes : Number(dislikes) || 0;
       }
 
       // Hech qanday yangilanish bo'lmasa
@@ -442,15 +442,6 @@ export async function PUT(request: Request) {
           { success: false, error: 'Unauthorized. Reaksiya berish uchun tizimga kiring.' },
           { status: 401 }
         );
-      }
-      
-      // Reaction type'ni aniqlash
-      let reactionType: 'like' | 'dislike' | null = null;
-      if (likes !== undefined && dislikes !== undefined) {
-        // Frontend'dan kelgan ma'lumotga qarab aniqlash
-        // Agar likes oshgan bo'lsa, like
-        // Agar dislikes oshgan bo'lsa, dislike
-        // Agar ikkalasi ham kamaygan bo'lsa, reaction o'chirilgan
       }
       
       // Avval mavjud reaction'ni topish
@@ -566,7 +557,7 @@ export async function PUT(request: Request) {
         .from('portfolio_book_quotes_rows')
         .update({ 
           likes: finalLikesCount,
-          dislikes: String(finalDislikesCount)
+          dislikes: finalDislikesCount
         })
         .eq('id', id)
         .select()

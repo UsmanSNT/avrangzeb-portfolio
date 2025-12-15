@@ -2065,7 +2065,7 @@ export default function Portfolio() {
             <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1 animate-pulse-glow">
               <div className="w-full h-full rounded-full overflow-hidden">
                 <img
-                  src="/images/profile.jpg"
+                  src="/images/profile.png"
                   alt="Abdujalilov Avrangzeb"
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -3268,7 +3268,7 @@ export default function Portfolio() {
       <footer className="py-6 sm:py-8 px-4 sm:px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-slate-500 text-sm sm:text-base">
-            © 2024 Abdujalilov Avrangzeb. {t.footer}
+            © 2025 Abdujalilov Avrangzeb. {t.footer}
           </p>
         </div>
       </footer>
