@@ -57,13 +57,18 @@ CREATE POLICY "Users can delete their own news, admins can delete all"
   );
 
 -- Function to update updated_at timestamp
+-- SECURITY: Set search_path to prevent search path manipulation attacks
 CREATE OR REPLACE FUNCTION update_portfolio_it_news_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Trigger to automatically update updated_at
 CREATE TRIGGER update_portfolio_it_news_updated_at
