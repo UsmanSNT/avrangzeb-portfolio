@@ -2477,16 +2477,17 @@ export default function Portfolio() {
     try {
       const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
       
-      // Telegram linki va boshqa linklar
-      const telegramLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(news.title)}`;
-      const portfolioLink = window.location.origin;
-      const cvLink = `${window.location.origin}/#cv`;
+      // Telegram channel linki va boshqa linklar
+      const telegramChannelLink = 'https://t.me/Avrangzeb_Abdujalilov';
+      const portfolioLink = 'https://avrangzeb-portfolio.vercel.app/';
       
-      // Formatlangan shablon
-      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 ${newsUrl}\n\n📱 Telegram: ${telegramLink}\n🌐 Portfolio: ${portfolioLink}\n📄 CV: ${cvLink}`;
+      // Formatlangan shablon - linklar matnning ostiga, bir qatorda
+      // Telegram uchun Markdown formatida (linklar ishlaydi)
+      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
       
-      // Telegram shablon (chiroyli format)
-      const telegramText = `📰 *${news.title}*\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 [To'liq o'qish](${newsUrl})\n\n🌐 [Portfolio](${portfolioLink})\n📄 [CV](${cvLink})`;
+      // Telegram share linki (yuborish uchun) - Markdown formatida (Telegram'da linklar ishlaydi)
+      const telegramShareText = `${news.title}\n\n${news.content.substring(0, 200)}${news.content.length > 200 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
+      const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
       
       if (navigator.share) {
         await navigator.share({
@@ -2498,7 +2499,7 @@ export default function Portfolio() {
         // Fallback: Telegram linkini ochish yoki clipboard'ga nusxalash
         const useTelegram = confirm('Telegram orqali yuborishni xohlaysizmi?');
         if (useTelegram) {
-          window.open(telegramLink, '_blank');
+          window.open(telegramShareLink, '_blank');
         } else {
           await navigator.clipboard.writeText(shareText);
           alert(t.itNews.shared);
@@ -2509,8 +2510,11 @@ export default function Portfolio() {
         console.error('Share error:', error);
         // Telegram linkini ochish
         const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
-        const telegramLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(news.title)}`;
-        window.open(telegramLink, '_blank');
+        const telegramChannelLink = 'https://t.me/Avrangzeb_Abdujalilov';
+        const portfolioLink = 'https://avrangzeb-portfolio.vercel.app/';
+        const telegramShareText = `${news.title}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
+        const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
+        window.open(telegramShareLink, '_blank');
       }
     }
   };
