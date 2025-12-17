@@ -2484,11 +2484,16 @@ export default function Portfolio() {
     try {
       const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
       
-      // Formatlangan shablon - faqat news linki
-      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 Davomi: ${newsUrl}`;
+      // Asosiy qismdan 3-4 qator matn olish
+      const contentLines = news.content.split('\n').filter(line => line.trim().length > 0);
+      const previewLines = contentLines.slice(0, 4); // Birinchi 4 qator
+      const previewText = previewLines.join('\n');
+      
+      // Formatlangan shablon - asosiy qismdan 3-4 qator matn
+      const shareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 Davomi: ${newsUrl}`;
       
       // Telegram share linki
-      const telegramShareText = `${news.title}\n\n${news.content.substring(0, 200)}${news.content.length > 200 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
+      const telegramShareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
       const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
       
       // Rasimni yuklab olish va yuborish
@@ -2532,7 +2537,10 @@ export default function Portfolio() {
         console.error('Share error:', error);
         // Telegram linkini ochish
         const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
-        const telegramShareText = `${news.title}\n\n🔗 [Davomi...](${newsUrl})`;
+        const contentLines = news.content.split('\n').filter(line => line.trim().length > 0);
+        const previewLines = contentLines.slice(0, 4);
+        const previewText = previewLines.join('\n');
+        const telegramShareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
         const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
         window.open(telegramShareLink, '_blank');
       }
