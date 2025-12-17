@@ -2441,13 +2441,14 @@ export default function Portfolio() {
 
   const incrementNewsViews = async (id: number) => {
     try {
+      // GET request'da incrementViews=true query parametri bilan yuborish
       const res = await fetch(`/api/it-news?id=${id}&incrementViews=true`, {
-        method: 'PUT',
+        method: 'GET',
       });
       if (res.ok) {
         const data = await res.json();
         // API'dan kelgan yangi views sonini to'g'ri yangilash
-        if (data.views !== undefined) {
+        if (data && data.views !== undefined) {
           setItNews(prevNews => 
             prevNews.map(news => 
               news.id === id 
@@ -2460,16 +2461,22 @@ export default function Portfolio() {
           setItNews(prevNews => 
             prevNews.map(news => 
               news.id === id 
-                ? { ...news, views: news.views + 1 }
+                ? { ...news, views: (news.views || 0) + 1 }
                 : news
             )
           );
         }
-        // Background'da to'liq ma'lumotlarni yangilash
-        fetchITNews().catch(err => console.error('Failed to refresh news:', err));
       }
     } catch (error) {
       console.error('Failed to increment views:', error);
+      // Optimistic update xato bo'lsa ham
+      setItNews(prevNews => 
+        prevNews.map(news => 
+          news.id === id 
+            ? { ...news, views: (news.views || 0) + 1 }
+            : news
+        )
+      );
     }
   };
 
@@ -2477,24 +2484,39 @@ export default function Portfolio() {
     try {
       const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
       
-      // Telegram channel linki va boshqa linklar
-      const telegramChannelLink = 'https://t.me/Avrangzeb_Abdujalilov';
-      const portfolioLink = 'https://avrangzeb-portfolio.vercel.app/';
+      // Formatlangan shablon - faqat news linki
+      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 Davomi: ${newsUrl}`;
       
-      // Formatlangan shablon - linklar matnning ostiga, bir qatorda
-      // Telegram uchun Markdown formatida (linklar ishlaydi)
-      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
-      
-      // Telegram share linki (yuborish uchun) - Markdown formatida (Telegram'da linklar ishlaydi)
-      const telegramShareText = `${news.title}\n\n${news.content.substring(0, 200)}${news.content.length > 200 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
+      // Telegram share linki
+      const telegramShareText = `${news.title}\n\n${news.content.substring(0, 200)}${news.content.length > 200 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
       const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
       
+      // Rasimni yuklab olish va yuborish
+      let imageFile: File | null = null;
+      if (news.image_url) {
+        try {
+          const imageResponse = await fetch(news.image_url);
+          const imageBlob = await imageResponse.blob();
+          const imageFileName = news.image_url.split('/').pop() || 'news-image.jpg';
+          imageFile = new File([imageBlob], imageFileName, { type: imageBlob.type });
+        } catch (imgError) {
+          console.error('Failed to load image:', imgError);
+        }
+      }
+      
       if (navigator.share) {
-        await navigator.share({
+        const shareData: any = {
           title: news.title,
           text: shareText,
           url: newsUrl,
-        });
+        };
+        
+        // Agar rasm bo'lsa, uni qo'shish
+        if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+          shareData.files = [imageFile];
+        }
+        
+        await navigator.share(shareData);
       } else {
         // Fallback: Telegram linkini ochish yoki clipboard'ga nusxalash
         const useTelegram = confirm('Telegram orqali yuborishni xohlaysizmi?');
@@ -2510,9 +2532,7 @@ export default function Portfolio() {
         console.error('Share error:', error);
         // Telegram linkini ochish
         const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
-        const telegramChannelLink = 'https://t.me/Avrangzeb_Abdujalilov';
-        const portfolioLink = 'https://avrangzeb-portfolio.vercel.app/';
-        const telegramShareText = `${news.title}\n\n🔗 [Davomi...](${newsUrl}) | 📱 [Telegram](${telegramChannelLink}) | 🌐 [Portfolio](${portfolioLink})`;
+        const telegramShareText = `${news.title}\n\n🔗 [Davomi...](${newsUrl})`;
         const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
         window.open(telegramShareLink, '_blank');
       }

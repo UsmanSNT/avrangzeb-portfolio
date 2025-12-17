@@ -125,8 +125,14 @@ export async function GET(request: Request) {
         if (!updateError && updatedData) {
           data.views = updatedData.views;
         } else {
+          // Agar update xato bo'lsa, optimistic qiymatni qaytaramiz
           data.views = newViews;
         }
+      }
+
+      // Faqat views sonini qaytarish (incrementViews bo'lsa)
+      if (incrementViews) {
+        return NextResponse.json({ views: data.views });
       }
 
       return NextResponse.json(data);
