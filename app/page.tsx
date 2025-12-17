@@ -1468,10 +1468,23 @@ export default function Portfolio() {
     fetchITNews();
   }, []);
 
-  // Fetch CV
+  // CV fayl URL - public papkadagi fayl
+  const staticCvUrl = '/cv/Avrangzeb_CV.pdf';
+
+  // Fetch CV (agar Supabase'dan kerak bo'lsa)
   const fetchCV = async () => {
     try {
       setIsLoadingCv(true);
+      // Avval static faylni tekshiramiz
+      const staticExists = await fetch(staticCvUrl, { method: 'HEAD' }).then(res => res.ok).catch(() => false);
+      
+      if (staticExists) {
+        setCvUrl(staticCvUrl);
+        setIsLoadingCv(false);
+        return;
+      }
+
+      // Agar static fayl bo'lmasa, API'dan olamiz
       const res = await fetch('/api/cv');
       const data = await res.json();
       
@@ -1490,6 +1503,10 @@ export default function Portfolio() {
 
   // Load CV on mount
   useEffect(() => {
+    // Static faylni darhol ko'rsatamiz
+    setCvUrl(staticCvUrl);
+    setIsLoadingCv(false);
+    // Background'da API'dan ham tekshiramiz
     fetchCV();
   }, []);
 
@@ -3598,10 +3615,23 @@ export default function Portfolio() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <a
-                    href={cvUrl}
+                    href={cvUrl || staticCvUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    download="Avrangzeb_CV.pdf"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                    onClick={(e) => {
+                      // Yangi tab'da ochilishini ta'minlash
+                      e.preventDefault();
+                      window.open(cvUrl || staticCvUrl, '_blank');
+                      // Yuklab olish uchun
+                      const link = document.createElement('a');
+                      link.href = cvUrl || staticCvUrl;
+                      link.download = 'Avrangzeb_CV.pdf';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -3644,22 +3674,63 @@ export default function Portfolio() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p className="text-slate-500 mb-6">{t.cv.noCv}</p>
-              {isAdmin && (
-                <label className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all cursor-pointer">
+              {/* Static CV mavjud bo'lsa, uni ko'rsatish */}
+              <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 sm:p-8 max-w-md mx-auto">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-1">
+                      CV mavjud
+                    </h3>
+                    <p className="text-sm text-slate-400">
+                      CV'ni yuklab olish uchun tugmani bosing
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={staticCvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="Avrangzeb_CV.pdf"
+                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  onClick={(e) => {
+                    // Yangi tab'da ochilishini ta'minlash
+                    e.preventDefault();
+                    window.open(staticCvUrl, '_blank');
+                    // Yuklab olish uchun
+                    const link = document.createElement('a');
+                    link.href = staticCvUrl;
+                    link.download = 'Avrangzeb_CV.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  {isUploadingCv ? t.cv.uploading : t.cv.uploadFirst}
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    onChange={handleCVUpload}
-                    className="hidden"
-                    disabled={isUploadingCv}
-                  />
-                </label>
-              )}
+                  {t.cv.download}
+                </a>
+                {isAdmin && (
+                  <label className="mt-4 inline-flex items-center justify-center gap-2 w-full px-6 py-3 border border-slate-600 rounded-xl font-semibold text-slate-300 hover:bg-slate-700/50 transition-all cursor-pointer">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    {isUploadingCv ? t.cv.uploading : t.cv.uploadNew}
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={handleCVUpload}
+                      className="hidden"
+                      disabled={isUploadingCv}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
           )}
         </div>
