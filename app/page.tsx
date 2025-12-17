@@ -2445,14 +2445,26 @@ export default function Portfolio() {
         method: 'PUT',
       });
       if (res.ok) {
-        // Optimistic update - views sonini darhol yangilash
-        setItNews(prevNews => 
-          prevNews.map(news => 
-            news.id === id 
-              ? { ...news, views: news.views + 1 }
-              : news
-          )
-        );
+        const data = await res.json();
+        // API'dan kelgan yangi views sonini to'g'ri yangilash
+        if (data.views !== undefined) {
+          setItNews(prevNews => 
+            prevNews.map(news => 
+              news.id === id 
+                ? { ...news, views: data.views }
+                : news
+            )
+          );
+        } else {
+          // Agar views kelmasa, optimistic update
+          setItNews(prevNews => 
+            prevNews.map(news => 
+              news.id === id 
+                ? { ...news, views: news.views + 1 }
+                : news
+            )
+          );
+        }
         // Background'da to'liq ma'lumotlarni yangilash
         fetchITNews().catch(err => console.error('Failed to refresh news:', err));
       }
@@ -2464,7 +2476,17 @@ export default function Portfolio() {
   const shareITNews = async (news: ITNews) => {
     try {
       const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
-      const shareText = `${news.title}\n\n${news.content.substring(0, 200)}...\n\n${newsUrl}`;
+      
+      // Telegram linki va boshqa linklar
+      const telegramLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(news.title)}`;
+      const portfolioLink = window.location.origin;
+      const cvLink = `${window.location.origin}/#cv`;
+      
+      // Formatlangan shablon
+      const shareText = `📰 ${news.title}\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 ${newsUrl}\n\n📱 Telegram: ${telegramLink}\n🌐 Portfolio: ${portfolioLink}\n📄 CV: ${cvLink}`;
+      
+      // Telegram shablon (chiroyli format)
+      const telegramText = `📰 *${news.title}*\n\n${news.content.substring(0, 300)}${news.content.length > 300 ? '...' : ''}\n\n🔗 [To'liq o'qish](${newsUrl})\n\n🌐 [Portfolio](${portfolioLink})\n📄 [CV](${cvLink})`;
       
       if (navigator.share) {
         await navigator.share({
@@ -2473,14 +2495,22 @@ export default function Portfolio() {
           url: newsUrl,
         });
       } else {
-        // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(shareText);
-        alert(t.itNews.shared);
+        // Fallback: Telegram linkini ochish yoki clipboard'ga nusxalash
+        const useTelegram = confirm('Telegram orqali yuborishni xohlaysizmi?');
+        if (useTelegram) {
+          window.open(telegramLink, '_blank');
+        } else {
+          await navigator.clipboard.writeText(shareText);
+          alert(t.itNews.shared);
+        }
       }
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         console.error('Share error:', error);
-        alert(t.itNews.shareError);
+        // Telegram linkini ochish
+        const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
+        const telegramLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(news.title)}`;
+        window.open(telegramLink, '_blank');
       }
     }
   };
@@ -3827,7 +3857,7 @@ export default function Portfolio() {
                             e.stopPropagation();
                             shareITNews(news);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                          className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
                           title={t.itNews.share}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4000,7 +4030,7 @@ export default function Portfolio() {
                 {/* Share button */}
                 <button
                   onClick={() => shareITNews(viewingNews)}
-                  className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                  className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
                   title={t.itNews.share}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

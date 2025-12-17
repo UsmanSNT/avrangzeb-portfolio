@@ -114,12 +114,19 @@ export async function GET(request: Request) {
 
       // Ko'rishlar sonini oshirish
       if (incrementViews && data) {
-        await supabase
+        const newViews = (data.views || 0) + 1;
+        const { data: updatedData, error: updateError } = await supabase
           .from('portfolio_it_news')
-          .update({ views: (data.views || 0) + 1 })
-          .eq('id', id);
+          .update({ views: newViews })
+          .eq('id', id)
+          .select('views')
+          .single();
         
-        data.views = (data.views || 0) + 1;
+        if (!updateError && updatedData) {
+          data.views = updatedData.views;
+        } else {
+          data.views = newViews;
+        }
       }
 
       return NextResponse.json(data);
