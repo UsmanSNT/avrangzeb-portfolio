@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     description: 'Janubiy Koreya, Woosuk Universiteti Axborot xavfsizligi talabasi. Network Administrator, CCNA, Cybersecurity mutaxassisi.',
     images: [
       {
-        url: '/og-image.png',
+        url: '/images/profile.png',
         width: 1200,
         height: 630,
         alt: 'Avrangzeb Abdujalilov - Portfolio',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Avrangzeb Abdujalilov | Network Administrator',
     description: 'Network Administrator & Cybersecurity Student at Woosuk University, South Korea',
-    images: ['/og-image.png'],
+    images: ['/images/profile.png'],
   },
   verification: {
     google: 'hkkXR8HTrCqInv8nhznuiC0MdS2AqZqSsmD9S-7wKU4',
@@ -136,8 +136,8 @@ export default function RootLayout({
   return (
     <html lang="uz">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/images/profile.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/images/profile.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0f172a" />
         <script

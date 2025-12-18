@@ -601,28 +601,59 @@ export default function NotesPage() {
         headers,
       });
       
+      if (!res.ok) {
+        console.error('fetchNotes - HTTP error:', res.status, res.statusText);
+        const errorText = await res.text();
+        console.error('fetchNotes - Error response:', errorText);
+        setNotes([]);
+        return;
+      }
+
       const result = await res.json();
       
-      if (result.success && result.data && Array.isArray(result.data)) {
+      console.log('fetchNotes - API response:', result);
+      console.log('fetchNotes - result.success:', result.success);
+      console.log('fetchNotes - result.data:', result.data);
+      console.log('fetchNotes - result.data is array:', Array.isArray(result.data));
+      console.log('fetchNotes - result.data length:', Array.isArray(result.data) ? result.data.length : 'N/A');
+      
+      // Agar result.data mavjud va array bo'lsa
+      if (result && result.data && Array.isArray(result.data)) {
         // Supabase'dan kelgan ma'lumotlarni Note formatiga o'tkazish
-        const formattedNotes: Note[] = result.data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          categoryKey: item.category || 'other',
-          tags: Array.isArray(item.tags) ? item.tags : [],
-          content: item.content || '',
-          important: item.important || false,
-        }));
+        const formattedNotes: Note[] = result.data
+          .filter((item: any) => {
+            const isValid = item && item.id != null && item.title;
+            if (!isValid) {
+              console.warn('Filtered out invalid note:', item);
+            }
+            return isValid;
+          })
+          .map((item: any) => ({
+            id: item.id,
+            title: item.title || 'Sarlavhasiz',
+            date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            categoryKey: item.category || 'other',
+            tags: Array.isArray(item.tags) ? item.tags : (item.tags ? [item.tags] : []),
+            content: item.content || '',
+            important: item.important || false,
+          }));
+        
+        console.log('fetchNotes - Formatted notes:', formattedNotes);
+        console.log('fetchNotes - Formatted notes count:', formattedNotes.length);
+        
         setNotes(formattedNotes);
       } else {
-        // Agar ma'lumotlar bo'lmasa, bo'sh array
-        setNotes([]);
+        } else {
+        // Agar ma'lumotlar bo'lmasa, default notes'larni ko'rsatish
+        console.warn('fetchNotes - No data or invalid format, result:', result);
+        // Agar ma'lumotlar bo'lmasa, default notes'larni ko'rsatish
+        setNotes(defaultNotes);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch notes:', error);
-      // Xato bo'lsa, bo'sh array
-      setNotes([]);
+      console.error('Error details:', error.message);
+      // Xato bo'lsa, default notes'larni ko'rsatish
+      setNotes(defaultNotes);
     } finally {
       setIsLoadingNotes(false);
     }

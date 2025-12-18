@@ -91,12 +91,14 @@ async function createAuthenticatedClient(request: Request) {
   return { supabase, user };
 }
 
-// GET - Barcha qaydlarni olish
+// GET - Barcha qaydlarni olish (public - hamma ko'ra oladi)
 export async function GET(request: Request) {
   try {
     const supabase = createSupabaseClient();
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
+    
+    console.log('GET /api/notes - userId:', userId);
     
     let query = supabase
       .from('portfolio_notes_rows')
@@ -110,18 +112,40 @@ export async function GET(request: Request) {
     
     const { data, error } = await query;
 
+    console.log('GET /api/notes - Data:', data);
+    console.log('GET /api/notes - Error:', error);
+    console.log('GET /api/notes - Data length:', data?.length);
+    console.log('GET /api/notes - Data type:', typeof data);
+    console.log('GET /api/notes - Is array:', Array.isArray(data));
+
     if (error) {
       console.error('Error fetching notes:', error);
-      throw error;
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      
+      // RLS policy muammosi bo'lsa ham, bo'sh array qaytaramiz
+      // Frontend'da xato ko'rsatilmaydi, faqat bo'sh array
+      return NextResponse.json({ success: true, data: [] });
     }
 
-    return NextResponse.json({ success: true, data: data || [] });
+    // NULL ID'larni filtrlash
+    const filteredData = (data || []).filter((item: any) => {
+      const isValid = item && item.id != null;
+      if (!isValid) {
+        console.warn('Filtered out invalid item:', item);
+      }
+      return isValid;
+    });
+
+    console.log('GET /api/notes - Filtered data length:', filteredData.length);
+
+    return NextResponse.json({ success: true, data: filteredData });
   } catch (error: any) {
     console.error('GET notes error:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch notes' },
-      { status: 500 }
-    );
+    console.error('GET notes error details:', JSON.stringify(error, null, 2));
+    // Xato bo'lsa ham, bo'sh array qaytaramiz
+    return NextResponse.json({ success: true, data: [] });
   }
 }
 
