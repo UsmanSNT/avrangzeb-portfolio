@@ -4,7 +4,10 @@
 -- ============================================
 
 -- 1. Jadval yaratish
-CREATE TABLE IF NOT EXISTS portfolio_notes_rows (
+-- Agar jadval mavjud bo'lsa, o'chirib qayta yaratish
+DROP TABLE IF EXISTS portfolio_notes_rows CASCADE;
+
+CREATE TABLE portfolio_notes_rows (
   id BIGSERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   content TEXT NOT NULL,

@@ -802,6 +802,14 @@ export default function NotesPage() {
           'Authorization': `Bearer ${token}`,
         };
         
+        console.log('handleSubmit - Sending POST request with data:', {
+          title: formTitle,
+          content: formContent,
+          category: formCategoryKey,
+          tags: tagsArray,
+          important: formImportant,
+        });
+
         const res = await fetch('/api/notes', {
           method: 'POST',
           headers,
@@ -814,13 +822,50 @@ export default function NotesPage() {
           }),
         });
 
+        console.log('handleSubmit - Response status:', res.status, res.statusText);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('handleSubmit - HTTP error:', res.status, errorText);
+          try {
+            const errorResult = JSON.parse(errorText);
+            alert('Xato: ' + (errorResult.error || 'Qayd saqlanmadi'));
+          } catch {
+            alert('Xato: ' + errorText);
+          }
+          return;
+        }
+
         const result = await res.json();
         
-        if (result.success && result.data) {
-          // Refresh notes from Supabase
-          await fetchNotes();
+        console.log('handleSubmit - POST response:', result);
+        console.log('handleSubmit - result.success:', result.success);
+        console.log('handleSubmit - result.data:', result.data);
+        
+        if (result.success && result.data && result.data.id) {
+          console.log('handleSubmit - Note created successfully, refreshing notes...');
+          
+          // Optimistic update - add new note immediately
+          const newNote: Note = {
+            id: Number(result.data.id),
+            title: String(result.data.title || formTitle),
+            date: result.data.created_at ? new Date(result.data.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            categoryKey: String(result.data.category || formCategoryKey),
+            tags: Array.isArray(result.data.tags) ? result.data.tags.map((t: any) => String(t)) : tagsArray,
+            content: String(result.data.content || formContent),
+            important: Boolean(result.data.important !== undefined ? result.data.important : formImportant),
+          };
+          
+          console.log('handleSubmit - Adding optimistic note:', newNote);
+          setNotes(prevNotes => [newNote, ...prevNotes]);
+          
+          // Refresh notes from Supabase to ensure sync
+          setTimeout(async () => {
+            await fetchNotes();
+          }, 500);
         } else {
-          alert('Xato: ' + (result.error || 'Qayd saqlanmadi'));
+          console.error('handleSubmit - Failed to create note:', result);
+          alert('Xato: ' + (result.error || 'Qayd saqlanmadi. Ma\'lumotlar qaytarilmadi.'));
           return;
         }
       }

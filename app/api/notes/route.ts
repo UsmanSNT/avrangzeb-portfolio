@@ -176,6 +176,15 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log('POST /api/notes - Creating note with data:', {
+      title: title.trim(),
+      content: content.trim(),
+      category: category || 'other',
+      tags: tags || [],
+      important: important || false,
+      user_id: user.id
+    });
+
     const { data, error } = await supabase
       .from('portfolio_notes_rows')
       .insert([{ 
@@ -186,13 +195,28 @@ export async function POST(request: Request) {
         important: important || false, 
         user_id: user.id 
       }])
-      .select()
+      .select('id, title, content, category, tags, important, created_at, updated_at, user_id')
       .single();
+
+    console.log('POST /api/notes - Insert result:', { data, error });
 
     if (error) {
       console.error('Error creating note:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
       throw error;
     }
+
+    if (!data) {
+      console.error('POST /api/notes - No data returned from insert');
+      return NextResponse.json(
+        { success: false, error: 'Note created but no data returned' },
+        { status: 500 }
+      );
+    }
+
+    console.log('POST /api/notes - Successfully created note:', data);
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
