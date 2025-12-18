@@ -784,6 +784,17 @@ export default function NotesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation
+    if (!formTitle || !formTitle.trim()) {
+      alert('Iltimos, sarlavha kiriting');
+      return;
+    }
+    
+    if (!formContent || !formContent.trim()) {
+      alert('Iltimos, matn kiriting');
+      return;
+    }
+    
     const tagsArray = formTags.split(",").map(tag => tag.trim()).filter(tag => tag);
     const today = new Date().toISOString().split('T')[0];
 
@@ -1386,8 +1397,15 @@ export default function NotesPage() {
                   {t.modal.contentLabel}
                 </label>
                 <RichTextEditor
-                  value={formContent}
-                  onChange={setFormContent}
+                  value={formContent || ''}
+                  onChange={(value) => {
+                    try {
+                      setFormContent(value || '');
+                    } catch (error) {
+                      console.error('RichTextEditor onChange error:', error);
+                      setFormContent('');
+                    }
+                  }}
                   placeholder={t.modal.contentPlaceholder}
                 />
                 <p className="text-xs text-slate-500 mt-2">
