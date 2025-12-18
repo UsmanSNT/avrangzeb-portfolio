@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
 
 // Dynamic import to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+// TypeScript type error'ni e'tiborsiz qoldirish - react-quill Next.js dynamic import bilan muammo
+// @ts-expect-error - react-quill type definition issue with Next.js dynamic import
+const ReactQuill = dynamic(
+  () => import('react-quill'),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">Yuklanmoqda...</div>
+  }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -15,6 +22,24 @@ interface RichTextEditorProps {
 
 export default function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
   const quillRef = useRef<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // CSS'ni dynamic import qilish (production uchun) - faqat client-side'da
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      import('react-quill/dist/quill.snow.css');
+    }
+  }, []);
+
+  // SSR paytida loading ko'rsatish
+  if (!isMounted) {
+    return (
+      <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">
+        Yuklanmoqda...
+      </div>
+    );
+  }
 
   const modules = useMemo(() => ({
     toolbar: {
