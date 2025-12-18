@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import RichTextEditor from "@/app/components/RichTextEditor";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -1246,29 +1247,13 @@ export default function NotesPage() {
 
                   {/* Note Content */}
                   <div className="prose prose-invert prose-cyan max-w-none">
-                    <div className="note-content text-slate-300 leading-relaxed whitespace-pre-wrap">
-                      {selectedNote.content.split('\n').map((line, index) => {
-                        if (line.startsWith('## ')) {
-                          return <h2 key={index} className="text-xl font-bold text-cyan-400 mt-6 mb-3">{line.replace('## ', '')}</h2>;
-                        }
-                        if (line.startsWith('### ')) {
-                          return <h3 key={index} className="text-lg font-semibold text-violet-400 mt-4 mb-2">{line.replace('### ', '')}</h3>;
-                        }
-                        if (line.startsWith('```')) {
-                          return null;
-                        }
-                        if (line.match(/^\d+\.\s/)) {
-                          return <p key={index} className="ml-4 my-1">{line}</p>;
-                        }
-                        if (line.startsWith('- ')) {
-                          return <p key={index} className="ml-4 my-1">{line}</p>;
-                        }
-                        if (line.startsWith('|')) {
-                          return <p key={index} className="font-mono text-sm bg-slate-700/30 px-2">{line}</p>;
-                        }
-                        return <p key={index} className="my-1">{line}</p>;
-                      })}
-                    </div>
+                    <div 
+                      className="note-content text-slate-300 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: selectedNote.content }}
+                      style={{
+                        wordBreak: 'break-word',
+                      }}
+                    />
                   </div>
 
                   {/* Footer */}
@@ -1400,13 +1385,10 @@ export default function NotesPage() {
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   {t.modal.contentLabel}
                 </label>
-                <textarea
+                <RichTextEditor
                   value={formContent}
-                  onChange={(e) => setFormContent(e.target.value)}
-                  required
-                  rows={10}
+                  onChange={setFormContent}
                   placeholder={t.modal.contentPlaceholder}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none font-mono text-sm"
                 />
                 <p className="text-xs text-slate-500 mt-2">
                   {t.modal.contentHint}
