@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import RichTextEditor from "@/app/components/RichTextEditor";
+import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -1396,18 +1397,32 @@ export default function NotesPage() {
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   {t.modal.contentLabel}
                 </label>
-                <RichTextEditor
-                  value={formContent || ''}
-                  onChange={(value) => {
-                    try {
-                      setFormContent(value || '');
-                    } catch (error) {
-                      console.error('RichTextEditor onChange error:', error);
-                      setFormContent('');
-                    }
-                  }}
-                  placeholder={t.modal.contentPlaceholder}
-                />
+                <ErrorBoundary
+                  fallback={
+                    <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl p-4">
+                      <p className="text-red-400 mb-2">Editor yuklanmadi</p>
+                      <textarea
+                        value={formContent || ''}
+                        onChange={(e) => setFormContent(e.target.value)}
+                        placeholder={t.modal.contentPlaceholder}
+                        className="w-full h-[250px] px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none"
+                      />
+                    </div>
+                  }
+                >
+                  <RichTextEditor
+                    value={formContent || ''}
+                    onChange={(value) => {
+                      try {
+                        setFormContent(value || '');
+                      } catch (error) {
+                        console.error('RichTextEditor onChange error:', error);
+                        setFormContent('');
+                      }
+                    }}
+                    placeholder={t.modal.contentPlaceholder}
+                  />
+                </ErrorBoundary>
                 <p className="text-xs text-slate-500 mt-2">
                   {t.modal.contentHint}
                 </p>

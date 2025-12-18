@@ -24,22 +24,43 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   const quillRef = useRef<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // CSS'ni dynamic import qilish (production uchun) - faqat client-side'da
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    setIsMounted(true);
+    let mounted = true;
     
-    // CSS'ni yuklash
-    import('react-quill/dist/quill.snow.css').catch((err) => {
-      console.error('Failed to load Quill CSS:', err);
-      setError('Editor yuklanmadi');
-    });
+    const loadEditor = async () => {
+      try {
+        setIsLoading(true);
+        
+        // CSS'ni yuklash
+        await import('react-quill/dist/quill.snow.css');
+        
+        if (mounted) {
+          setIsMounted(true);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to load RichTextEditor:', err);
+        if (mounted) {
+          setError('Editor yuklanmadi');
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadEditor();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // SSR paytida yoki xato bo'lsa loading ko'rsatish
-  if (!isMounted || error) {
+  if (!isMounted || isLoading || error) {
     return (
       <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">
         {error || 'Yuklanmoqda...'}
