@@ -618,7 +618,7 @@ export default function NotesPage() {
       console.log('fetchNotes - result.data length:', Array.isArray(result.data) ? result.data.length : 'N/A');
       
       // Agar result.data mavjud va array bo'lsa
-      if (result && result.data && Array.isArray(result.data)) {
+      if (result && result.success !== false && result.data && Array.isArray(result.data) && result.data.length > 0) {
         // Supabase'dan kelgan ma'lumotlarni Note formatiga o'tkazish
         const formattedNotes: Note[] = result.data
           .filter((item: any) => {
@@ -629,24 +629,27 @@ export default function NotesPage() {
             return isValid;
           })
           .map((item: any) => ({
-            id: item.id,
-            title: item.title || 'Sarlavhasiz',
+            id: Number(item.id), // Ensure it's a number
+            title: String(item.title || 'Sarlavhasiz'),
             date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            categoryKey: item.category || 'other',
-            tags: Array.isArray(item.tags) ? item.tags : (item.tags ? [item.tags] : []),
-            content: item.content || '',
-            important: item.important || false,
+            categoryKey: String(item.category || 'other'),
+            tags: Array.isArray(item.tags) ? item.tags.map((t: any) => String(t)) : (item.tags ? [String(item.tags)] : []),
+            content: String(item.content || ''),
+            important: Boolean(item.important || false),
           }));
         
         console.log('fetchNotes - Formatted notes:', formattedNotes);
         console.log('fetchNotes - Formatted notes count:', formattedNotes.length);
         
-        setNotes(formattedNotes);
-      } else {
+        if (formattedNotes.length > 0) {
+          setNotes(formattedNotes);
         } else {
+          console.warn('fetchNotes - All notes were filtered out, using defaults');
+          setNotes(defaultNotes);
+        }
+      } else {
         // Agar ma'lumotlar bo'lmasa, default notes'larni ko'rsatish
         console.warn('fetchNotes - No data or invalid format, result:', result);
-        // Agar ma'lumotlar bo'lmasa, default notes'larni ko'rsatish
         setNotes(defaultNotes);
       }
     } catch (error: any) {

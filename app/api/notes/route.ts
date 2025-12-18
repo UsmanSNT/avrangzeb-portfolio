@@ -126,7 +126,12 @@ export async function GET(request: Request) {
       
       // RLS policy muammosi bo'lsa ham, bo'sh array qaytaramiz
       // Frontend'da xato ko'rsatilmaydi, faqat bo'sh array
-      return NextResponse.json({ success: true, data: [] });
+      // Bu public read uchun kerak
+      return NextResponse.json({ 
+        success: true, 
+        data: [],
+        warning: error.message || 'Failed to fetch notes'
+      });
     }
 
     // NULL ID'larni filtrlash
