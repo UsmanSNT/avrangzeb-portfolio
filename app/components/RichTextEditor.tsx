@@ -59,15 +59,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     };
   }, []);
 
-  // SSR paytida yoki xato bo'lsa loading ko'rsatish
-  if (!isMounted || isLoading || error) {
-    return (
-      <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">
-        {error || 'Yuklanmoqda...'}
-      </div>
-    );
-  }
-
+  // Hooks must be called before any conditional returns (Rules of Hooks)
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -126,6 +118,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     'blockquote', 'code-block',
     'link', 'image', 'video'
   ];
+
+  // SSR paytida yoki xato bo'lsa loading ko'rsatish (hooks'dan keyin)
+  if (!isMounted || isLoading || error) {
+    return (
+      <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">
+        {error || 'Yuklanmoqda...'}
+      </div>
+    );
+  }
 
   return (
     <div className="rich-text-editor">
