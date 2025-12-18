@@ -340,24 +340,20 @@ export async function PUT(request: Request) {
         );
       }
 
-      // Avval mavjud notes'larni tekshirish
+      // Avval mavjud notes'larni tekshirish (title bo'yicha)
       const { data: existingNotes, error: checkError } = await supabase
         .from('portfolio_notes_rows')
-        .select('id')
-        .limit(1);
+        .select('title')
+        .eq('user_id', user.id);
 
       if (checkError && checkError.code !== '42P01') {
         console.error('PUT /api/notes?action=seed - Check error:', checkError);
       }
 
-      // Agar allaqachon notes bor bo'lsa, yuklashni o'tkazib yuborish
-      if (existingNotes && existingNotes.length > 0) {
-        return NextResponse.json({
-          success: true,
-          message: 'Notes allaqachon mavjud. Seed o\'tkazib yuborildi.',
-          skipped: true
-        });
-      }
+      // Mavjud notes'larning title'larini olish
+      const existingTitles = new Set((existingNotes || []).map((n: any) => n.title?.toLowerCase().trim()));
+      console.log('PUT /api/notes?action=seed - Existing notes count:', existingTitles.size);
+      console.log('PUT /api/notes?action=seed - Existing titles:', Array.from(existingTitles));
 
       const defaultNotes = [
         {
@@ -551,12 +547,34 @@ iptables -A INPUT -p tcp --dport 443 -j ACCEPT
         }
       ];
 
+      // Faqat mavjud bo'lmagan notes'larni filter qilish
+      const notesToInsert = defaultNotes.filter((note: any) => {
+        const noteTitle = note.title?.toLowerCase().trim();
+        const exists = existingTitles.has(noteTitle);
+        if (exists) {
+          console.log(`PUT /api/notes?action=seed - Skipping existing note: "${note.title}"`);
+        }
+        return !exists;
+      });
+
       console.log('PUT /api/notes?action=seed - Seeding default notes for user:', user.id);
-      console.log('PUT /api/notes?action=seed - Notes count:', defaultNotes.length);
+      console.log('PUT /api/notes?action=seed - Total default notes:', defaultNotes.length);
+      console.log('PUT /api/notes?action=seed - Existing notes:', existingTitles.size);
+      console.log('PUT /api/notes?action=seed - Notes to insert:', notesToInsert.length);
+
+      // Agar barcha notes allaqachon mavjud bo'lsa
+      if (notesToInsert.length === 0) {
+        return NextResponse.json({
+          success: true,
+          message: 'Barcha default notes allaqachon mavjud.',
+          skipped: true,
+          existingCount: existingTitles.size
+        });
+      }
 
       const { data, error } = await supabase
         .from('portfolio_notes_rows')
-        .insert(defaultNotes)
+        .insert(notesToInsert)
         .select('id, title, category, created_at');
 
       if (error) {
@@ -570,8 +588,10 @@ iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 
       return NextResponse.json({
         success: true,
-        message: `${data?.length || 0} ta qayd muvaffaqiyatli yuklandi`,
+        message: `${data?.length || 0} ta yangi qayd muvaffaqiyatli yuklandi`,
         count: data?.length || 0,
+        skipped: defaultNotes.length - notesToInsert.length,
+        existingCount: existingTitles.size,
         data
       });
     }

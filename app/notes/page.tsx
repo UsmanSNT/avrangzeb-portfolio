@@ -685,13 +685,18 @@ export default function NotesPage() {
           
           if (formattedNotes.length > 0) {
             setNotes(formattedNotes);
+            // Agar notes 6 tadan kam bo'lsa, qolganlarini yuklash
+            if (formattedNotes.length < 6) {
+              console.log(`fetchNotes - Only ${formattedNotes.length} notes found, seeding remaining default notes...`);
+              await seedDefaultNotes();
+            }
           } else {
-            console.warn('fetchNotes - All notes were filtered out, using defaults');
-            setNotes(defaultNotes);
+            console.warn('fetchNotes - All notes were filtered out, seeding defaults');
+            await seedDefaultNotes();
           }
         } else {
-          // Agar ma'lumotlar bo'sh bo'lsa, default notes'larni yuklash
-          console.warn('fetchNotes - Empty data array received. Seeding default notes...');
+          // Agar ma'lumotlar bo'sh bo'lsa yoki 6 tadan kam bo'lsa, default notes'larni yuklash
+          console.warn('fetchNotes - Empty or insufficient data array received. Seeding default notes...');
           await seedDefaultNotes();
         }
       } else {
@@ -985,6 +990,18 @@ export default function NotesPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {currentUser && (
+                <button
+                  onClick={async () => {
+                    await seedDefaultNotes();
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 transition-colors"
+                  title="Default qaydlarni yuklash"
+                >
+                  📚
+                  <span className="hidden sm:inline text-sm">Default qaydlar</span>
+                </button>
+              )}
               <button
                 onClick={() => openModal()}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
@@ -1094,12 +1111,24 @@ export default function NotesPage() {
                     <BookIcon />
                   </div>
                   <p>{t.notes.noNotes}</p>
-                  <button
-                    onClick={() => openModal()}
-                    className="mt-4 text-cyan-400 hover:underline"
-                  >
-                    {t.notes.addNew}
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
+                    <button
+                      onClick={() => openModal()}
+                      className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors"
+                    >
+                      {t.notes.addNew}
+                    </button>
+                    {currentUser && (
+                      <button
+                        onClick={async () => {
+                          await seedDefaultNotes();
+                        }}
+                        className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 transition-colors"
+                      >
+                        📚 Default qaydlarni yuklash
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 filteredNotes.map((note) => (
