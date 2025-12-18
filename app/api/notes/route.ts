@@ -323,9 +323,260 @@ export async function POST(request: Request) {
   }
 }
 
-// PUT - Qaydni yangilash
+// PUT - Qaydni yangilash yoki default notes'larni yuklash
 export async function PUT(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    
+    // Agar action=seed bo'lsa, default notes'larni yuklash
+    if (action === 'seed') {
+      const { supabase, user } = await createAuthenticatedClient(request);
+
+      if (!user) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+          { status: 401 }
+        );
+      }
+
+      // Avval mavjud notes'larni tekshirish
+      const { data: existingNotes, error: checkError } = await supabase
+        .from('portfolio_notes_rows')
+        .select('id')
+        .limit(1);
+
+      if (checkError && checkError.code !== '42P01') {
+        console.error('PUT /api/notes?action=seed - Check error:', checkError);
+      }
+
+      // Agar allaqachon notes bor bo'lsa, yuklashni o'tkazib yuborish
+      if (existingNotes && existingNotes.length > 0) {
+        return NextResponse.json({
+          success: true,
+          message: 'Notes allaqachon mavjud. Seed o\'tkazib yuborildi.',
+          skipped: true
+        });
+      }
+
+      const defaultNotes = [
+        {
+          title: "OSI modeli va TCP/IP protokollari",
+          content: `## OSI modeli - 7 qatlam
+
+1. **Physical (Fizik)** - Kabel, signal, bitlar
+2. **Data Link** - MAC manzil, switch
+3. **Network** - IP manzil, router
+4. **Transport** - TCP/UDP, port
+5. **Session** - Ulanishni boshqarish
+6. **Presentation** - Shifrlash, siqish
+7. **Application** - HTTP, FTP, DNS
+
+## TCP vs UDP
+
+| TCP | UDP |
+|-----|-----|
+| Ishonchli | Tez |
+| Ulanishga asoslangan | Ulanishsiz |
+| HTTP, FTP, SSH | DNS, DHCP, VoIP |
+
+### Eslatma:
+TCP = "Please Deliver Carefully" 📦
+UDP = "Just Throw It" 🏀`,
+          category: "networking",
+          tags: ["OSI", "TCP/IP", "Protokollar"],
+          important: true,
+          user_id: user.id
+        },
+        {
+          title: "Linux asosiy buyruqlar",
+          content: `## Fayl tizimlari bilan ishlash
+
+\`\`\`bash
+ls -la          # Fayllar ro'yxati
+cd /path        # Katalogga o'tish
+pwd             # Joriy katalog
+mkdir folder    # Yangi papka
+rm -rf folder   # O'chirish (ehtiyot bo'ling!)
+cp source dest  # Nusxalash
+mv old new      # Ko'chirish/nomini o'zgartirish
+\`\`\`
+
+## Tarmoq buyruqlari
+
+\`\`\`bash
+ip addr         # IP manzilni ko'rish
+ping google.com # Ulanishni tekshirish
+netstat -tulpn  # Ochiq portlar
+ss -tulpn       # Zamonaviy netstat
+traceroute      # Yo'nalishni kuzatish
+\`\`\`
+
+## Foydali maslahat:
+\`Tab\` tugmasini bosib buyruqlarni avtomatik to'ldiring!`,
+          category: "linux",
+          tags: ["CLI", "Bash", "Commands"],
+          important: false,
+          user_id: user.id
+        },
+        {
+          title: "Cisco switch konfiguratsiyasi",
+          content: `## Asosiy konfiguratsiya
+
+\`\`\`
+enable
+configure terminal
+hostname SW1
+enable secret cisco123
+\`\`\`
+
+## VLAN yaratish
+
+\`\`\`
+vlan 10
+name SERVERS
+vlan 20
+name USERS
+exit
+\`\`\`
+
+## Portga VLAN biriktirish
+
+\`\`\`
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 10
+no shutdown
+\`\`\`
+
+### Muhim:
+Har doim \`copy running-config startup-config\` bilan saqlang!`,
+          category: "cisco",
+          tags: ["Switch", "VLAN", "IOS"],
+          important: true,
+          user_id: user.id
+        },
+        {
+          title: "Subnetting asoslari",
+          content: `## CIDR notatsiyasi
+
+| CIDR | Subnet Mask | Hostlar soni |
+|------|-------------|--------------|
+| /24  | 255.255.255.0 | 254 |
+| /25  | 255.255.255.128 | 126 |
+| /26  | 255.255.255.192 | 62 |
+| /27  | 255.255.255.224 | 30 |
+| /28  | 255.255.255.240 | 14 |
+
+## Formula:
+Hostlar = 2^(32-prefix) - 2
+
+## Misol:
+192.168.1.0/26 uchun:
+- Network: 192.168.1.0
+- Broadcast: 192.168.1.63
+- Hostlar: 192.168.1.1 - 192.168.1.62 (62 ta)
+
+### Tez hisoblash:
+256 - subnet = increment
+Masalan: /26 = 256 - 192 = 64 qadam`,
+          category: "networking",
+          tags: ["IP", "Subnet", "CIDR"],
+          important: false,
+          user_id: user.id
+        },
+        {
+          title: "Docker asoslari",
+          content: `## Asosiy buyruqlar
+
+\`\`\`bash
+docker pull nginx           # Image yuklab olish
+docker images               # Imagelar ro'yxati
+docker run -d -p 80:80 nginx  # Container ishga tushirish
+docker ps                   # Ishlab turgan containerlar
+docker ps -a                # Barcha containerlar
+docker stop container_id    # To'xtatish
+docker rm container_id      # O'chirish
+\`\`\`
+
+## Dockerfile misoli
+
+\`\`\`dockerfile
+FROM python:3.9
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]
+\`\`\``,
+          category: "devops",
+          tags: ["Docker", "Container", "Image"],
+          important: false,
+          user_id: user.id
+        },
+        {
+          title: "Firewall va xavfsizlik asoslari",
+          content: `## Linux iptables
+
+\`\`\`bash
+# Barcha INPUT ni bloklash
+iptables -P INPUT DROP
+
+# SSH ruxsat berish
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# HTTP/HTTPS ruxsat
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+\`\`\`
+
+## Xavfsizlik tavsiylari
+
+1. ✅ Kuchli parollar ishlating
+2. ✅ SSH uchun key authentication
+3. ✅ Keraksiz portlarni yoping
+4. ✅ Muntazam yangilanishlar
+5. ✅ Loglarni kuzating
+
+## Muhim portlar:
+- 22: SSH
+- 80: HTTP
+- 443: HTTPS
+- 3306: MySQL
+- 5432: PostgreSQL`,
+          category: "security",
+          tags: ["Firewall", "iptables", "Security"],
+          important: true,
+          user_id: user.id
+        }
+      ];
+
+      console.log('PUT /api/notes?action=seed - Seeding default notes for user:', user.id);
+      console.log('PUT /api/notes?action=seed - Notes count:', defaultNotes.length);
+
+      const { data, error } = await supabase
+        .from('portfolio_notes_rows')
+        .insert(defaultNotes)
+        .select('id, title, category, created_at');
+
+      if (error) {
+        console.error('PUT /api/notes?action=seed - Error:', error);
+        console.error('PUT /api/notes?action=seed - Error code:', error.code);
+        console.error('PUT /api/notes?action=seed - Error message:', error.message);
+        throw error;
+      }
+
+      console.log('PUT /api/notes?action=seed - Successfully seeded notes:', data?.length);
+
+      return NextResponse.json({
+        success: true,
+        message: `${data?.length || 0} ta qayd muvaffaqiyatli yuklandi`,
+        count: data?.length || 0,
+        data
+      });
+    }
+
+    // Oddiy UPDATE operatsiyasi
     const { supabase, user } = await createAuthenticatedClient(request);
 
     if (!user) {

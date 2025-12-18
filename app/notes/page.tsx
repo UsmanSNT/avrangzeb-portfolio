@@ -579,6 +579,45 @@ export default function NotesPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Seed default notes to Supabase
+  const seedDefaultNotes = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      if (!token) {
+        console.log('seedDefaultNotes - No session token');
+        return;
+      }
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      console.log('seedDefaultNotes - Seeding default notes...');
+      const res = await fetch('/api/notes?action=seed', {
+        method: 'PUT',
+        headers,
+      });
+
+      const result = await res.json();
+      console.log('seedDefaultNotes - Response:', result);
+      
+      if (result.success) {
+        if (result.skipped) {
+          console.log('seedDefaultNotes - Notes already exist, skipped');
+        } else {
+          console.log(`seedDefaultNotes - Successfully seeded ${result.count} notes`);
+          // Refresh notes after seeding
+          await fetchNotes();
+        }
+      }
+    } catch (error: any) {
+      console.error('seedDefaultNotes - Error:', error);
+    }
+  };
+
   // Fetch notes from Supabase
   const fetchNotes = async () => {
     try {
@@ -651,20 +690,9 @@ export default function NotesPage() {
             setNotes(defaultNotes);
           }
         } else {
-          // Agar ma'lumotlar bo'sh bo'lsa
-          console.warn('fetchNotes - Empty data array received. This could mean:');
-          console.warn('1. Jadval bo\'sh (hech qanday note yo\'q)');
-          console.warn('2. RLS policy muammosi (migration qo\'llanmagan)');
-          console.warn('3. Jadval mavjud emas');
-          
-          if (result.error) {
-            console.error('fetchNotes - API returned error:', result.error);
-            console.error('fetchNotes - Error code:', result.errorCode);
-            console.error('fetchNotes - Error message:', result.errorMessage);
-          }
-          
-          // Default notes'larni ko'rsatish
-          setNotes(defaultNotes);
+          // Agar ma'lumotlar bo'sh bo'lsa, default notes'larni yuklash
+          console.warn('fetchNotes - Empty data array received. Seeding default notes...');
+          await seedDefaultNotes();
         }
       } else {
         // Agar result.data mavjud emas yoki noto'g'ri format bo'lsa
