@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -553,23 +554,84 @@ export default function NotesPage() {
     ko: { flag: "🇰🇷", name: "한국어" },
   };
 
-  // Load notes from localStorage on mount
+  // Auth state
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+
+  // Auth check
   useEffect(() => {
-    const savedNotes = localStorage.getItem("portfolio-notes-v2");
-    if (savedNotes) {
-      setNotes(JSON.parse(savedNotes));
-    } else {
-      setNotes(defaultNotes);
-      localStorage.setItem("portfolio-notes-v2", JSON.stringify(defaultNotes));
-    }
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setCurrentUser({ id: session.user.id });
+      }
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setCurrentUser({ id: session.user.id });
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Save notes to localStorage whenever they change
-  useEffect(() => {
-    if (notes.length > 0) {
-      localStorage.setItem("portfolio-notes-v2", JSON.stringify(notes));
+  // Fetch notes from Supabase
+  const fetchNotes = async () => {
+    try {
+      setIsLoadingNotes(true);
+      
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const res = await fetch('/api/notes', {
+        method: 'GET',
+        headers,
+      });
+      
+      const result = await res.json();
+      
+      if (result.success && result.data && Array.isArray(result.data)) {
+        // Supabase'dan kelgan ma'lumotlarni Note formatiga o'tkazish
+        const formattedNotes: Note[] = result.data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          date: item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          categoryKey: item.category || 'other',
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          content: item.content || '',
+          important: item.important || false,
+        }));
+        setNotes(formattedNotes);
+      } else {
+        // Agar ma'lumotlar bo'lmasa, bo'sh array
+        setNotes([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+      // Xato bo'lsa, bo'sh array
+      setNotes([]);
+    } finally {
+      setIsLoadingNotes(false);
     }
-  }, [notes]);
+  };
+
+  // Load notes from Supabase on mount
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   const filteredNotes = notes.filter((note) => {
     const matchesCategory = selectedCategoryKey === "all" || note.categoryKey === selectedCategoryKey;
@@ -629,58 +691,148 @@ export default function NotesPage() {
     resetForm();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const tagsArray = formTags.split(",").map(tag => tag.trim()).filter(tag => tag);
     const today = new Date().toISOString().split('T')[0];
 
-    if (isEditing && editingNote) {
-      const updatedNotes = notes.map(note => 
-        note.id === editingNote.id 
-          ? {
-              ...note,
+    try {
+      if (isEditing && editingNote) {
+        // Update note in Supabase
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const res = await fetch('/api/notes', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            id: editingNote.id,
+            title: formTitle,
+            content: formContent,
+            category: formCategoryKey,
+            tags: tagsArray,
+            important: formImportant,
+          }),
+        });
+
+        const result = await res.json();
+        
+        if (result.success) {
+          // Refresh notes from Supabase
+          await fetchNotes();
+          
+          // Update selected note if it's the one being edited
+          if (selectedNote?.id === editingNote.id) {
+            const updatedNote = {
+              ...editingNote,
               title: formTitle,
               categoryKey: formCategoryKey,
               tags: tagsArray,
               content: formContent,
               important: formImportant,
-            }
-          : note
-      );
-      setNotes(updatedNotes);
-      if (selectedNote?.id === editingNote.id) {
-        setSelectedNote({
-          ...editingNote,
-          title: formTitle,
-          categoryKey: formCategoryKey,
-          tags: tagsArray,
-          content: formContent,
-          important: formImportant,
-        });
-      }
-    } else {
-      const newNote: Note = {
-        id: Date.now(),
-        title: formTitle,
-        date: today,
-        categoryKey: formCategoryKey,
-        tags: tagsArray,
-        content: formContent,
-        important: formImportant,
-      };
-      setNotes([newNote, ...notes]);
-    }
+            };
+            setSelectedNote(updatedNote);
+          }
+        } else {
+          alert('Xato: ' + (result.error || 'Qayd yangilanmadi'));
+          return;
+        }
+      } else {
+        // Create new note in Supabase
+        if (!currentUser) {
+          alert('Iltimos, tizimga kiring');
+          return;
+        }
 
-    closeModal();
+        // Get auth token
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        
+        if (!token) {
+          alert('Iltimos, tizimga kiring');
+          return;
+        }
+        
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        };
+        
+        const res = await fetch('/api/notes', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            title: formTitle,
+            content: formContent,
+            category: formCategoryKey,
+            tags: tagsArray,
+            important: formImportant,
+          }),
+        });
+
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+          // Refresh notes from Supabase
+          await fetchNotes();
+        } else {
+          alert('Xato: ' + (result.error || 'Qayd saqlanmadi'));
+          return;
+        }
+      }
+
+      closeModal();
+    } catch (error: any) {
+      console.error('Failed to save note:', error);
+      alert('Xato: ' + (error.message || 'Saqlashda xatolik yuz berdi'));
+    }
   };
 
-  const deleteNote = (noteId: number) => {
-    if (confirm(t.notes.confirmDelete)) {
-      setNotes(notes.filter(note => note.id !== noteId));
-      if (selectedNote?.id === noteId) {
-        setSelectedNote(null);
+  const deleteNote = async (noteId: number) => {
+    if (!confirm(t.notes.confirmDelete)) return;
+
+    try {
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const headers: Record<string, string> = {};
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
+      
+      const res = await fetch(`/api/notes?id=${noteId}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      const result = await res.json();
+      
+      if (result.success) {
+        // Refresh notes from Supabase
+        await fetchNotes();
+        
+        // Clear selected note if it was deleted
+        if (selectedNote?.id === noteId) {
+          setSelectedNote(null);
+        }
+      } else {
+        alert('Xato: ' + (result.error || 'Qayd o\'chirilmadi'));
+      }
+    } catch (error: any) {
+      console.error('Failed to delete note:', error);
+      alert('Xato: ' + (error.message || 'O\'chirishda xatolik yuz berdi'));
     }
   };
 
@@ -802,7 +954,12 @@ export default function NotesPage() {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Notes List */}
             <div className={`${selectedNote ? 'hidden lg:block' : ''} lg:col-span-1 space-y-4`}>
-              {filteredNotes.length === 0 ? (
+              {isLoadingNotes ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+                  <p className="text-slate-500 mt-4">Yuklanmoqda...</p>
+                </div>
+              ) : filteredNotes.length === 0 ? (
                 <div className="text-center py-12 text-slate-500">
                   <div className="flex justify-center mb-4">
                     <BookIcon />

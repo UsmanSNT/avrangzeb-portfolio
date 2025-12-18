@@ -2482,46 +2482,26 @@ export default function Portfolio() {
 
   const shareITNews = async (news: ITNews) => {
     try {
+      // Yangilikning to'g'ri havolasi - aynan usha yangilikka boradi
       const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
       
-      // Asosiy qismdan 3-4 qator matn olish
-      const contentLines = news.content.split('\n').filter(line => line.trim().length > 0);
-      const previewLines = contentLines.slice(0, 4); // Birinchi 4 qator
-      const previewText = previewLines.join('\n');
+      // Asosiy mazmunning yarmigacha yuborish
+      const contentLength = news.content.length;
+      const halfContent = news.content.substring(0, Math.floor(contentLength / 2));
       
-      // Formatlangan shablon - asosiy qismdan 3-4 qator matn
-      const shareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 Davomi: ${newsUrl}`;
+      // Formatlangan shablon - mazmun yarimigacha
+      const shareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 Davomi: ${newsUrl}`;
       
       // Telegram share linki
-      const telegramShareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
+      const telegramShareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 [Davomi...](${newsUrl})`;
       const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
       
-      // Rasimni yuklab olish va yuborish
-      let imageFile: File | null = null;
-      if (news.image_url) {
-        try {
-          const imageResponse = await fetch(news.image_url);
-          const imageBlob = await imageResponse.blob();
-          const imageFileName = news.image_url.split('/').pop() || 'news-image.jpg';
-          imageFile = new File([imageBlob], imageFileName, { type: imageBlob.type });
-        } catch (imgError) {
-          console.error('Failed to load image:', imgError);
-        }
-      }
-      
       if (navigator.share) {
-        const shareData: any = {
+        await navigator.share({
           title: news.title,
           text: shareText,
           url: newsUrl,
-        };
-        
-        // Agar rasm bo'lsa, uni qo'shish
-        if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
-          shareData.files = [imageFile];
-        }
-        
-        await navigator.share(shareData);
+        });
       } else {
         // Fallback: Telegram linkini ochish yoki clipboard'ga nusxalash
         const useTelegram = confirm('Telegram orqali yuborishni xohlaysizmi?');
@@ -2537,10 +2517,9 @@ export default function Portfolio() {
         console.error('Share error:', error);
         // Telegram linkini ochish
         const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
-        const contentLines = news.content.split('\n').filter(line => line.trim().length > 0);
-        const previewLines = contentLines.slice(0, 4);
-        const previewText = previewLines.join('\n');
-        const telegramShareText = `📰 ${news.title}\n\n${previewText}${contentLines.length > 4 ? '...' : ''}\n\n🔗 [Davomi...](${newsUrl})`;
+        const contentLength = news.content.length;
+        const halfContent = news.content.substring(0, Math.floor(contentLength / 2));
+        const telegramShareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 [Davomi...](${newsUrl})`;
         const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
         window.open(telegramShareLink, '_blank');
       }
@@ -3893,7 +3872,7 @@ export default function Portfolio() {
                           title={t.itNews.share}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zM8.684 13.342c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
                         </button>
                         
@@ -4066,7 +4045,7 @@ export default function Portfolio() {
                   title={t.itNews.share}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v2.86c.81-.17 1.82-.28 2.684-.28h.01zm0 0c.864 0 1.873.11 2.684.28v2.86c-.81-.17-1.82-.28-2.684-.28h-.01zM8.684 13.342c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01zm5.316 0c-.864 0-1.873.11-2.684.28v-2.86c.81.17 1.82.28 2.684.28h.01zm0 0c.864 0 1.873-.11 2.684-.28v-2.86c-.81.17-1.82.28-2.684.28h-.01z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
                 {/* Edit button - faqat admin uchun */}
