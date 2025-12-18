@@ -1260,12 +1260,88 @@ export default function NotesPage() {
                   {/* Note Content */}
                   <div className="prose prose-invert prose-cyan max-w-none">
                     <div 
-                      className="note-content text-slate-300 leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: selectedNote.content }}
+                      className="note-content text-slate-300 leading-relaxed whitespace-pre-wrap"
                       style={{
                         wordBreak: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        lineHeight: '1.75',
+                        fontFamily: 'inherit',
                       }}
-                    />
+                    >
+                      {selectedNote.content.split('\n').map((line, index, array) => {
+                        // Markdown formatting
+                        if (line.startsWith('## ')) {
+                          return (
+                            <h2 key={index} className="text-2xl font-bold text-cyan-400 mt-6 mb-3 first:mt-0">
+                              {line.replace(/^##\s+/, '')}
+                            </h2>
+                          );
+                        }
+                        if (line.startsWith('### ')) {
+                          return (
+                            <h3 key={index} className="text-xl font-semibold text-violet-400 mt-4 mb-2">
+                              {line.replace(/^###\s+/, '')}
+                            </h3>
+                          );
+                        }
+                        if (line.startsWith('#### ')) {
+                          return (
+                            <h4 key={index} className="text-lg font-semibold text-cyan-300 mt-3 mb-2">
+                              {line.replace(/^####\s+/, '')}
+                            </h4>
+                          );
+                        }
+                        if (line.startsWith('```')) {
+                          return null; // Code block start/end
+                        }
+                        if (line.match(/^\d+\.\s/)) {
+                          return (
+                            <p key={index} className="ml-4 my-1">
+                              {line}
+                            </p>
+                          );
+                        }
+                        if (line.startsWith('- ') || line.startsWith('* ')) {
+                          return (
+                            <p key={index} className="ml-4 my-1">
+                              {line}
+                            </p>
+                          );
+                        }
+                        if (line.startsWith('|')) {
+                          return (
+                            <p key={index} className="font-mono text-sm bg-slate-700/30 px-2 py-1 my-1 overflow-x-auto">
+                              {line}
+                            </p>
+                          );
+                        }
+                        // Format inline markdown
+                        const formatText = (text: string) => {
+                          let formatted = text;
+                          // Bold **text**
+                          formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-cyan-300">$1</strong>');
+                          // Italic *text*
+                          formatted = formatted.replace(/\*(.+?)\*/g, '<em class="italic text-violet-300">$1</em>');
+                          // Code `text`
+                          formatted = formatted.replace(/`(.+?)`/g, '<code class="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded font-mono text-sm">$1</code>');
+                          // Links [text](url)
+                          formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:text-cyan-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+                          return formatted;
+                        };
+                        
+                        if (line.trim() === '') {
+                          return <br key={index} />;
+                        }
+                        
+                        return (
+                          <p 
+                            key={index} 
+                            className="my-2"
+                            dangerouslySetInnerHTML={{ __html: formatText(line) }}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Footer */}
