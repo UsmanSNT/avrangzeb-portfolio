@@ -23,20 +23,26 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
   const quillRef = useRef<any>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // CSS'ni dynamic import qilish (production uchun) - faqat client-side'da
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     setIsMounted(true);
-    if (typeof window !== 'undefined') {
-      import('react-quill/dist/quill.snow.css');
-    }
+    
+    // CSS'ni yuklash
+    import('react-quill/dist/quill.snow.css').catch((err) => {
+      console.error('Failed to load Quill CSS:', err);
+      setError('Editor yuklanmadi');
+    });
   }, []);
 
-  // SSR paytida loading ko'rsatish
-  if (!isMounted) {
+  // SSR paytida yoki xato bo'lsa loading ko'rsatish
+  if (!isMounted || error) {
     return (
       <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400">
-        Yuklanmoqda...
+        {error || 'Yuklanmoqda...'}
       </div>
     );
   }
@@ -105,7 +111,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       <ReactQuill
         ref={quillRef}
         theme="snow"
-        value={value}
+        value={value || ''}
         onChange={onChange}
         modules={modules}
         formats={formats}
