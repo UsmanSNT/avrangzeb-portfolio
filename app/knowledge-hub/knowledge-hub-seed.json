@@ -1,0 +1,277 @@
+{
+  "notes": [
+    {
+      "id": "8d6c7f2a-2d6a-4d2f-9d5f-4b5b8d3b9d21",
+      "title": "OSPF Area Types & LSA Flooding",
+      "category": "routing",
+      "body_markdown": "Area 0 — backbone area.\n\nStub areas suppress external LSAs. NSSA allows limited external redistribution via Type-7 LSAs.\n\nKey idea: understanding how LSAs are flooded helps you predict convergence behavior.",
+      "code_blocks": [
+        {
+          "lang": "bash",
+          "content": "router ospf 1\n area 1 stub no-summary"
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/Certificate_1.jpg",
+          "size": "large",
+          "caption": "OSPF LSA Flooding Diagram"
+        }
+      ],
+      "starred": true,
+      "created_at": "2026-04-02T10:12:00.000Z",
+      "updated_at": "2026-04-02T10:12:00.000Z",
+      "roadmap_milestone_ids": [
+        "1f6b7a1b-1b1f-4b2e-ae1a-2c4b3c9d1d10"
+      ]
+    },
+    {
+      "id": "5b1b9d4f-8b22-4a2b-9b7c-1d3d2e5a6f88",
+      "title": "CIA Triad — Practical Mapping",
+      "category": "security",
+      "body_markdown": "Confidentiality → Encryption (TLS, AES).\n\nIntegrity → Hashing/Signing (SHA-256, HMAC).\n\nAvailability → Redundancy and failover (clusters, backups).",
+      "code_blocks": [
+        {
+          "lang": "text",
+          "content": "TLS: encryption + key exchange\nHMAC: integrity + authenticity\nDR: backups + failover"
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/Certificate_2.jpg",
+          "size": "small",
+          "caption": "CIA Overview"
+        },
+        {
+          "url": "/images/Certificate_3.jpg",
+          "size": "small",
+          "caption": "VPN / Tunnel Flow"
+        }
+      ],
+      "starred": false,
+      "created_at": "2026-04-01T09:30:00.000Z",
+      "updated_at": "2026-04-01T09:30:00.000Z",
+      "roadmap_milestone_ids": [
+        "d7a9d2b0-5d1b-4c6e-bb1c-1a2f9d3c4b55"
+      ]
+    },
+    {
+      "id": "c3a0e7b2-6a4f-4c2a-8d7c-44d5b7a1c0de",
+      "title": "Netmiko — SSH Device Automation",
+      "category": "python",
+      "body_markdown": "Use ConnectHandler to SSH into Cisco IOS.\n\nAlways disconnect() after running commands.\n\nPrefer collecting output and parsing after the session ends.",
+      "code_blocks": [
+        {
+          "lang": "python",
+          "content": "from netmiko import ConnectHandler\n\nconn = ConnectHandler(device_type='cisco_ios', host='10.0.0.1', username='u', password='p')\noutput = conn.send_command('show ip ospf neighbor')\nconn.disconnect()"
+        }
+      ],
+      "images": [],
+      "starred": false,
+      "created_at": "2026-03-30T15:40:00.000Z",
+      "updated_at": "2026-03-30T15:40:00.000Z",
+      "roadmap_milestone_ids": [
+        "b9c1c7d0-3e5b-4d7a-a2b9-4d5f6a7b8c90"
+      ]
+    },
+    {
+      "id": "a1d2c3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
+      "title": "STP Port States & Root Election",
+      "category": "switching",
+      "body_markdown": "Root bridge = lowest Bridge ID (priority + MAC).\n\nPort states: Blocking → Listening → Learning → Forwarding.\n\nConvergence depends on timer configuration and topology changes.",
+      "code_blocks": [
+        {
+          "lang": "text",
+          "content": "Debug goal: identify root changes and port transitions\nVerify: show spanning-tree root\nVerify: show spanning-tree interface <port>"
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/Certificate_4.jpg",
+          "size": "large",
+          "caption": "STP Topology Diagram"
+        }
+      ],
+      "starred": true,
+      "created_at": "2026-03-29T11:05:00.000Z",
+      "updated_at": "2026-03-29T11:05:00.000Z",
+      "roadmap_milestone_ids": [
+        "1f6b7a1b-1b1f-4b2e-ae1a-2c4b3c9d1d10"
+      ]
+    },
+    {
+      "id": "f2c4d6e8-1a2b-4c3d-9e8f-7a6b5c4d3e2f",
+      "title": "BGP Path Selection — 12 Attributes",
+      "category": "bgp",
+      "body_markdown": "Weight → Local Pref → Originate → AS-PATH → Origin → MED → eBGP over iBGP → IGP metric → oldest → RID → neighbor IP.\n\nPractical takeaway: attributes order defines the decision path.",
+      "code_blocks": [
+        {
+          "lang": "text",
+          "content": "neighbor 10.0.0.1 weight 200"
+        }
+      ],
+      "images": [],
+      "starred": false,
+      "created_at": "2026-03-28T08:20:00.000Z",
+      "updated_at": "2026-03-28T08:20:00.000Z",
+      "roadmap_milestone_ids": [
+        "1f6b7a1b-1b1f-4b2e-ae1a-2c4b3c9d1d10"
+      ]
+    },
+    {
+      "id": "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d",
+      "title": "IPsec VPN — IKE Phase 1 & 2",
+      "category": "security",
+      "body_markdown": "Phase 1 establishes ISAKMP SA (auth, DH group).\n\nPhase 2 negotiates IPsec SA (ESP/AH, encryption).\n\nQuick mode builds the tunnel configuration.",
+      "code_blocks": [
+        {
+          "lang": "text",
+          "content": "IKEv1:\n- Phase 1: ISAKMP SA\n- Phase 2: IPsec SA (transform sets)"
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/Certificate_5.jpg",
+          "size": "small",
+          "caption": "IPsec Tunnel Flow"
+        }
+      ],
+      "starred": false,
+      "created_at": "2026-03-27T14:10:00.000Z",
+      "updated_at": "2026-03-27T14:10:00.000Z",
+      "roadmap_milestone_ids": [
+        "d7a9d2b0-5d1b-4c6e-bb1c-1a2f9d3c4b55"
+      ]
+    }
+  ],
+  "calendar_events": [
+    {
+      "id": "b6f2a9c0-2f3d-4a8c-9f2b-1c3d4e5f6a7b",
+      "date": "2026-04-02",
+      "time": "09:00",
+      "title": "BGP Path Selection Review",
+      "tags": [
+        "routing",
+        "bgp"
+      ],
+      "type": "review"
+    },
+    {
+      "id": "c7a8b9d0-3e4f-4b1c-9a2b-3c4d5e6f7a8b",
+      "date": "2026-04-02",
+      "time": "11:00",
+      "title": "Ansible Playbook — IOS Backup",
+      "tags": [
+        "python",
+        "automation"
+      ],
+      "type": "lab"
+    },
+    {
+      "id": "d8e9f0a1-4b5c-4d2e-9f3a-4b5c6d7e8f9a",
+      "date": "2026-04-02",
+      "time": "14:00",
+      "title": "Firewall Rule Audit",
+      "tags": [
+        "security",
+        "firewall"
+      ],
+      "type": "task"
+    },
+    {
+      "id": "e9f0a1b2-5c6d-4e3f-9a4b-5c6d7e8f9a0b",
+      "date": "2026-04-03",
+      "time": "10:30",
+      "title": "OSPF Stub/NSSA Lab",
+      "tags": [
+        "routing",
+        "ospf"
+      ],
+      "type": "lab"
+    }
+  ],
+  "micro_notes": [
+    {
+      "id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "date": "2026-04-02",
+      "content": "show ip bgp summary",
+      "is_command": true
+    },
+    {
+      "id": "2b3c4d5e-6f70-4b81-9c92-1f2a3b4c5d6e",
+      "date": "2026-04-02",
+      "content": "show ip ospf neighbor",
+      "is_command": true
+    },
+    {
+      "id": "3c4d5e6f-7081-4c92-9d01-2a3b4c5d6e7f",
+      "date": "2026-04-02",
+      "content": "show crypto isakmp sa",
+      "is_command": true
+    },
+    {
+      "id": "4d5e6f70-8192-4d03-9e11-3b4c5d6e7f80",
+      "date": "2026-04-02",
+      "content": "Remember: Root bridge = lowest Bridge ID",
+      "is_command": false
+    },
+    {
+      "id": "5e6f7081-9293-4e14-9f22-4c5d6e7f8091",
+      "date": "2026-04-02",
+      "content": "debug ip ospf adj",
+      "is_command": true
+    }
+  ],
+  "roadmap_milestones": [
+    {
+      "id": "1f6b7a1b-1b1f-4b2e-ae1a-2c4b3c9d1d10",
+      "stage": 1,
+      "title": "Fundamentals — OSI, TCP/IP",
+      "category": "routing",
+      "completed": true,
+      "completed_at": "2026-03-25T12:00:00.000Z",
+      "linked_note_ids": [
+        "8d6c7f2a-2d6a-4d2f-9d5f-4b5b8d3b9d21",
+        "a1d2c3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
+        "f2c4d6e8-1a2b-4c3d-9e8f-7a6b5c4d3e2f"
+      ]
+    },
+    {
+      "id": "b9c1c7d0-3e5b-4d7a-a2b9-4d5f6a7b8c90",
+      "stage": 2,
+      "title": "Routing & Switching — OSPF, BGP, VLANs",
+      "category": "switching",
+      "completed": false,
+      "completed_at": "2026-04-02T00:00:00.000Z",
+      "linked_note_ids": [
+        "8d6c7f2a-2d6a-4d2f-9d5f-4b5b8d3b9d21",
+        "a1d2c3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
+        "f2c4d6e8-1a2b-4c3d-9e8f-7a6b5c4d3e2f"
+      ]
+    },
+    {
+      "id": "d7a9d2b0-5d1b-4c6e-bb1c-1a2f9d3c4b55",
+      "stage": 3,
+      "title": "Network Security — VPN, Firewalls, CIA",
+      "category": "security",
+      "completed": true,
+      "completed_at": "2026-03-31T18:00:00.000Z",
+      "linked_note_ids": [
+        "5b1b9d4f-8b22-4a2b-9b7c-1d3d2e5a6f88",
+        "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"
+      ]
+    },
+    {
+      "id": "e0b1c2d3-e4f5-4a6b-9c7d-8e9f0a1b2c3d",
+      "stage": 4,
+      "title": "Programmability — Python, Ansible, APIs",
+      "category": "python",
+      "completed": false,
+      "completed_at": "2026-04-02T00:00:00.000Z",
+      "linked_note_ids": [
+        "c3a0e7b2-6a4f-4c2a-8d7c-44d5b7a1c0de"
+      ]
+    }
+  ]
+}
+

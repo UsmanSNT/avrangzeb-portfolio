@@ -1,0 +1,509 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600&display=swap');
+:root {
+  --obsidian: #0B0E14;
+  --obsidian2: #111520;
+  --obsidian3: #161B26;
+  --slate: #1E2433;
+  --slate2: #252D40;
+  --slate3: #2E3850;
+  --border: rgba(0,225,255,0.08);
+  --border2: rgba(0,225,255,0.15);
+  --cyan: #00E5FF;
+  --cyan2: #00B8CC;
+  --cyan3: rgba(0,229,255,0.1);
+  --cyan4: rgba(0,229,255,0.05);
+  --text: #C8D6E5;
+  --text2: #7A8FA6;
+  --text3: #4A5A72;
+  --green: #00FF88;
+  --amber: #FFB800;
+  --red: #FF4D6D;
+  --purple: #A78BFA;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--obsidian); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; overflow-x: hidden; }
+.hub { display: grid; grid-template-columns: 200px 1fr 220px; grid-template-rows: 48px 1fr; min-height: 100vh; }
+
+/* TOPBAR */
+.topbar { grid-column: 1/-1; background: var(--obsidian2); border-bottom: 1px solid var(--border2); display: flex; align-items: center; padding: 0 16px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.logo { font-family: var(--mono); font-size: 12px; color: var(--cyan); letter-spacing: 2px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.logo-dot { width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 8px var(--cyan); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.85)} }
+.topbar-nav { display: flex; gap: 4px; margin-left: auto; }
+.tnav { background: none; border: 1px solid transparent; color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: all .2s; letter-spacing: .5px; }
+.tnav:hover, .tnav.active { border-color: var(--border2); color: var(--cyan); background: var(--cyan4); }
+.status-bar { display: flex; align-items: center; gap: 8px; margin-left: 16px; }
+.status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 6px var(--green); }
+.status-txt { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+/* SIDEBAR */
+.sidebar { background: var(--obsidian2); border-right: 1px solid var(--border); padding: 16px 0; overflow-y: auto; }
+.sidebar-section { padding: 0 12px 16px; }
+.sidebar-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; padding: 0 8px 8px; }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: all .2s; color: var(--text2); font-size: 12px; border: 1px solid transparent; margin-bottom: 2px; }
+.sidebar-item:hover { background: var(--slate); color: var(--text); border-color: var(--border); }
+.sidebar-item.active { background: var(--cyan4); color: var(--cyan); border-color: var(--border2); }
+.sidebar-icon { font-family: var(--mono); font-size: 14px; width: 20px; text-align: center; }
+.cat-badge { margin-left: auto; font-family: var(--mono); font-size: 9px; background: var(--slate2); color: var(--text3); padding: 2px 6px; border-radius: 3px; }
+.divider { height: 1px; background: var(--border); margin: 8px 12px; }
+
+/* MAIN */
+.main { background: var(--obsidian3); overflow-y: auto; padding: 20px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* SECTION HEADERS */
+.section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.section-title { font-family: var(--mono); font-size: 14px; color: var(--cyan); font-weight: 700; letter-spacing: 1px; }
+.section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border2) 0%, transparent 100%); }
+.section-badge { font-family: var(--mono); font-size: 9px; background: var(--cyan3); color: var(--cyan); padding: 3px 8px; border-radius: 3px; border: 1px solid var(--border2); letter-spacing: 1px; }
+
+/* NOTES */
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.note-card { background: var(--slate); border: 1px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.note-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, var(--cyan), transparent); opacity: 0; transition: opacity .3s; }
+.note-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.note-card:hover::before { opacity: 1; }
+.note-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.note-cat { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 1px; }
+.cat-routing { background: rgba(0,229,255,.1); color: var(--cyan); border: 1px solid rgba(0,229,255,.2); }
+.cat-security { background: rgba(255,77,109,.1); color: var(--red); border: 1px solid rgba(255,77,109,.2); }
+.cat-python { background: rgba(167,139,250,.1); color: var(--purple); border: 1px solid rgba(167,139,250,.2); }
+.cat-switching { background: rgba(0,255,136,.1); color: var(--green); border: 1px solid rgba(0,255,136,.2); }
+.cat-bgp { background: rgba(255,184,0,.1); color: var(--amber); border: 1px solid rgba(255,184,0,.2); }
+.note-date { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-left: auto; }
+.note-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.note-preview { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.note-code { font-family: var(--mono); font-size: 10px; background: var(--obsidian); color: var(--green); padding: 8px 10px; border-radius: 4px; margin-top: 10px; border-left: 2px solid var(--green); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.note-img-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
+.note-img { background: var(--slate2); border-radius: 4px; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; color: var(--text3); border: 1px solid var(--border); overflow: hidden; }
+.note-img.full { grid-column: 1/-1; aspect-ratio: 16/7; }
+.new-note-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: none; border: 1px dashed var(--border2); border-radius: 8px; padding: 24px; color: var(--text3); cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all .2s; }
+.new-note-btn:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan4); }
+
+/* CALENDAR */
+.cal-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+.cal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.cal-nav { background: var(--slate); border: 1px solid var(--border); color: var(--text2); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all .2s; }
+.cal-nav:hover { border-color: var(--border2); color: var(--cyan); }
+.cal-month { font-family: var(--mono); font-size: 15px; color: var(--text); font-weight: 500; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-dow { font-family: var(--mono); font-size: 9px; color: var(--text3); text-align: center; padding: 6px 0; letter-spacing: 1px; }
+.cal-day { background: var(--slate); border: 1px solid var(--border); border-radius: 6px; padding: 8px; min-height: 72px; cursor: pointer; transition: all .2s; position: relative; }
+.cal-day:hover { border-color: var(--border2); }
+.cal-day.today { border-color: var(--cyan); background: var(--cyan4); }
+.cal-day.has-event::after { content:''; position:absolute; top:4px; right:4px; width:4px; height:4px; background:var(--cyan); border-radius:50%; box-shadow:0 0 4px var(--cyan); }
+.cal-day-num { font-family: var(--mono); font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.cal-day.today .cal-day-num { color: var(--cyan); font-weight: 700; }
+.cal-event-dot { font-size: 9px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+.evt-pip { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+.day-panel { background: var(--slate); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.day-panel-title { font-family: var(--mono); font-size: 11px; color: var(--cyan); margin-bottom: 12px; letter-spacing: 1px; }
+.day-task { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--obsidian2); border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border); }
+.task-time { font-family: var(--mono); font-size: 10px; color: var(--text3); min-width: 36px; }
+.task-info { flex: 1; }
+.task-title { font-size: 12px; color: var(--text); font-weight: 500; }
+.task-tag { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 3px; }
+.snippet-area { margin-top: 16px; }
+.snippet-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 1px; margin-bottom: 8px; }
+.snippet-input { width: 100%; background: var(--obsidian); border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px; color: var(--green); font-family: var(--mono); font-size: 10px; resize: none; height: 80px; outline: none; transition: border-color .2s; }
+.snippet-input:focus { border-color: var(--border2); }
+.snippet-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--obsidian); border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; margin: 4px 4px 0 0; font-family: var(--mono); font-size: 9px; color: var(--text3); }
+.chip-dot { width: 4px; height: 4px; background: var(--green); border-radius: 50%; }
+
+/* ROADMAP */
+.roadmap-stages { display: flex; flex-direction: column; gap: 20px; }
+.stage { background: var(--slate); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.stage-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.stage-num { font-family: var(--mono); font-size: 10px; color: var(--obsidian); background: var(--cyan); padding: 3px 8px; border-radius: 3px; font-weight: 700; letter-spacing: 1px; }
+.stage-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.stage-progress { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.progress-bar-wrap { height: 3px; flex: 1; background: var(--slate2); border-radius: 2px; max-width: 80px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--cyan); border-radius: 2px; transition: width .5s; }
+.milestone-list { padding: 12px 20px; }
+.milestone { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.milestone:last-child { border-bottom: none; }
+.m-toggle { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; flex-shrink: 0; background: none; }
+.m-toggle.done { background: var(--cyan); border-color: var(--cyan); }
+.m-toggle.done::after { content:'✓'; font-size: 10px; color: var(--obsidian); font-weight: 700; }
+.m-info { flex: 1; }
+.m-title { font-size: 12px; color: var(--text); transition: color .2s; }
+.m-title.done { color: var(--text3); text-decoration: line-through; }
+.m-link { font-family: var(--mono); font-size: 9px; color: var(--cyan); margin-top: 2px; opacity: 0; transition: opacity .2s; cursor: pointer; }
+.m-toggle.done ~ .m-info .m-link { opacity: 1; }
+.m-badge { font-family: var(--mono); font-size: 9px; }
+
+/* UTILITY BAR */
+.utility { background: var(--obsidian2); border-left: 1px solid var(--border); padding: 16px 12px; overflow-y: auto; }
+.util-section { margin-bottom: 20px; }
+.util-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 2px; margin-bottom: 10px; }
+.skill-bar-wrap { margin-bottom: 8px; }
+.skill-bar-label { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.skill-name { font-size: 10px; color: var(--text2); }
+.skill-pct { font-family: var(--mono); font-size: 9px; color: var(--text3); }
+.skill-track { height: 3px; background: var(--slate2); border-radius: 2px; overflow: hidden; }
+.skill-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
+.cmd-list { display: flex; flex-direction: column; gap: 6px; }
+.cmd-chip { background: var(--obsidian); border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; font-family: var(--mono); font-size: 10px; color: var(--green); cursor: pointer; transition: border-color .2s; }
+.cmd-chip:hover { border-color: var(--green); }
+.activity-list { display: flex; flex-direction: column; gap: 8px; }
+.activity-item { display: flex; align-items: flex-start; gap: 8px; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.act-text { font-size: 10px; color: var(--text2); line-height: 1.5; }
+.act-time { font-family: var(--mono); font-size: 9px; color: var(--text3); display: block; margin-top: 2px; }
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.hm-cell { aspect-ratio: 1; border-radius: 2px; cursor: pointer; transition: opacity .2s; }
+.hm-cell:hover { opacity: .7; }
+.quick-add { width: 100%; background: none; border: 1px solid var(--border2); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: var(--sans); font-size: 11px; outline: none; transition: all .2s; margin-bottom: 8px; }
+.quick-add:focus { border-color: var(--cyan); background: var(--cyan4); }
+.add-btn { width: 100%; background: var(--cyan); border: none; border-radius: 6px; padding: 8px; color: var(--obsidian); font-family: var(--mono); font-size: 10px; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: opacity .2s; }
+.add-btn:hover { opacity: .85; }
+</style>
+
+<div class="hub">
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>NETHUB // v2.4.1</div>
+    <div class="topbar-nav">
+      <button class="tnav active" onclick="showPanel('notes',this)">NOTES</button>
+      <button class="tnav" onclick="showPanel('calendar',this)">CALENDAR</button>
+      <button class="tnav" onclick="showPanel('roadmap',this)">ROADMAP</button>
+    </div>
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <span class="status-txt">SYS.ONLINE // 14 NOTES // 3 TASKS TODAY</span>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Domains</div>
+      <div class="sidebar-item active" onclick="filterNotes('all')"><span class="sidebar-icon">◈</span>All Notes<span class="cat-badge">14</span></div>
+      <div class="sidebar-item" onclick="filterNotes('routing')"><span class="sidebar-icon" style="color:var(--cyan)">⟳</span>Routing<span class="cat-badge">4</span></div>
+      <div class="sidebar-item" onclick="filterNotes('switching')"><span class="sidebar-icon" style="color:var(--green)">⇄</span>Switching<span class="cat-badge">3</span></div>
+      <div class="sidebar-item" onclick="filterNotes('security')"><span class="sidebar-icon" style="color:var(--red)">⛊</span>Security<span class="cat-badge">4</span></div>
+      <div class="sidebar-item" onclick="filterNotes('python')"><span class="sidebar-icon" style="color:var(--purple)">⌬</span>Python<span class="cat-badge">2</span></div>
+      <div class="sidebar-item" onclick="filterNotes('bgp')"><span class="sidebar-icon" style="color:var(--amber)">⬡</span>BGP/OSPF<span class="cat-badge">1</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Filters</div>
+      <div class="sidebar-item"><span class="sidebar-icon">⌘</span>Code Snippets</div>
+      <div class="sidebar-item"><span class="sidebar-icon">⊞</span>With Diagrams</div>
+      <div class="sidebar-item"><span class="sidebar-icon">★</span>Starred</div>
+    </div>
+    <div class="divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">This Week</div>
+      <div class="sidebar-item"><span class="sidebar-icon" style="color:var(--amber)">◷</span>Mon Jan 13</div>
+      <div class="sidebar-item"><span class="sidebar-icon" style="color:var(--amber)">◷</span>Tue Jan 14</div>
+      <div class="sidebar-item active"><span class="sidebar-icon" style="color:var(--cyan)">◷</span>Today</div>
+    </div>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div class="main">
+    <!-- NOTES PANEL -->
+    <div id="panel-notes" class="panel active">
+      <div class="section-header">
+        <div class="section-title">// KNOWLEDGE.BASE</div>
+        <div class="section-line"></div>
+        <div class="section-badge">14 RECORDS</div>
+      </div>
+      <div class="notes-grid">
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-routing">ROUTING</span><span class="note-date">JAN 15</span></div>
+          <div class="note-title">OSPF Area Types & LSA Flooding</div>
+          <div class="note-preview">Area 0 is the backbone. Stub areas suppress external LSAs. NSSA allows limited external redistribution via Type-7 LSAs.</div>
+          <div class="note-code">router ospf 1 / area 1 stub no-summary</div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-security">SECURITY</span><span class="note-date">JAN 14</span></div>
+          <div class="note-title">CIA Triad — Practical Mapping</div>
+          <div class="note-preview">Confidentiality → Encryption (TLS, AES). Integrity → Hashing (SHA-256). Availability → Redundancy, failover clusters.</div>
+          <div class="note-img-grid">
+            <div class="note-img" style="background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.05));border-color:rgba(255,77,109,.2);color:var(--red)">▣ CIA_DIAGRAM</div>
+            <div class="note-img" style="background:linear-gradient(135deg,rgba(255,77,109,.1),transparent);border-color:rgba(255,77,109,.15);color:var(--red)">▣ VPN_FLOW</div>
+          </div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-python">PYTHON</span><span class="note-date">JAN 14</span></div>
+          <div class="note-title">Netmiko — SSH Device Automation</div>
+          <div class="note-preview">Use ConnectHandler to SSH into Cisco IOS. Always call disconnect() after commands.</div>
+          <div class="note-code">from netmiko import ConnectHandler</div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-switching">SWITCHING</span><span class="note-date">JAN 13</span></div>
+          <div class="note-title">STP Port States & Root Election</div>
+          <div class="note-preview">Root bridge = lowest Bridge ID (priority + MAC). Port states: Blocking → Listening → Learning → Forwarding. Convergence ~30–50s.</div>
+          <div class="note-img-grid"><div class="note-img full" style="background:linear-gradient(135deg,rgba(0,255,136,.08),transparent);border-color:rgba(0,255,136,.15);color:var(--green)">▣ STP_TOPOLOGY_DIAGRAM.png — auto-scaled to grid</div></div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-bgp">BGP/OSPF</span><span class="note-date">JAN 12</span></div>
+          <div class="note-title">BGP Path Selection — 12 Attributes</div>
+          <div class="note-preview">Weight → Local Pref → Originate → AS-PATH → Origin → MED → eBGP over iBGP → IGP metric → oldest → RID → neighbor IP.</div>
+          <div class="note-code">neighbor 10.0.0.1 weight 200</div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-meta"><span class="note-cat cat-security">SECURITY</span><span class="note-date">JAN 11</span></div>
+          <div class="note-title">IPsec VPN — IKE Phase 1 & 2</div>
+          <div class="note-preview">Phase 1: ISAKMP SA (auth, DH group). Phase 2: IPsec SA (ESP/AH, encryption). Quick mode negotiation builds the tunnel.</div>
+        </div>
+
+        <div class="note-card" style="border-style:dashed;background:none">
+          <button class="new-note-btn" style="width:100%;height:100%;min-height:120px">+ NEW NOTE</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CALENDAR PANEL -->
+    <div id="panel-calendar" class="panel">
+      <div class="section-header">
+        <div class="section-title">// SCHEDULE.MATRIX</div>
+        <div class="section-line"></div>
+        <div class="section-badge">JANUARY 2025</div>
+      </div>
+      <div class="cal-layout">
+        <div>
+          <div class="cal-header">
+            <button class="cal-nav">◄</button>
+            <div class="cal-month">January 2025</div>
+            <button class="cal-nav">►</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">MON</div><div class="cal-dow">TUE</div><div class="cal-dow">WED</div>
+            <div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div><div class="cal-dow">SUN</div>
+            <div class="cal-day"><div class="cal-day-num">01</div></div>
+            <div class="cal-day"><div class="cal-day-num">02</div></div>
+            <div class="cal-day"><div class="cal-day-num">03</div></div>
+            <div class="cal-day"><div class="cal-day-num">04</div></div>
+            <div class="cal-day"><div class="cal-day-num">05</div></div>
+            <div class="cal-day"><div class="cal-day-num">06</div></div>
+            <div class="cal-day"><div class="cal-day-num">07</div></div>
+            <div class="cal-day has-event"><div class="cal-day-num">08</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--cyan)"></span>OSPF Lab</div></div>
+            <div class="cal-day has-event"><div class="cal-day-num">09</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--amber)"></span>Python Script</div></div>
+            <div class="cal-day"><div class="cal-day-num">10</div></div>
+            <div class="cal-day has-event"><div class="cal-day-num">11</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--red)"></span>Firewall Rev.</div></div>
+            <div class="cal-day"><div class="cal-day-num">12</div></div>
+            <div class="cal-day"><div class="cal-day-num">13</div></div>
+            <div class="cal-day"><div class="cal-day-num">14</div></div>
+            <div class="cal-day today has-event"><div class="cal-day-num">15</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--cyan)"></span>BGP Review</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--purple)"></span>Ansible</div></div>
+            <div class="cal-day"><div class="cal-day-num">16</div></div>
+            <div class="cal-day"><div class="cal-day-num">17</div></div>
+            <div class="cal-day has-event"><div class="cal-day-num">18</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--green)"></span>VLAN Config</div></div>
+            <div class="cal-day"><div class="cal-day-num">19</div></div>
+            <div class="cal-day"><div class="cal-day-num">20</div></div>
+            <div class="cal-day"><div class="cal-day-num">21</div></div>
+            <div class="cal-day"><div class="cal-day-num">22</div></div>
+            <div class="cal-day"><div class="cal-day-num">23</div></div>
+            <div class="cal-day"><div class="cal-day-num">24</div></div>
+            <div class="cal-day has-event"><div class="cal-day-num">25</div><div class="cal-event-dot"><span class="evt-pip" style="background:var(--red)"></span>VPN Audit</div></div>
+            <div class="cal-day"><div class="cal-day-num">26</div></div>
+            <div class="cal-day"><div class="cal-day-num">27</div></div>
+            <div class="cal-day"><div class="cal-day-num">28</div></div>
+            <div class="cal-day"><div class="cal-day-num">29</div></div>
+            <div class="cal-day"><div class="cal-day-num">30</div></div>
+            <div class="cal-day"><div class="cal-day-num">31</div></div>
+          </div>
+        </div>
+        <div class="day-panel">
+          <div class="day-panel-title">// JAN 15 — TODAY</div>
+          <div class="day-task">
+            <div class="task-time">09:00</div>
+            <div class="task-info"><div class="task-title">BGP Path Selection Review</div><div class="task-tag"># routing / bgp</div></div>
+          </div>
+          <div class="day-task">
+            <div class="task-time">11:00</div>
+            <div class="task-info"><div class="task-title">Ansible Playbook — IOS Backup</div><div class="task-tag"># python / automation</div></div>
+          </div>
+          <div class="day-task">
+            <div class="task-time">14:00</div>
+            <div class="task-info"><div class="task-title">Firewall Rule Audit</div><div class="task-tag"># security</div></div>
+          </div>
+          <div class="snippet-area">
+            <div class="snippet-label">// MICRO-NOTES &amp; QUICK COMMANDS</div>
+            <textarea class="snippet-input" placeholder="ip route 0.0.0.0 0.0.0.0 10.0.0.1 ..."></textarea>
+            <div style="margin-top:8px">
+              <span class="snippet-chip"><span class="chip-dot"></span>show ip bgp</span>
+              <span class="snippet-chip"><span class="chip-dot"></span>debug ip ospf adj</span>
+              <span class="snippet-chip"><span class="chip-dot"></span>show crypto isakmp sa</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP PANEL -->
+    <div id="panel-roadmap" class="panel">
+      <div class="section-header">
+        <div class="section-title">// ENGINEER.ROADMAP</div>
+        <div class="section-line"></div>
+        <div class="section-badge">67% COMPLETE</div>
+      </div>
+      <div class="roadmap-stages">
+
+        <div class="stage">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 01</span>
+            <span class="stage-title">Fundamentals — OSI, TCP/IP</span>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+            <span class="stage-progress" style="color:var(--green)">5/5 ✓</span>
+          </div>
+          <div class="milestone-list">
+            <div class="milestone"><div class="m-toggle done" id="t1" onclick="toggleMilestone('t1','Routing')"></div><div class="m-info"><div class="m-title done">OSI 7-layer model — functions and protocols</div><div class="m-link">→ View Notes: Routing</div></div><span class="m-badge cat-routing note-cat">ROUTING</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t2" onclick="toggleMilestone('t2','Switching')"></div><div class="m-info"><div class="m-title done">TCP/IP Stack — IPv4, IPv6, headers</div><div class="m-link">→ View Notes: Switching</div></div><span class="m-badge cat-switching note-cat">SWITCHING</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t3" onclick="toggleMilestone('t3','Routing')"></div><div class="m-info"><div class="m-title done">Subnetting & VLSM mastery</div><div class="m-link">→ View Notes: Routing</div></div><span class="m-badge cat-routing note-cat">ROUTING</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t4" onclick="toggleMilestone('t4','Security')"></div><div class="m-info"><div class="m-title done">Ethernet, ARP, MAC addressing</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t5" onclick="toggleMilestone('t5','Routing')"></div><div class="m-info"><div class="m-title done">NAT/PAT — static, dynamic, overload</div><div class="m-link">→ View Notes: Routing</div></div><span class="m-badge cat-routing note-cat">ROUTING</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 02</span>
+            <span class="stage-title">Routing & Switching — OSPF, BGP, VLANs</span>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:60%"></div></div>
+            <span class="stage-progress" style="color:var(--cyan)">3/5</span>
+          </div>
+          <div class="milestone-list">
+            <div class="milestone"><div class="m-toggle done" id="t6" onclick="toggleMilestone('t6','BGP/OSPF')"></div><div class="m-info"><div class="m-title done">OSPF areas, LSA types, SPF algorithm</div><div class="m-link">→ View Notes: BGP/OSPF</div></div><span class="m-badge cat-bgp note-cat">BGP/OSPF</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t7" onclick="toggleMilestone('t7','BGP/OSPF')"></div><div class="m-info"><div class="m-title done">BGP path attributes & selection process</div><div class="m-link">→ View Notes: BGP/OSPF</div></div><span class="m-badge cat-bgp note-cat">BGP/OSPF</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t8" onclick="toggleMilestone('t8','Switching')"></div><div class="m-info"><div class="m-title done">VLANs, trunk ports, 802.1Q</div><div class="m-link">→ View Notes: Switching</div></div><span class="m-badge cat-switching note-cat">SWITCHING</span></div>
+            <div class="milestone"><div class="m-toggle" id="t9" onclick="toggleMilestone('t9','Switching')"></div><div class="m-info"><div class="m-title">STP, RSTP, port fast & BPDU guard</div><div class="m-link">→ View Notes: Switching</div></div><span class="m-badge cat-switching note-cat">SWITCHING</span></div>
+            <div class="milestone"><div class="m-toggle" id="t10" onclick="toggleMilestone('t10','BGP/OSPF')"></div><div class="m-info"><div class="m-title">Route redistribution & policy routing</div><div class="m-link">→ View Notes: BGP/OSPF</div></div><span class="m-badge cat-bgp note-cat">BGP/OSPF</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 03</span>
+            <span class="stage-title">Network Security — VPN, Firewalls, CIA</span>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:40%"></div></div>
+            <span class="stage-progress" style="color:var(--amber)">2/5</span>
+          </div>
+          <div class="milestone-list">
+            <div class="milestone"><div class="m-toggle done" id="t11" onclick="toggleMilestone('t11','Security')"></div><div class="m-info"><div class="m-title done">CIA Triad — confidentiality, integrity, availability</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+            <div class="milestone"><div class="m-toggle done" id="t12" onclick="toggleMilestone('t12','Security')"></div><div class="m-info"><div class="m-title done">IPsec VPN — IKEv1/v2, ESP, AH</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+            <div class="milestone"><div class="m-toggle" id="t13" onclick="toggleMilestone('t13','Security')"></div><div class="m-info"><div class="m-title">Firewall zones, ACLs, stateful inspection</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+            <div class="milestone"><div class="m-toggle" id="t14" onclick="toggleMilestone('t14','Security')"></div><div class="m-info"><div class="m-title">SSL/TLS inspection & certificate management</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+            <div class="milestone"><div class="m-toggle" id="t15" onclick="toggleMilestone('t15','Security')"></div><div class="m-info"><div class="m-title">Zero Trust Architecture fundamentals</div><div class="m-link">→ View Notes: Security</div></div><span class="m-badge cat-security note-cat">SECURITY</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-header">
+            <span class="stage-num">STAGE 04</span>
+            <span class="stage-title">Programmability — Python, Ansible, APIs</span>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:20%"></div></div>
+            <span class="stage-progress" style="color:var(--red)">1/5</span>
+          </div>
+          <div class="milestone-list">
+            <div class="milestone"><div class="m-toggle done" id="t16" onclick="toggleMilestone('t16','Python')"></div><div class="m-info"><div class="m-title done">Python networking — socket, Netmiko, Paramiko</div><div class="m-link">→ View Notes: Python</div></div><span class="m-badge cat-python note-cat">PYTHON</span></div>
+            <div class="milestone"><div class="m-toggle" id="t17" onclick="toggleMilestone('t17','Python')"></div><div class="m-info"><div class="m-title">REST API interaction with Requests library</div><div class="m-link">→ View Notes: Python</div></div><span class="m-badge cat-python note-cat">PYTHON</span></div>
+            <div class="milestone"><div class="m-toggle" id="t18" onclick="toggleMilestone('t18','Python')"></div><div class="m-info"><div class="m-title">Ansible playbooks for IOS/NXOS automation</div><div class="m-link">→ View Notes: Python</div></div><span class="m-badge cat-python note-cat">PYTHON</span></div>
+            <div class="milestone"><div class="m-toggle" id="t19" onclick="toggleMilestone('t19','Python')"></div><div class="m-info"><div class="m-title">YANG models & NETCONF/RESTCONF</div><div class="m-link">→ View Notes: Python</div></div><span class="m-badge cat-python note-cat">PYTHON</span></div>
+            <div class="milestone"><div class="m-toggle" id="t20" onclick="toggleMilestone('t20','Python')"></div><div class="m-info"><div class="m-title">Cisco DevNet — DNA Center APIs</div><div class="m-link">→ View Notes: Python</div></div><span class="m-badge cat-python note-cat">PYTHON</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- UTILITY BAR -->
+  <div class="utility">
+    <div class="util-section">
+      <div class="util-label">// SKILL MATRIX</div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar-label"><span class="skill-name">Routing</span><span class="skill-pct">82%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:82%;background:var(--cyan)"></div></div>
+      </div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar-label"><span class="skill-name">Switching</span><span class="skill-pct">74%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:74%;background:var(--green)"></div></div>
+      </div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar-label"><span class="skill-name">Security</span><span class="skill-pct">58%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:58%;background:var(--red)"></div></div>
+      </div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar-label"><span class="skill-name">Python</span><span class="skill-pct">43%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:43%;background:var(--purple)"></div></div>
+      </div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar-label"><span class="skill-name">BGP/OSPF</span><span class="skill-pct">67%</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width:67%;background:var(--amber)"></div></div>
+      </div>
+    </div>
+    <div class="util-section">
+      <div class="util-label">// RECENT ACTIVITY</div>
+      <div class="activity-list">
+        <div class="activity-item"><div class="act-dot" style="background:var(--cyan)"></div><div class="act-text">Note added: BGP Path Selection<span class="act-time">2h ago</span></div></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--green)"></div><div class="act-text">Milestone: OSPF Areas ✓<span class="act-time">4h ago</span></div></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--amber)"></div><div class="act-text">Task: Ansible Playbook added<span class="act-time">1d ago</span></div></div>
+        <div class="activity-item"><div class="act-dot" style="background:var(--red)"></div><div class="act-text">Note added: IPsec VPN IKE<span class="act-time">2d ago</span></div></div>
+      </div>
+    </div>
+    <div class="util-section">
+      <div class="util-label">// QUICK COMMANDS</div>
+      <div class="cmd-list">
+        <div class="cmd-chip">show ip route</div>
+        <div class="cmd-chip">show ip ospf neighbor</div>
+        <div class="cmd-chip">show bgp summary</div>
+        <div class="cmd-chip">show crypto ipsec sa</div>
+        <div class="cmd-chip">debug ip packet</div>
+      </div>
+    </div>
+    <div class="util-section">
+      <div class="util-label">// COMMIT LOG HEATMAP</div>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+    <div class="util-section">
+      <div class="util-label">// QUICK ADD NOTE</div>
+      <input class="quick-add" placeholder="Note title...">
+      <button class="add-btn">+ ADD NOTE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+function filterNotes(cat) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+function toggleMilestone(id, cat) {
+  const btn = document.getElementById(id);
+  const info = btn.nextElementSibling;
+  const title = info.querySelector('.m-title');
+  btn.classList.toggle('done');
+  title.classList.toggle('done');
+}
+// Generate heatmap
+const hm = document.getElementById('heatmap');
+const colors = ['var(--obsidian)', 'rgba(0,229,255,.15)', 'rgba(0,229,255,.35)', 'rgba(0,229,255,.6)', 'var(--cyan)'];
+for (let i = 0; i < 35; i++) {
+  const d = document.createElement('div');
+  d.className = 'hm-cell';
+  const v = Math.floor(Math.random() * 5);
+  d.style.background = colors[v];
+  d.style.border = '1px solid var(--border)';
+  hm.appendChild(d);
+}
+</script>

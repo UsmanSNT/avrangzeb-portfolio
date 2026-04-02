@@ -19,6 +19,7 @@ const translations = {
       itNews: "IT News",
       myProjects: "Loyihalar",
       notes: "Qaydlar",
+      knowledgeHub: "Yangi bilimlar",
       cv: "My CV",
       contact: "Aloqa",
     },
@@ -234,6 +235,7 @@ const translations = {
       itNews: "IT News",
       myProjects: "Projects",
       notes: "Notes",
+      knowledgeHub: "Knowledge Hub",
       cv: "My CV",
       contact: "Contact",
     },
@@ -449,6 +451,7 @@ const translations = {
       itNews: "IT 뉴스",
       myProjects: "프로젝트",
       notes: "노트",
+      knowledgeHub: "지식 허브",
       cv: "내 이력서",
       contact: "연락처",
     },
@@ -2584,12 +2587,13 @@ export default function Portfolio() {
                 { id: "it-news", label: t.nav.itNews },
                 { id: "my-projects", label: t.nav.myProjects },
                 { id: "cv", label: t.nav.cv },
-                { id: "notes", label: t.nav.notes, isLink: true },
+                { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
+                { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
               ].map((item) => (
-                item.id === "notes" ? (
+                item.isLink ? (
                   <a
                     key={item.id}
-                    href="/notes"
+                    href={item.href}
                     className="text-sm font-medium transition-colors hover:text-cyan-400 text-slate-400"
                   >
                     {item.label}
@@ -2680,12 +2684,13 @@ export default function Portfolio() {
                   { id: "it-news", label: t.nav.itNews },
                   { id: "my-projects", label: t.nav.myProjects },
                   { id: "cv", label: t.nav.cv },
-                  { id: "notes", label: t.nav.notes, isLink: true },
+                  { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
+                  { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
                 ].map((item) => (
-                  item.id === "notes" ? (
+                  item.isLink ? (
                     <a
                       key={item.id}
-                      href="/notes"
+                      href={item.href}
                       className="px-4 py-3 text-base font-medium text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
