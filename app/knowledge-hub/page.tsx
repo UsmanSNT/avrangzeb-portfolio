@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import seed from "./knowledge-hub-seed.json";
 import { supabase } from "../../lib/supabase";
 
 type Language = "uz" | "en" | "ko";
@@ -51,14 +50,7 @@ type RoadmapMilestone = {
   linked_note_ids: string[];
 };
 
-type SeedData = {
-  notes: KnowledgeNote[];
-  calendar_events: CalendarEvent[];
-  micro_notes: MicroNote[];
-  roadmap_milestones: RoadmapMilestone[];
-};
-
-const seedData = seed as SeedData;
+// No local mock data — app relies on Supabase for data.
 
 // Extract a readable preview from markdown-ish text.
 function toPreview(markdown: string, maxLen = 150) {
@@ -151,10 +143,184 @@ export default function KnowledgeHubPage() {
     return dict[language];
   }, [language]);
 
-  const [notes, setNotes] = useState<KnowledgeNote[]>(seedData.notes);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(seedData.calendar_events);
-  const [microNotes, setMicroNotes] = useState<MicroNote[]>(seedData.micro_notes);
-  const [milestones, setMilestones] = useState<RoadmapMilestone[]>(seedData.roadmap_milestones);
+  const [notes, setNotes] = useState<KnowledgeNote[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [microNotes, setMicroNotes] = useState<MicroNote[]>([]);
+  const [milestones, setMilestones] = useState<RoadmapMilestone[]>([]);
+
+  // Basic CRUD helpers (read + simple create/update/delete)
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadAll() {
+      try {
+        // Notes
+        const { data: notesData, error: notesErr } = await supabase
+          .from("portfolio_notes_rows")
+          .select("id,title,content,category,tags,important,created_at,updated_at")
+          .order("created_at", { ascending: false });
+        if (notesErr) throw notesErr;
+        if (mounted && notesData) {
+          setNotes(
+            notesData.map((r: any) => ({
+              id: String(r.id),
+              title: r.title || "",
+              category: (r.category as KnowledgeDomain) || "routing",
+              body_markdown: r.content || "",
+              code_blocks: [],
+              images: [],
+              starred: !!r.important,
+              created_at: r.created_at,
+              updated_at: r.updated_at || r.created_at,
+              roadmap_milestone_ids: [],
+            }))
+          );
+        }
+
+        // Calendar
+        const { data: calData, error: calErr } = await supabase
+          .from("portfolio_calendar_events")
+          .select("id,date,time,title,description,tags,type,created_at,updated_at")
+          .order("date", { ascending: true });
+        if (calErr) throw calErr;
+        if (mounted && calData) {
+          setCalendarEvents(
+            calData.map((r: any) => ({
+              id: String(r.id),
+              date: r.date,
+              time: r.time || "",
+              title: r.title,
+              tags: r.tags || [],
+              type: (r.type as CalendarEventType) || "task",
+            }))
+          );
+        }
+
+        // Micro notes
+        const { data: microData, error: microErr } = await supabase
+          .from("portfolio_micro_notes")
+          .select("id,date,content,is_command,created_at,updated_at")
+          .order("created_at", { ascending: false });
+        if (microErr) throw microErr;
+        if (mounted && microData) {
+          setMicroNotes(
+            microData.map((r: any) => ({
+              id: String(r.id),
+              date: r.date,
+              content: r.content,
+              is_command: !!r.is_command,
+            }))
+          );
+        }
+
+        // Roadmap milestones
+        const { data: rmData, error: rmErr } = await supabase
+          .from("portfolio_roadmap_milestones")
+          .select("id,stage,title,category,completed,completed_at,linked_note_ids,created_at,updated_at")
+          .order("stage", { ascending: true });
+        if (rmErr) throw rmErr;
+        if (mounted && rmData) {
+          setMilestones(
+            rmData.map((r: any) => ({
+              id: String(r.id),
+              stage: Number(r.stage),
+              title: r.title,
+              category: (r.category as KnowledgeDomain) || "routing",
+              completed: !!r.completed,
+              completed_at: r.completed_at,
+              linked_note_ids: (r.linked_note_ids || []).map((x: any) => String(x)),
+            }))
+          );
+        }
+      } catch (err) {
+        // Prefer failing silently in production; console for diagnostics
+        // eslint-disable-next-line no-console
+        console.warn("Supabase load error", err);
+      }
+    }
+
+    loadAll();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Calendar CRUD
+  async function createCalendarEvent(payload: { date: string; time?: string; title: string; tags?: string[]; type?: CalendarEventType }) {
+    const { data, error } = await supabase.from("portfolio_calendar_events").insert({
+      user_id: supabase.auth?.user?.()?.id || null,
+      date: payload.date,
+      time: payload.time || null,
+      title: payload.title,
+      tags: payload.tags || [],
+      type: payload.type || "task",
+    }).select();
+    if (error) throw error;
+    if (data && data[0]) setCalendarEvents((s) => [...s, { id: String(data[0].id), date: data[0].date, time: data[0].time || "", title: data[0].title, tags: data[0].tags || [], type: data[0].type }]);
+  }
+
+  async function updateCalendarEvent(id: string, patch: Partial<CalendarEvent>) {
+    const payload: any = {};
+    if (patch.title !== undefined) payload.title = patch.title;
+    if (patch.date !== undefined) payload.date = patch.date;
+    if (patch.time !== undefined) payload.time = patch.time;
+    if (patch.tags !== undefined) payload.tags = patch.tags;
+    if (patch.type !== undefined) payload.type = patch.type;
+    const { data, error } = await supabase.from("portfolio_calendar_events").update(payload).eq("id", Number(id)).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setCalendarEvents((s) => s.map((ev) => (ev.id === id ? { ...ev, ...payload } : ev)));
+    }
+  }
+
+  async function deleteCalendarEvent(id: string) {
+    const { error } = await supabase.from("portfolio_calendar_events").delete().eq("id", Number(id));
+    if (error) throw error;
+    setCalendarEvents((s) => s.filter((ev) => ev.id !== id));
+  }
+
+  // Micro notes CRUD
+  async function createMicroNote(content: string, is_command = false) {
+    const { data, error } = await supabase.from("portfolio_micro_notes").insert({
+      user_id: supabase.auth?.user?.()?.id || null,
+      content,
+      is_command,
+    }).select();
+    if (error) throw error;
+    if (data && data[0]) setMicroNotes((s) => [{ id: String(data[0].id), date: data[0].date, content: data[0].content, is_command: !!data[0].is_command }, ...s]);
+  }
+
+  async function deleteMicroNote(id: string) {
+    const { error } = await supabase.from("portfolio_micro_notes").delete().eq("id", Number(id));
+    if (error) throw error;
+    setMicroNotes((s) => s.filter((m) => m.id !== id));
+  }
+
+  // Roadmap CRUD
+  async function toggleMilestoneDone(id: string, done: boolean) {
+    const payload = { completed: done, completed_at: done ? new Date().toISOString() : null };
+    const { data, error } = await supabase.from("portfolio_roadmap_milestones").update(payload).eq("id", Number(id)).select();
+    if (error) throw error;
+    setMilestones((s) => s.map((m) => (m.id === id ? { ...m, ...payload } : m)));
+  }
+
+  async function createMilestone(stage: number, title: string, category: KnowledgeDomain) {
+    const { data, error } = await supabase.from("portfolio_roadmap_milestones").insert({
+      user_id: supabase.auth?.user?.()?.id || null,
+      stage,
+      title,
+      category,
+    }).select();
+    if (error) throw error;
+    if (data && data[0]) setMilestones((s) => [...s, { id: String(data[0].id), stage: Number(data[0].stage), title: data[0].title, category: data[0].category, completed: !!data[0].completed, completed_at: data[0].completed_at, linked_note_ids: (data[0].linked_note_ids||[]).map((x:any) => String(x)) }]);
+  }
+
+  async function deleteMilestone(id: string) {
+    const { error } = await supabase.from("portfolio_roadmap_milestones").delete().eq("id", Number(id));
+    if (error) throw error;
+    setMilestones((s) => s.filter((m) => m.id !== id));
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -461,6 +627,26 @@ export default function KnowledgeHubPage() {
             </div>
 
             <div style={{ display: "grid", gap: 12 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                <button
+                  className="tnav"
+                  onClick={async () => {
+                    try {
+                      const title = prompt("Event title:")?.trim();
+                      if (!title) return;
+                      const date = prompt("Date (YYYY-MM-DD):", new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
+                      const time = prompt("Time (HH:MM):", "09:00") || "09:00";
+                      await createCalendarEvent({ title, date, time, tags: [] });
+                    } catch (err) {
+                      // eslint-disable-next-line no-console
+                      console.error(err);
+                      alert("Failed to create event");
+                    }
+                  }}
+                >
+                  + New Event
+                </button>
+              </div>
               {calendarEvents
                 .slice()
                 .sort((a, b) => (a.date + "T" + a.time).localeCompare(b.date + "T" + b.time))
@@ -479,6 +665,24 @@ export default function KnowledgeHubPage() {
                     <div className="note-title">{evt.title}</div>
                     <div className="note-preview" style={{ marginTop: 6 }}>
                       Tags: {evt.tags.map((x) => `#${x}`).join(" ")}
+                    </div>
+                    <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6 }}>
+                      <button
+                        className="tnav"
+                        onClick={async () => {
+                          const confirmed = confirm("Delete this event?");
+                          if (!confirmed) return;
+                          try {
+                            await deleteCalendarEvent(evt.id);
+                          } catch (err) {
+                            // eslint-disable-next-line no-console
+                            console.error(err);
+                            alert("Failed to delete event");
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -523,6 +727,37 @@ export default function KnowledgeHubPage() {
                     <div className="note-preview" style={{ marginTop: 8 }}>
                       Category: {m.category.toUpperCase()} · Linked notes: {linkedCount}
                     </div>
+                    <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                      <button
+                        className={`tnav ${m.completed ? "active" : ""}`}
+                        onClick={async () => {
+                          try {
+                            await toggleMilestoneDone(m.id, !m.completed);
+                          } catch (err) {
+                            // eslint-disable-next-line no-console
+                            console.error(err);
+                            alert("Failed to update milestone");
+                          }
+                        }}
+                      >
+                        {m.completed ? "Mark Incomplete" : "Mark Done"}
+                      </button>
+                      <button
+                        className="tnav"
+                        onClick={async () => {
+                          if (!confirm("Delete milestone?")) return;
+                          try {
+                            await deleteMilestone(m.id);
+                          } catch (err) {
+                            // eslint-disable-next-line no-console
+                            console.error(err);
+                            alert("Failed to delete milestone");
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -533,11 +768,38 @@ export default function KnowledgeHubPage() {
         <div className="utility">
           <div className="util-section">
             <div className="util-label">{t.utilityLabel}</div>
+            <div style={{ marginBottom: 10 }}>
+              <input id="micro-input" className="snippet-input" placeholder="Quick command or note" />
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button
+                  className="add-btn"
+                  onClick={async () => {
+                    try {
+                      // read input value
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      const el = document.getElementById("micro-input") as HTMLInputElement;
+                      const val = el?.value?.trim();
+                      if (!val) return alert("Enter content");
+                      await createMicroNote(val, true);
+                      if (el) el.value = "";
+                    } catch (err) {
+                      // eslint-disable-next-line no-console
+                      console.error(err);
+                      alert("Failed to add micro note");
+                    }
+                  }}
+                >
+                  Add Command
+                </button>
+              </div>
+            </div>
             <div className="cmd-list">
-              {quickCommands.length ? (
-                quickCommands.map((cmd) => (
-                  <div key={cmd.id} className="cmd-chip">
-                    {cmd.content}
+              {microNotes.length ? (
+                microNotes.map((cmd) => (
+                  <div key={cmd.id} className="cmd-chip" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{cmd.content}</span>
+                    <button className="tnav" onClick={async () => { if (!confirm('Delete note?')) return; try { await deleteMicroNote(cmd.id); } catch(err){ console.error(err); alert('Failed to delete'); } }}>Del</button>
                   </div>
                 ))
               ) : (
