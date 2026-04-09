@@ -147,12 +147,16 @@ export default function KnowledgeHubPage() {
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [microNotes, setMicroNotes] = useState<MicroNote[]>([]);
   const [milestones, setMilestones] = useState<RoadmapMilestone[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  // currently selected date in calendar panel (ISO YYYY-MM-DD)
+  const [selectedDate, setSelectedDate] = useState<string | null>(new Date().toISOString().slice(0, 10));
 
   // Basic CRUD helpers (read + simple create/update/delete)
   useEffect(() => {
     let mounted = true;
 
     async function loadAll() {
+      setIsLoading(true);
       try {
         // Notes
         const { data: notesData, error: notesErr } = await supabase
@@ -236,6 +240,8 @@ export default function KnowledgeHubPage() {
         // Prefer failing silently in production; console for diagnostics
         // eslint-disable-next-line no-console
         console.warn("Supabase load error", err);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
     }
 
@@ -372,16 +378,14 @@ export default function KnowledgeHubPage() {
   };
 
   const notesCounts = useMemo(() => {
-    const counts: Record<"all" | KnowledgeDomain, number> = {
-      all: notes.length,
-      routing: 0,
-      switching: 0,
-      security: 0,
-      python: 0,
-      bgp: 0,
-    };
-    for (const n of notes) counts[n.category] += 1;
-    return counts;
+    const counts: Record<string, number> = { all: notes.length };
+    // seed known categories
+    for (const k of Object.keys(domainMeta)) counts[k] = 0;
+    for (const n of notes) {
+      const key = String(n.category || "other");
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts as Record<"all" | KnowledgeDomain, number>;
   }, [notes]);
 
   const filteredNotes = useMemo(() => {
@@ -390,14 +394,47 @@ export default function KnowledgeHubPage() {
   }, [notes, activeDomain]);
 
   const monthLabel = useMemo(() => {
-    const first = calendarEvents
-      .slice()
-      .sort((a, b) => a.date.localeCompare(b.date))[0];
-    if (!first) return "January 2025";
-    const d = new Date(first.date);
-    const month = d.toLocaleString("en-US", { month: "long" });
-    const year = d.getFullYear();
+    const first = calendarEvents.slice().sort((a, b) => (a.date || "").localeCompare(b.date || ""))[0];
+    const baseDate = first ? new Date(first.date) : new Date();
+    const month = baseDate.toLocaleString("en-US", { month: "long" });
+    const year = baseDate.getFullYear();
     return `${month} ${year}`;
+  }, [calendarEvents]);
+
+  // Build calendar grid days for the month in monthLabel (Monday-first)
+  const calendarGrid = useMemo(() => {
+    const d = calendarEvents.slice().sort((a, b) => (a.date || "").localeCompare(b.date || ""))[0];
+    const base = d ? new Date(d.date) : new Date();
+    const year = base.getFullYear();
+    const month = base.getMonth();
+
+    const firstOfMonth = new Date(year, month, 1);
+    // JS: 0=Sunday..6=Saturday. We want Monday-first index
+    const firstDow = (firstOfMonth.getDay() + 6) % 7; // 0=Monday
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const cells: Array<{ day: number | null; dateIso?: string }> = [];
+    // pad before
+    for (let i = 0; i < firstDow; i++) cells.push({ day: null });
+    for (let day = 1; day <= daysInMonth; day++) {
+      const iso = new Date(year, month, day).toISOString().slice(0, 10);
+      cells.push({ day, dateIso: iso });
+    }
+    // pad to full weeks (35 cells)
+    while (cells.length < 35) cells.push({ day: null });
+    return { year, month, cells };
+  }, [calendarEvents, monthLabel]);
+
+  // Map events by date for fast lookup in calendar rendering
+  const eventsByDate = useMemo(() => {
+    const map: Record<string, CalendarEvent[]> = {};
+    for (const ev of calendarEvents) {
+      const d = ev?.date || "";
+      if (!d) continue;
+      map[d] = map[d] ?? [];
+      map[d].push(ev);
+    }
+    return map;
   }, [calendarEvents]);
 
   const sortedMilestones = useMemo(() => {
@@ -408,6 +445,9 @@ export default function KnowledgeHubPage() {
 
   return (
     <div className="knowledgeHubPage">
+      {isLoading ? (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>Loading...</div>
+      ) : null}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600&display=swap');
 
@@ -597,20 +637,21 @@ export default function KnowledgeHubPage() {
             <div className="notes-grid">
               {filteredNotes.map((note) => {
                 const code = note.code_blocks?.[0]?.content?.trim() ?? "";
+                const meta = (domainMeta as any)[note.category] ?? { badgeClass: "note-cat", icon: "◈", label: (note.category || "OTHER").toString() };
                 return (
                   <div key={note.id} className="note-card" role="button" tabIndex={0}>
                     <div className="note-meta">
-                      <span className={`note-cat ${domainMeta[note.category].badgeClass}`}>
-                        {note.category.toUpperCase()}
+                      <span className={`note-cat ${meta.badgeClass}`}>
+                        {(meta.label || note.category || "OTHER").toString().toUpperCase()}
                       </span>
-                      <span className="note-date">{formatMonthDay(note.created_at)}</span>
+                      <span className="note-date">{note.created_at ? formatMonthDay(note.created_at) : ""}</span>
                     </div>
 
                     <div className="note-title">
                       {note.starred ? <span style={{ color: "#FFB800", marginRight: 6 }}>⭐</span> : null}
                       {note.title}
                     </div>
-                    <div className="note-preview">{toPreview(note.body_markdown, 160)}</div>
+                    <div className="note-preview">{toPreview(note.body_markdown || "", 160)}</div>
                     {code ? <div className="note-code">{code}</div> : null}
                     {note.images?.length ? <ImageGrid images={note.images} /> : null}
                   </div>
@@ -626,66 +667,108 @@ export default function KnowledgeHubPage() {
               <div className="section-badge">{monthLabel.toUpperCase()}</div>
             </div>
 
-            <div style={{ display: "grid", gap: 12 }}>
-              <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
-                <button
-                  className="tnav"
-                  onClick={async () => {
-                    try {
-                      const title = prompt("Event title:")?.trim();
-                      if (!title) return;
-                      const date = prompt("Date (YYYY-MM-DD):", new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
-                      const time = prompt("Time (HH:MM):", "09:00") || "09:00";
-                      await createCalendarEvent({ title, date, time, tags: [] });
-                    } catch (err) {
-                      // eslint-disable-next-line no-console
-                      console.error(err);
-                      alert("Failed to create event");
-                    }
-                  }}
-                >
-                  + New Event
-                </button>
-              </div>
-              {calendarEvents
-                .slice()
-                .sort((a, b) => (a.date + "T" + a.time).localeCompare(b.date + "T" + b.time))
-                .map((evt) => (
-                  <div
-                    key={evt.id}
-                    className="note-card"
-                    style={{ cursor: "default" }}
-                  >
-                    <div className="note-meta">
-                      <span className="note-cat cat-routing">{evt.type.toUpperCase()}</span>
-                      <span className="note-date">
-                        {formatMonthDay(evt.date)} · {evt.time}
-                      </span>
-                    </div>
-                    <div className="note-title">{evt.title}</div>
-                    <div className="note-preview" style={{ marginTop: 6 }}>
-                      Tags: {evt.tags.map((x) => `#${x}`).join(" ")}
-                    </div>
-                    <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6 }}>
-                      <button
-                        className="tnav"
-                        onClick={async () => {
-                          const confirmed = confirm("Delete this event?");
-                          if (!confirmed) return;
-                          try {
-                            await deleteCalendarEvent(evt.id);
-                          } catch (err) {
-                            // eslint-disable-next-line no-console
-                            console.error(err);
-                            alert("Failed to delete event");
-                          }
-                        }}
+            <div className="cal-layout">
+              <div>
+                <div className="cal-header">
+                  <button className="cal-nav">◄</button>
+                  <div className="cal-month">{monthLabel}</div>
+                  <button className="cal-nav">►</button>
+                </div>
+
+                <div className="cal-grid">
+                  <div className="cal-dow">MON</div>
+                  <div className="cal-dow">TUE</div>
+                  <div className="cal-dow">WED</div>
+                  <div className="cal-dow">THU</div>
+                  <div className="cal-dow">FRI</div>
+                  <div className="cal-dow">SAT</div>
+                  <div className="cal-dow">SUN</div>
+
+                  {calendarGrid.cells.map((cell, idx) => {
+                    const iso = cell.dateIso;
+                    const dayEvents = iso ? (eventsByDate[iso] || []) : [];
+                    const hasEvents = dayEvents.length > 0;
+                    const todayIso = new Date().toISOString().slice(0, 10);
+                    const isToday = iso === todayIso;
+                    return (
+                      <div
+                        key={idx}
+                        className={`cal-day ${isToday ? "today" : ""} ${hasEvents ? "has-event" : ""}`}
+                        onClick={() => iso && setSelectedDate(iso)}
                       >
-                        Delete
-                      </button>
+                        <div className="cal-day-num">{cell.day ?? ""}</div>
+                        {hasEvents
+                          ? dayEvents.slice(0, 3).map((ev) => (
+                              <div key={ev.id} className="cal-event-dot">
+                                <span className="evt-pip" style={{ background: "var(--cyan)" }} />
+                                {ev.title}
+                              </div>
+                            ))
+                          : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="day-panel">
+                <div className="day-panel-title">// {selectedDate ? selectedDate : "NO DATE"}</div>
+                {(eventsByDate[selectedDate || ""] || []).length ? (
+                  (eventsByDate[selectedDate || ""] || []).map((ev) => (
+                    <div className="day-task" key={ev.id}>
+                      <div className="task-time">{ev.time || ""}</div>
+                      <div className="task-info">
+                        <div className="task-title">{ev.title}</div>
+                        <div className="task-tag">{ev.tags?.length ? `# ${ev.tags.join(' / ')}` : ' '}</div>
+                      </div>
+                      <div style={{ marginLeft: 8 }}>
+                        <button
+                          className="tnav"
+                          onClick={async () => {
+                            if (!confirm('Delete this event?')) return;
+                            try {
+                              await deleteCalendarEvent(ev.id);
+                            } catch (err) {
+                              // eslint-disable-next-line no-console
+                              console.error(err);
+                              alert('Failed to delete event');
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div style={{ color: 'var(--text3)' }}>No events for this date</div>
+                )}
+
+                <div className="snippet-area" style={{ marginTop: 12 }}>
+                  <div className="snippet-label">// MICRO-NOTES &amp; QUICK COMMANDS</div>
+                  <textarea className="snippet-input" placeholder="Quick note or command..." id="day-snippet" />
+                  <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                    <button
+                      className="add-btn"
+                      onClick={async () => {
+                        try {
+                          const el = document.getElementById('day-snippet') as HTMLTextAreaElement;
+                          const val = el?.value?.trim();
+                          if (!val) return alert('Enter something');
+                          await createMicroNote(val, false);
+                          if (el) el.value = '';
+                        } catch (err) {
+                          // eslint-disable-next-line no-console
+                          console.error(err);
+                          alert('Failed to add micro note');
+                        }
+                      }}
+                    >
+                      + Add Quick Note
+                    </button>
                   </div>
-                ))}
+                </div>
+              </div>
             </div>
           </div>
 
