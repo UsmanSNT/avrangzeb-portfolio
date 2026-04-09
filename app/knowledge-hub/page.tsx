@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import seed from "./knowledge-hub-seed.json";
+import { supabase } from "../../lib/supabase";
 
 type Language = "uz" | "en" | "ko";
 
@@ -150,10 +151,51 @@ export default function KnowledgeHubPage() {
     return dict[language];
   }, [language]);
 
-  const notes = seedData.notes;
-  const calendarEvents = seedData.calendar_events;
-  const microNotes = seedData.micro_notes;
-  const milestones = seedData.roadmap_milestones;
+  const [notes, setNotes] = useState<KnowledgeNote[]>(seedData.notes);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(seedData.calendar_events);
+  const [microNotes, setMicroNotes] = useState<MicroNote[]>(seedData.micro_notes);
+  const [milestones, setMilestones] = useState<RoadmapMilestone[]>(seedData.roadmap_milestones);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadNotes() {
+      try {
+        const { data, error } = await supabase
+          .from("portfolio_notes_rows")
+          .select("id,title,content,category,tags,important,created_at,updated_at")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || !mounted) return;
+
+        const mapped: KnowledgeNote[] = data.map((row: any) => ({
+          id: String(row.id),
+          title: row.title || "Untitled",
+          category: (row.category as KnowledgeDomain) || "routing",
+          body_markdown: row.content || "",
+          code_blocks: [],
+          images: [],
+          starred: !!row.important,
+          created_at: row.created_at || new Date().toISOString(),
+          updated_at: row.updated_at || row.created_at || new Date().toISOString(),
+          roadmap_milestone_ids: [],
+        }));
+
+        setNotes(mapped);
+      } catch (err) {
+        // Keep seed data as fallback
+        console.warn("Supabase load failed, using seed data", err);
+      }
+    }
+
+    loadNotes();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const domainMeta: Record<KnowledgeDomain, { badgeClass: string; icon: string; label: string }> = {
     routing: { badgeClass: "cat-routing", icon: "⟳", label: "Routing" },
