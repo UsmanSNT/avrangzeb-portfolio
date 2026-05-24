@@ -141,7 +141,7 @@ export default function KnowledgeHub() {
         {activePanel === 'calendar' && (
           <div style={{ color: 'var(--cyan)', fontFamily: 'var(--mono)' }}>// CALENDAR.MATRIX_LOADED</div>
         )}
-      </aside>
+      </main>
 
       {/* UTILITY BAR */}
       <aside className="utility">
