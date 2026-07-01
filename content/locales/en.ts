@@ -44,11 +44,12 @@ export const en = {
       security: "Security layer",
       server: "Backend core",
       aiNetwork: "AI network",
+      nodes: ["API", "AI", "SEC", "DB"],
     },
     terminal: {
-      whoami: "security_student_korea",
-      skills: "Cisco, Linux, Windows Server, AI, Security...",
-      status: "Open to new opportunities!",
+      whoami: "avrangzeb@portfolio",
+      skills: "AI, backend, cloud, cybersecurity, network security",
+      status: "Open to new opportunities.",
     },
   },
   about: {

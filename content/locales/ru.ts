@@ -44,6 +44,7 @@ export const ru = {
       security: "Слой защиты",
       server: "Backend core",
       aiNetwork: "AI-сеть",
+      nodes: ["API", "AI", "SEC", "DB"],
     },
     terminal: {
       whoami: "security_student_korea",

@@ -71,6 +71,7 @@ export interface HomeDictionary {
       security: string;
       server: string;
       aiNetwork: string;
+      nodes: string[];
     };
     terminal: {
       whoami: string;

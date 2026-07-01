@@ -44,6 +44,7 @@ export const ko = {
       security: "보안 계층",
       server: "백엔드 코어",
       aiNetwork: "AI 네트워크",
+      nodes: ["API", "AI", "SEC", "DB"],
     },
     terminal: {
       whoami: "security_student_korea",
