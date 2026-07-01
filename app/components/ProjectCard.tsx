@@ -8,9 +8,10 @@ type ProjectCardProps = {
   project: ShowcaseProject;
   liveDemoLabel: string;
   githubLabel: string;
+  featuredLabel: string;
 };
 
-function ProjectCardComponent({ project, liveDemoLabel, githubLabel }: ProjectCardProps) {
+function ProjectCardComponent({ project, liveDemoLabel, githubLabel, featuredLabel }: ProjectCardProps) {
   const cardSizeClass = project.featured ? "md:col-span-2 lg:grid lg:grid-cols-[1.1fr_0.9fr]" : "";
   const imageHeightClass = project.featured ? "h-56 sm:h-72 lg:h-full" : "h-48 sm:h-56";
 
@@ -35,7 +36,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel }: ProjectCa
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" aria-hidden="true" />
         {project.featured && (
           <span className="absolute left-4 top-4 rounded-full border border-cyan-400/40 bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-sm">
-            Featured
+            {featuredLabel}
           </span>
         )}
       </div>

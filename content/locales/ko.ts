@@ -185,6 +185,19 @@ export const ko = {
     viewProject: "Live Demo",
     technologies: "기술",
     github: "GitHub",
+    featured: "대표",
+    filters: {
+      all: "전체",
+      web: "웹",
+      backend: "백엔드",
+      ai: "AI",
+      cybersecurity: "사이버보안",
+      mobile: "모바일",
+    },
+    emptyState: {
+      title: "프로젝트가 없습니다",
+      description: "아직 이 카테고리에 등록된 프로젝트가 없습니다.",
+    },
     projects: [
       {
         ...showcaseProjectMeta.birIlm,

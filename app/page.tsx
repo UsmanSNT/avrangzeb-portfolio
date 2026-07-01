@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Logo } from "@/app/components/Logo";
 import { ProjectCard } from "@/app/components/ProjectCard";
 import { getHomeDictionary } from "@/content/locales";
 import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
-import type { Locale } from "@/lib/i18n/types";
+import type { Locale, ProjectFilter } from "@/lib/i18n/types";
 import { supabase } from "@/lib/supabase";
 
 const NetworkIcon = () => (
@@ -98,6 +98,8 @@ const projectTags = [
 ];
 
 const projectStatuses = [false, false, false, false]; // All goals are in progress
+
+const projectFilterOptions: ProjectFilter[] = ["all", "web", "backend", "ai", "cybersecurity", "mobile"];
 
 const certifications = [
   { name: "네트워크 관리사 2급 (Network Administrator Level 2)", status: "preparing" },
@@ -242,6 +244,7 @@ const defaultGalleryItems: GalleryItem[] = [
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Locale>(defaultLocale);
+  const [activeProjectFilter, setActiveProjectFilter] = useState<ProjectFilter>("all");
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -302,6 +305,13 @@ export default function Portfolio() {
   };
 
   const t = getHomeDictionary(language);
+  const filteredProjects = useMemo(
+    () =>
+      activeProjectFilter === "all"
+        ? t.myProjects.projects
+        : t.myProjects.projects.filter((project) => project.categoryKey === activeProjectFilter),
+    [activeProjectFilter, t.myProjects.projects]
+  );
 
   // Load language from localStorage
   useEffect(() => {
@@ -3537,16 +3547,49 @@ export default function Portfolio() {
             </p>
           </div>
 
-          <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
-            {t.myProjects.projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                liveDemoLabel={t.myProjects.viewProject}
-                githubLabel={t.myProjects.github}
-              />
-            ))}
+          <div className="mb-8 flex flex-wrap justify-center gap-2 sm:gap-3">
+            {projectFilterOptions.map((filter) => {
+              const isActive = activeProjectFilter === filter;
+
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setActiveProjectFilter(filter)}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-950 ${
+                    isActive
+                      ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-lg shadow-cyan-500/10"
+                      : "border-slate-700 bg-slate-800/50 text-slate-300 hover:-translate-y-0.5 hover:border-cyan-500/50 hover:text-cyan-200"
+                  }`}
+                >
+                  {t.myProjects.filters[filter]}
+                </button>
+              );
+            })}
           </div>
+
+          {filteredProjects.length > 0 ? (
+            <div
+              key={activeProjectFilter}
+              className="grid gap-5 transition-all duration-300 sm:gap-8 md:grid-cols-2"
+            >
+              {filteredProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  liveDemoLabel={t.myProjects.viewProject}
+                  githubLabel={t.myProjects.github}
+                  featuredLabel={t.myProjects.featured}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-700 bg-slate-800/40 px-6 py-12 text-center transition-all duration-300">
+              <h3 className="mb-2 text-xl font-semibold text-white">{t.myProjects.emptyState.title}</h3>
+              <p className="text-sm text-slate-400 sm:text-base">{t.myProjects.emptyState.description}</p>
+            </div>
+          )}
         </div>
       </section>
 

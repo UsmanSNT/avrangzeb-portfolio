@@ -1,4 +1,5 @@
 export type Locale = "en" | "ko" | "uz" | "ru";
+export type ProjectFilter = "all" | "web" | "backend" | "ai" | "cybersecurity" | "mobile";
 
 export interface ProjectGoal {
   title: string;
@@ -8,6 +9,7 @@ export interface ProjectGoal {
 export interface ShowcaseProject {
   id: number;
   title: string;
+  categoryKey: Exclude<ProjectFilter, "all">;
   category: string;
   shortDescription: string;
   image: string;
@@ -179,6 +181,12 @@ export interface HomeDictionary {
     viewProject: string;
     technologies: string;
     github: string;
+    featured: string;
+    filters: Record<ProjectFilter, string>;
+    emptyState: {
+      title: string;
+      description: string;
+    };
     projects: ShowcaseProject[];
   };
   contact: {

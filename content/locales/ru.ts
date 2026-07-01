@@ -185,6 +185,19 @@ export const ru = {
     viewProject: "Live Demo",
     technologies: "Технологии",
     github: "GitHub",
+    featured: "Избранный",
+    filters: {
+      all: "Все",
+      web: "Веб",
+      backend: "Backend",
+      ai: "AI",
+      cybersecurity: "Кибербезопасность",
+      mobile: "Mobile",
+    },
+    emptyState: {
+      title: "Проекты не найдены",
+      description: "В этой категории пока нет проектов.",
+    },
     projects: [
       {
         ...showcaseProjectMeta.birIlm,

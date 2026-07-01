@@ -185,6 +185,19 @@ export const en = {
     viewProject: "Live Demo",
     technologies: "Technologies",
     github: "GitHub",
+    featured: "Featured",
+    filters: {
+      all: "All",
+      web: "Web",
+      backend: "Backend",
+      ai: "AI",
+      cybersecurity: "Cybersecurity",
+      mobile: "Mobile",
+    },
+    emptyState: {
+      title: "No projects found",
+      description: "There are no projects in this category yet.",
+    },
     projects: [
       {
         ...showcaseProjectMeta.birIlm,

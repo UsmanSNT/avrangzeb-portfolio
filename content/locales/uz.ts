@@ -185,6 +185,19 @@ export const uz = {
     viewProject: "Live Demo",
     technologies: "Texnologiyalar",
     github: "GitHub",
+    featured: "Tanlangan",
+    filters: {
+      all: "Barchasi",
+      web: "Web",
+      backend: "Backend",
+      ai: "AI",
+      cybersecurity: "Kiberxavfsizlik",
+      mobile: "Mobile",
+    },
+    emptyState: {
+      title: "Loyiha topilmadi",
+      description: "Bu kategoriyada hozircha loyiha yo'q.",
+    },
     projects: [
       {
         ...showcaseProjectMeta.birIlm,
