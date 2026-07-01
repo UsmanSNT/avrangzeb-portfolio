@@ -1,664 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getHomeDictionary } from "@/content/locales";
+import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/types";
 import { supabase } from "@/lib/supabase";
 
-// Language types
-type Language = "uz" | "en" | "ko";
-
-// Translations
-const translations = {
-  uz: {
-    nav: {
-      home: "Bosh sahifa",
-      about: "Men haqimda",
-      skills: "Ko'nikmalar",
-      projects: "Maqsadlar",
-      books: "Kitob fikrlari",
-      gallery: "Galereya",
-      itNews: "IT News",
-      myProjects: "Loyihalar",
-      notes: "Qaydlar",
-      knowledgeHub: "Yangi bilimlar",
-      cv: "My CV",
-      contact: "Aloqa",
-    },
-    hero: {
-      title: "Abdujalilov Avrangzeb",
-      subtitle: "Axborot Xavfsizligi & Tarmoq Mutaxassisi",
-      description: "Janubiy Koreya, Woosuk Universiteti (Jeonju) Axborot xavfsizligi yo'nalishi bitiruvchi kursi talabasi. Tarmoq va AI integratsiyasi sohasida ixtisoslashmoqda.",
-      viewProjects: "Maqsadlarimni ko'rish",
-      contact: "Bog'lanish",
-      terminal: {
-        whoami: "security_student_korea",
-        skills: "Cisco, Linux, Windows Server, AI, Security...",
-        status: "Yangi imkoniyatlarga ochiq! 🚀",
-      },
-    },
-    about: {
-      title: "Men haqimda",
-      greeting: "Salom! Men",
-      intro: "Janubiy Koreya, Woosuk Universiteti (Jeonju filiali) Axborot xavfsizligi yo'nalishi bitiruvchi kursi talabasi.",
-      passion: "Hozirda Network Administrator 2-daraja imtihoniga tayyorgarlik ko'rmoqdaman. Shuningdek, CCNA, CompTIA Network+ va LPIC-1 sertifikatlarini olish ustida ishlamoqdaman.",
-      goal: "Maqsadim - zamonaviy texnologiyalar asosida tarmoq va AI integratsiyasida mutaxassis bo'lish.",
-      education: "Ta'lim",
-      university: "Woosuk Universiteti (우석대학교)",
-      faculty: "Axborot xavfsizligi yo'nalishi",
-      years: "Jeonju, Janubiy Koreya • Bitiruvchi kurs",
-      certificates: "Tayyorlanayotgan sertifikatlar",
-      preparingCerts: "Hozirda tayyorgarlik ko'rilmoqda",
-      stats: {
-        projects: "Maqsadlar",
-        certificates: "Tayyorlanmoqda",
-        experience: "Boshlanish",
-      },
-    },
-    skills: {
-      title: "Texnik ko'nikmalar",
-      additional: "Qo'shimcha texnologiyalar",
-      cybersecurity: "Kiberxavfsizlik",
-    },
-    projects: {
-      title: "Maqsadlarim",
-      completed: "Maqsad",
-      inProgress: "Ustida ishlamoqda",
-      projectsList: [
-        {
-          title: "Network Administrator 2-daraja sertifikati",
-          description: "Tarmoq administratori sertifikatini olish va professional darajada tarmoqlarni boshqarish ko'nikmalarini egallash.",
-        },
-        {
-          title: "CCNA sertifikatini olish",
-          description: "Cisco Certified Network Associate sertifikatini olish orqali tarmoq texnologiyalarida chuqur bilim olish.",
-        },
-        {
-          title: "AI va Tarmoq integratsiyasi",
-          description: "Sun'iy intellekt texnologiyalarini tarmoq xavfsizligi va boshqaruviga qo'llash bo'yicha mutaxassis bo'lish.",
-        },
-        {
-          title: "Xalqaro IT kompaniyasida ishlash",
-          description: "O'rganilgan bilimlarni amalda qo'llash uchun xalqaro IT kompaniyasida tajriba orttirish.",
-        },
-      ],
-    },
-    books: {
-      title: "Kitoblardan olingan fikirlar",
-      subtitle: "O'qigan kitoblarimdan ilhomlantiruvchi fikirlar va xulosalar",
-      addNew: "Yangi fikr qo'shish",
-      noQuotes: "Hali fikrlar yo'q",
-      addFirst: "Birinchi fikrni qo'shing",
-      viewAll: "Barchasini ko'rish",
-      bookTitle: "Kitob nomi",
-      bookTitlePlaceholder: "Masalan: Atomik odatlar",
-      author: "Muallif",
-      authorPlaceholder: "Masalan: James Clear",
-      quote: "Fikr / Xulosa",
-      quotePlaceholder: "Kitobdan olingan fikr yoki xulosani yozing...",
-      imageLabel: "Rasm (ixtiyoriy)",
-      uploadImage: "Rasm yuklash",
-      changeImage: "Rasmni o'zgartirish",
-      cancel: "Bekor qilish",
-      save: "Saqlash",
-      add: "Qo'shish",
-      editTitle: "Fikrni tahrirlash",
-      addTitle: "Yangi fikr qo'shish",
-      confirmDelete: "Bu fikrni o'chirishni xohlaysizmi?",
-      likes: "yoqdi",
-      from: "dan",
-    },
-    gallery: {
-      title: "Galereya",
-      subtitle: "Esdalik rasmlar, sertifikatlar va muhim lahzalar",
-      addNew: "Yangi galereya qo'shish",
-      noItems: "Hali galereya yo'q",
-      addFirst: "Birinchi galereyani qo'shing",
-      itemTitle: "Sarlavha",
-      itemTitlePlaceholder: "Masalan: CCNA sertifikati",
-      itemDescription: "Tavsif",
-      itemDescriptionPlaceholder: "Bu rasm/sertifikat haqida ma'lumot yozing...",
-      itemCategory: "Kategoriya",
-      categories: {
-        certificate: "Sertifikat",
-        event: "Tadbir",
-        memory: "Esdalik",
-        achievement: "Yutuq",
-        other: "Boshqa",
-      },
-      images: "Rasmlar (1-5 ta)",
-      uploadImages: "Rasmlarni yuklash",
-      addMore: "Yana qo'shish",
-      maxImages: "Maksimum 5 ta rasm",
-      cancel: "Bekor qilish",
-      save: "Saqlash",
-      add: "Qo'shish",
-      editTitle: "Galereyani tahrirlash",
-      addTitle: "Yangi galereya qo'shish",
-      confirmDelete: "Bu galereyani o'chirishni xohlaysizmi?",
-      viewAll: "Barchasini ko'rish",
-      close: "Yopish",
-    },
-    itNews: {
-      title: "IT News",
-      subtitle: "Axborot texnologiyalari yangiliklari va maqolalar",
-      addNew: "Yangi yangilik qo'shish",
-      noNews: "Hali yangiliklar yo'q",
-      addFirst: "Birinchi yangilikni qo'shing",
-      newsTitle: "Sarlavha",
-      newsTitlePlaceholder: "Masalan: Yangi AI texnologiyasi",
-      newsContent: "Mazmun",
-      newsContentPlaceholder: "Yangilik mazmunini yozing...",
-      imageLabel: "Rasm (ixtiyoriy)",
-      uploadImage: "Rasm yuklash",
-      changeImage: "Rasmni o'zgartirish",
-      views: "ko'rishlar",
-      share: "Yuborish",
-      cancel: "Bekor qilish",
-      save: "Saqlash",
-      add: "Qo'shish",
-      editTitle: "Yangilikni tahrirlash",
-      addTitle: "Yangi yangilik qo'shish",
-      confirmDelete: "Bu yangilikni o'chirishni xohlaysizmi?",
-      shared: "Yuborildi",
-      shareError: "Yuborishda xatolik",
-    },
-    cv: {
-      title: "My CV",
-      subtitle: "Mening CV'imni yuklab oling",
-      download: "CV'ni yuklab olish",
-      upload: "CV yuklash",
-      uploadNew: "Yangi CV yuklash",
-      noCv: "CV hali yuklanmagan",
-      uploadFirst: "CV yuklang",
-      uploading: "Yuklanmoqda...",
-      uploadSuccess: "CV muvaffaqiyatli yuklandi",
-      uploadError: "CV yuklashda xatolik",
-      deleteConfirm: "CV'ni o'chirishni xohlaysizmi?",
-      deleteSuccess: "CV muvaffaqiyatli o'chirildi",
-      deleteError: "CV o'chirishda xatolik",
-      fileTypes: "Faqat PDF, DOC yoki DOCX formatidagi fayllar",
-      maxSize: "Fayl hajmi 10MB dan katta bo'lmasligi kerak",
-    },
-    myProjects: {
-      title: "Loyihalarim",
-      subtitle: "Men yaratgan web loyihalar",
-      viewProject: "Loyihani ko'rish",
-      technologies: "Texnologiyalar",
-      projects: [
-        {
-          id: 1,
-          title: "Bir Ilm",
-          description: "Ilm-fan platformasi - o'qilgan kitoblar taqrizi, Pomodoro taymer, foydalanuvchi tizimi. Bilimlarni ulashish va kitob muhokamalarini o'tkazish uchun jamoa platformasi.",
-          image: "/images/bir-ilm.png",
-          link: "https://bir-ilm.vercel.app",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-emerald-500 to-teal-500",
-        },
-        {
-          id: 2,
-          title: "Uz Travel",
-          description: "Sayyohlar uchun O'zbekiston haqida ma'lumot - turli shaharlar, xizmatlar, galereya. O'zbekistondagi sayohat joylarini tanlash va ma'lumot olish platformasi.",
-          image: "/images/uz-travel.png",
-          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-cyan-500 to-blue-500",
-        },
-      ],
-    },
-    contact: {
-      title: "Bog'lanish",
-      subtitle: "Men bilan bog'laning",
-      description: "Yangi loyihalar, hamkorlik yoki ish takliflari bo'yicha men bilan bog'lanishingiz mumkin.",
-      email: "Email",
-      phone: "Telefon",
-      location: "Manzil",
-      locationValue: "Jeonju, Janubiy Koreya 🇰🇷",
-      sendMessage: "Xabar yuborish",
-      form: {
-        name: "Ismingiz",
-        namePlaceholder: "Ismingizni kiriting",
-        email: "Email",
-        message: "Xabar",
-        messagePlaceholder: "Xabaringizni yozing...",
-        send: "Yuborish",
-      },
-    },
-    footer: "Barcha huquqlar himoyalangan.",
-  },
-  en: {
-    nav: {
-      home: "Home",
-      about: "About",
-      skills: "Skills",
-      projects: "Goals",
-      books: "Book Quotes",
-      gallery: "Gallery",
-      itNews: "IT News",
-      myProjects: "Projects",
-      notes: "Notes",
-      knowledgeHub: "Knowledge Hub",
-      cv: "My CV",
-      contact: "Contact",
-    },
-    hero: {
-      title: "Abdujalilov Avrangzeb",
-      subtitle: "Information Security & Network Specialist",
-      description: "Senior student at Woosuk University (Jeonju), South Korea, majoring in Information Security. Specializing in network and AI integration.",
-      viewProjects: "View My Goals",
-      contact: "Contact Me",
-      terminal: {
-        whoami: "security_student_korea",
-        skills: "Cisco, Linux, Windows Server, AI, Security...",
-        status: "Open to new opportunities! 🚀",
-      },
-    },
-    about: {
-      title: "About Me",
-      greeting: "Hello! I'm",
-      intro: "A senior student at Woosuk University (Jeonju campus), South Korea, majoring in Information Security.",
-      passion: "Currently preparing for the Network Administrator Level 2 certification exam. Also working on obtaining CCNA, CompTIA Network+, and LPIC-1 certifications.",
-      goal: "My goal is to become a specialist in network and AI integration based on modern technologies.",
-      education: "Education",
-      university: "Woosuk University (우석대학교)",
-      faculty: "Information Security Major",
-      years: "Jeonju, South Korea • Senior Year",
-      certificates: "Certifications in Progress",
-      preparingCerts: "Currently preparing",
-      stats: {
-        projects: "Goals",
-        certificates: "In Progress",
-        experience: "Starting",
-      },
-    },
-    skills: {
-      title: "Technical Skills",
-      additional: "Additional Technologies",
-      cybersecurity: "Cybersecurity",
-    },
-    projects: {
-      title: "My Goals",
-      completed: "Goal",
-      inProgress: "Working on",
-      projectsList: [
-        {
-          title: "Network Administrator Level 2 Certification",
-          description: "Obtain the Network Administrator certification and master professional network management skills.",
-        },
-        {
-          title: "Obtain CCNA Certification",
-          description: "Gain deep knowledge in network technologies through Cisco Certified Network Associate certification.",
-        },
-        {
-          title: "AI and Network Integration",
-          description: "Become a specialist in applying artificial intelligence technologies to network security and management.",
-        },
-        {
-          title: "Work at International IT Company",
-          description: "Gain experience at an international IT company to apply learned knowledge in practice.",
-        },
-      ],
-    },
-    books: {
-      title: "Book Quotes",
-      subtitle: "Inspiring thoughts and conclusions from books I've read",
-      addNew: "Add New Quote",
-      noQuotes: "No quotes yet",
-      viewAll: "View All",
-      addFirst: "Add your first quote",
-      bookTitle: "Book Title",
-      bookTitlePlaceholder: "e.g., Atomic Habits",
-      author: "Author",
-      authorPlaceholder: "e.g., James Clear",
-      quote: "Quote / Thought",
-      quotePlaceholder: "Write a quote or thought from the book...",
-      imageLabel: "Image (optional)",
-      uploadImage: "Upload Image",
-      changeImage: "Change Image",
-      cancel: "Cancel",
-      save: "Save",
-      add: "Add",
-      editTitle: "Edit Quote",
-      addTitle: "Add New Quote",
-      confirmDelete: "Are you sure you want to delete this quote?",
-      likes: "likes",
-      from: "from",
-    },
-    gallery: {
-      title: "Gallery",
-      subtitle: "Memorable photos, certificates and important moments",
-      addNew: "Add New Gallery",
-      noItems: "No gallery items yet",
-      addFirst: "Add your first gallery",
-      itemTitle: "Title",
-      itemTitlePlaceholder: "e.g., CCNA Certificate",
-      itemDescription: "Description",
-      itemDescriptionPlaceholder: "Write about this photo/certificate...",
-      itemCategory: "Category",
-      categories: {
-        certificate: "Certificate",
-        event: "Event",
-        memory: "Memory",
-        achievement: "Achievement",
-        other: "Other",
-      },
-      images: "Images (1-5)",
-      uploadImages: "Upload Images",
-      addMore: "Add More",
-      maxImages: "Maximum 5 images",
-      cancel: "Cancel",
-      save: "Save",
-      add: "Add",
-      editTitle: "Edit Gallery",
-      addTitle: "Add New Gallery",
-      confirmDelete: "Are you sure you want to delete this gallery?",
-      viewAll: "View All",
-      close: "Close",
-    },
-    itNews: {
-      title: "IT News",
-      subtitle: "Information technology news and articles",
-      addNew: "Add New News",
-      noNews: "No news yet",
-      addFirst: "Add your first news",
-      newsTitle: "Title",
-      newsTitlePlaceholder: "e.g., New AI Technology",
-      newsContent: "Content",
-      newsContentPlaceholder: "Write the news content...",
-      imageLabel: "Image (optional)",
-      uploadImage: "Upload Image",
-      changeImage: "Change Image",
-      views: "views",
-      share: "Share",
-      cancel: "Cancel",
-      save: "Save",
-      add: "Add",
-      editTitle: "Edit News",
-      addTitle: "Add New News",
-      confirmDelete: "Are you sure you want to delete this news?",
-      shared: "Shared",
-      shareError: "Error sharing",
-    },
-    cv: {
-      title: "My CV",
-      subtitle: "Download my CV",
-      download: "Download CV",
-      upload: "Upload CV",
-      uploadNew: "Upload New CV",
-      noCv: "CV not uploaded yet",
-      uploadFirst: "Upload CV",
-      uploading: "Uploading...",
-      uploadSuccess: "CV uploaded successfully",
-      uploadError: "Error uploading CV",
-      deleteConfirm: "Are you sure you want to delete the CV?",
-      deleteSuccess: "CV deleted successfully",
-      deleteError: "Error deleting CV",
-      fileTypes: "Only PDF, DOC or DOCX files",
-      maxSize: "File size must not exceed 10MB",
-    },
-    myProjects: {
-      title: "My Projects",
-      subtitle: "Web projects I've created",
-      viewProject: "View Project",
-      technologies: "Technologies",
-      projects: [
-        {
-          id: 1,
-          title: "Bir Ilm",
-          description: "Educational platform - book reviews, Pomodoro timer, user system. A community platform for sharing knowledge and conducting book discussions.",
-          image: "/images/bir-ilm.png",
-          link: "https://bir-ilm.vercel.app",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-emerald-500 to-teal-500",
-        },
-        {
-          id: 2,
-          title: "Uz Travel",
-          description: "Information about Uzbekistan for tourists - various cities, services, gallery. A platform for selecting travel destinations and getting information about Uzbekistan.",
-          image: "/images/uz-travel.png",
-          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-cyan-500 to-blue-500",
-        },
-      ],
-    },
-    contact: {
-      title: "Contact",
-      subtitle: "Get in Touch",
-      description: "Feel free to contact me for new projects, collaboration, or job opportunities.",
-      email: "Email",
-      phone: "Phone",
-      location: "Location",
-      locationValue: "Jeonju, South Korea 🇰🇷",
-      sendMessage: "Send Message",
-      form: {
-        name: "Your Name",
-        namePlaceholder: "Enter your name",
-        email: "Email",
-        message: "Message",
-        messagePlaceholder: "Write your message...",
-        send: "Send",
-      },
-    },
-    footer: "All rights reserved.",
-  },
-  ko: {
-    nav: {
-      home: "홈",
-      about: "소개",
-      skills: "기술",
-      projects: "목표",
-      books: "책 인용구",
-      gallery: "갤러리",
-      itNews: "IT 뉴스",
-      myProjects: "프로젝트",
-      notes: "노트",
-      knowledgeHub: "지식 허브",
-      cv: "내 이력서",
-      contact: "연락처",
-    },
-    hero: {
-      title: "압두잘릴로프 아브랑제브",
-      subtitle: "정보보안 & 네트워크 전문가",
-      description: "대한민국 전주 우석대학교 정보보안학과 졸업예정. 네트워크와 AI 통합 분야 전문화 중.",
-      viewProjects: "목표 보기",
-      contact: "연락하기",
-      terminal: {
-        whoami: "security_student_korea",
-        skills: "Cisco, Linux, Windows Server, AI, Security...",
-        status: "새로운 기회를 찾고 있습니다! 🚀",
-      },
-    },
-    about: {
-      title: "소개",
-      greeting: "안녕하세요! 저는",
-      intro: "대한민국 전주 우석대학교 정보보안학과 졸업예정 학생입니다.",
-      passion: "현재 네트워크 관리사 2급 자격증 시험을 준비하고 있습니다. 또한 CCNA, CompTIA Network+, LPIC-1 자격증 취득을 위해 노력하고 있습니다.",
-      goal: "제 목표는 현대 기술을 기반으로 네트워크와 AI 통합 분야의 전문가가 되는 것입니다.",
-      education: "학력",
-      university: "우석대학교 (Woosuk University)",
-      faculty: "정보보안학과",
-      years: "전주, 대한민국 • 졸업예정",
-      certificates: "준비 중인 자격증",
-      preparingCerts: "현재 준비 중",
-      stats: {
-        projects: "목표",
-        certificates: "준비 중",
-        experience: "시작",
-      },
-    },
-    skills: {
-      title: "기술 스킬",
-      additional: "추가 기술",
-      cybersecurity: "사이버 보안",
-    },
-    projects: {
-      title: "목표",
-      completed: "목표",
-      inProgress: "진행 중",
-      projectsList: [
-        {
-          title: "네트워크 관리사 2급 자격증",
-          description: "네트워크 관리사 자격증을 취득하고 전문적인 네트워크 관리 기술을 습득합니다.",
-        },
-        {
-          title: "CCNA 자격증 취득",
-          description: "Cisco Certified Network Associate 자격증을 통해 네트워크 기술에 대한 깊은 지식을 습득합니다.",
-        },
-        {
-          title: "AI와 네트워크 통합",
-          description: "인공지능 기술을 네트워크 보안 및 관리에 적용하는 전문가가 됩니다.",
-        },
-        {
-          title: "글로벌 IT 기업 취업",
-          description: "배운 지식을 실무에 적용하기 위해 글로벌 IT 기업에서 경험을 쌓습니다.",
-        },
-      ],
-    },
-    books: {
-      title: "책 인용구",
-      subtitle: "읽은 책에서 영감을 주는 생각과 결론",
-      addNew: "새 인용구 추가",
-      noQuotes: "아직 인용구가 없습니다",
-      viewAll: "모두 보기",
-      addFirst: "첫 번째 인용구를 추가하세요",
-      bookTitle: "책 제목",
-      bookTitlePlaceholder: "예: 아주 작은 습관의 힘",
-      author: "저자",
-      authorPlaceholder: "예: 제임스 클리어",
-      quote: "인용구 / 생각",
-      quotePlaceholder: "책에서 인용구나 생각을 작성하세요...",
-      imageLabel: "이미지 (선택사항)",
-      uploadImage: "이미지 업로드",
-      changeImage: "이미지 변경",
-      cancel: "취소",
-      save: "저장",
-      add: "추가",
-      editTitle: "인용구 편집",
-      addTitle: "새 인용구 추가",
-      confirmDelete: "이 인용구를 삭제하시겠습니까?",
-      likes: "좋아요",
-      from: "에서",
-    },
-    gallery: {
-      title: "갤러리",
-      subtitle: "추억의 사진, 자격증 및 중요한 순간들",
-      addNew: "새 갤러리 추가",
-      noItems: "아직 갤러리가 없습니다",
-      addFirst: "첫 번째 갤러리를 추가하세요",
-      itemTitle: "제목",
-      itemTitlePlaceholder: "예: CCNA 자격증",
-      itemDescription: "설명",
-      itemDescriptionPlaceholder: "이 사진/자격증에 대해 작성하세요...",
-      itemCategory: "카테고리",
-      categories: {
-        certificate: "자격증",
-        event: "이벤트",
-        memory: "추억",
-        achievement: "성취",
-        other: "기타",
-      },
-      images: "이미지 (1-5개)",
-      uploadImages: "이미지 업로드",
-      addMore: "더 추가",
-      maxImages: "최대 5개 이미지",
-      cancel: "취소",
-      save: "저장",
-      add: "추가",
-      editTitle: "갤러리 편집",
-      addTitle: "새 갤러리 추가",
-      confirmDelete: "이 갤러리를 삭제하시겠습니까?",
-      viewAll: "모두 보기",
-      close: "닫기",
-    },
-    itNews: {
-      title: "IT 뉴스",
-      subtitle: "정보기술 뉴스 및 기사",
-      addNew: "새 뉴스 추가",
-      noNews: "아직 뉴스가 없습니다",
-      addFirst: "첫 번째 뉴스를 추가하세요",
-      newsTitle: "제목",
-      newsTitlePlaceholder: "예: 새로운 AI 기술",
-      newsContent: "내용",
-      newsContentPlaceholder: "뉴스 내용을 작성하세요...",
-      imageLabel: "이미지 (선택사항)",
-      uploadImage: "이미지 업로드",
-      changeImage: "이미지 변경",
-      views: "조회수",
-      share: "공유",
-      cancel: "취소",
-      save: "저장",
-      add: "추가",
-      editTitle: "뉴스 편집",
-      addTitle: "새 뉴스 추가",
-      confirmDelete: "이 뉴스를 삭제하시겠습니까?",
-      shared: "공유됨",
-      shareError: "공유 오류",
-    },
-    cv: {
-      title: "내 이력서",
-      subtitle: "내 이력서 다운로드",
-      download: "이력서 다운로드",
-      upload: "이력서 업로드",
-      uploadNew: "새 이력서 업로드",
-      noCv: "이력서가 아직 업로드되지 않았습니다",
-      uploadFirst: "이력서 업로드",
-      uploading: "업로드 중...",
-      uploadSuccess: "이력서가 성공적으로 업로드되었습니다",
-      uploadError: "이력서 업로드 오류",
-      deleteConfirm: "이력서를 삭제하시겠습니까?",
-      deleteSuccess: "이력서가 성공적으로 삭제되었습니다",
-      deleteError: "이력서 삭제 오류",
-      fileTypes: "PDF, DOC 또는 DOCX 파일만 가능",
-      maxSize: "파일 크기는 10MB를 초과할 수 없습니다",
-    },
-    myProjects: {
-      title: "내 프로젝트",
-      subtitle: "내가 만든 웹 프로젝트",
-      viewProject: "프로젝트 보기",
-      technologies: "기술 스택",
-      projects: [
-        {
-          id: 1,
-          title: "Bir Ilm",
-          description: "교육 플랫폼 - 도서 리뷰, 뽀모도로 타이머, 사용자 시스템. 지식 공유와 도서 토론을 위한 커뮤니티 플랫폼입니다.",
-          image: "/images/bir-ilm.png",
-          link: "https://bir-ilm.vercel.app",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-emerald-500 to-teal-500",
-        },
-        {
-          id: 2,
-          title: "Uz Travel",
-          description: "관광객을 위한 우즈베키스탄 정보 - 다양한 도시, 서비스, 갤러리. 우즈베키스탄의 여행지 선택과 정보 제공 플랫폼입니다.",
-          image: "/images/uz-travel.png",
-          link: "http://woosuk.izerone.co.kr:8090/~s120211616/",
-          technologies: ["HTML", "CSS", "JavaScript"],
-          color: "from-cyan-500 to-blue-500",
-        },
-      ],
-    },
-    contact: {
-      title: "연락처",
-      subtitle: "연락하기",
-      description: "새로운 프로젝트, 협업 또는 채용 제안에 대해 연락해 주세요.",
-      email: "이메일",
-      phone: "전화",
-      location: "위치",
-      locationValue: "전주, 대한민국 🇰🇷",
-      sendMessage: "메시지 보내기",
-      form: {
-        name: "이름",
-        namePlaceholder: "이름을 입력하세요",
-        email: "이메일",
-        message: "메시지",
-        messagePlaceholder: "메시지를 입력하세요...",
-        send: "보내기",
-      },
-    },
-    footer: "모든 권리 보유.",
-  },
-};
-
-// Icons as components
 const NetworkIcon = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
@@ -911,7 +258,7 @@ const defaultGalleryItems: GalleryItem[] = [
 
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home");
-  const [language, setLanguage] = useState<Language>("uz");
+  const [language, setLanguage] = useState<Locale>(defaultLocale);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -971,12 +318,12 @@ export default function Portfolio() {
     });
   };
 
-  const t = translations[language];
+  const t = getHomeDictionary(language);
 
   // Load language from localStorage
   useEffect(() => {
-    const savedLang = localStorage.getItem("portfolio-language") as Language;
-    if (savedLang && ["uz", "en", "ko"].includes(savedLang)) {
+    const savedLang = localStorage.getItem(languageStorageKey);
+    if (isSupportedLocale(savedLang)) {
       setLanguage(savedLang);
     }
   }, []);
@@ -1617,9 +964,9 @@ export default function Portfolio() {
   }, [viewingNews]);
 
   // Save language to localStorage
-  const changeLanguage = (lang: Language) => {
+  const changeLanguage = (lang: Locale) => {
     setLanguage(lang);
-    localStorage.setItem("portfolio-language", lang);
+    localStorage.setItem(languageStorageKey, lang);
     setIsLangMenuOpen(false);
   };
 
@@ -2544,12 +1891,6 @@ export default function Portfolio() {
     document.body.style.overflow = '';
   };
 
-  const languageLabels = {
-    uz: { flag: "🇺🇿", name: "O'zbek" },
-    en: { flag: "🇺🇸", name: "English" },
-    ko: { flag: "🇰🇷", name: "한국어" },
-  };
-
   return (
     <div className="min-h-screen network-bg text-slate-200">
       {/* Migration Loading Overlay */}
@@ -2625,7 +1966,7 @@ export default function Portfolio() {
                 
                 {isLangMenuOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
-                    {(Object.keys(languageLabels) as Language[]).map((lang) => (
+                    {supportedLocales.map((lang) => (
                       <button
                         key={lang}
                         onClick={() => changeLanguage(lang)}
@@ -2650,7 +1991,7 @@ export default function Portfolio() {
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
                     {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
                   </div>
-                  {isAdmin ? (language === 'uz' ? 'Admin' : language === 'ko' ? '관리자' : 'Admin') : (language === 'uz' ? 'Profil' : language === 'ko' ? '프로필' : 'Profile')}
+                  {isAdmin ? t.auth.admin : t.auth.profile}
                 </a>
               ) : (
                 <a
@@ -2660,7 +2001,7 @@ export default function Portfolio() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                   </svg>
-                  {language === 'uz' ? 'Kirish' : language === 'ko' ? '로그인' : 'Login'}
+                  {t.auth.login}
                 </a>
               )}
 
@@ -2724,7 +2065,7 @@ export default function Portfolio() {
                     <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
                       {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
                     </div>
-                    {isAdmin ? (language === 'uz' ? 'Admin Panel' : language === 'ko' ? '관리자 패널' : 'Admin Panel') : (language === 'uz' ? 'Mening Profilim' : language === 'ko' ? '내 프로필' : 'My Profile')}
+                    {isAdmin ? t.auth.adminPanel : t.auth.myProfile}
                   </a>
                 ) : (
                   <a
@@ -2735,7 +2076,7 @@ export default function Portfolio() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
-                    {language === 'uz' ? 'Kirish / Ro\'yxatdan o\'tish' : language === 'ko' ? '로그인 / 회원가입' : 'Login / Register'}
+                    {t.auth.loginRegister}
                   </a>
                 )}
               </div>
@@ -4378,7 +3719,7 @@ export default function Portfolio() {
               
               {contactSuccess && (
                 <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm">
-                  ✅ Xabaringiz muvaffaqiyatli yuborildi! Tez orada javob beramiz.
+                  {t.contact.successMessage}
                 </div>
               )}
               
@@ -4406,7 +3747,7 @@ export default function Portfolio() {
                       <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                       </svg>
-                      Telegram username
+                      {t.contact.form.telegram}
                     </span>
                   </label>
                   <input
@@ -4415,7 +3756,7 @@ export default function Portfolio() {
                     onChange={(e) => setContactTelegram(e.target.value)}
                     required
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
-                    placeholder="@username"
+                    placeholder={t.contact.form.telegramPlaceholder}
                   />
                 </div>
                 <div>
@@ -4440,7 +3781,7 @@ export default function Portfolio() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Yuborilmoqda...
+                      {t.contact.form.sending}
                     </span>
                   ) : (
                     t.contact.form.send
@@ -4463,4 +3804,5 @@ export default function Portfolio() {
     </div>
   );
 }
+
 

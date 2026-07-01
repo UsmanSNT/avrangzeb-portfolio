@@ -107,7 +107,7 @@ export default function KnowledgeHub() {
         {activePanel === 'notes' && (
           <div id="panel-notes">
             <div className="section-header">
-              <div className="section-title">// KNOWLEDGE.BASE</div>
+              <div className="section-title">{"// KNOWLEDGE.BASE"}</div>
               <div className="section-line"></div>
               <div className="section-badge" style={{ fontSize: '9px', background: 'var(--cyan3)', color: 'var(--cyan)', padding: '3px 8px' }}>
                 {notes.length} RECORDS
@@ -139,13 +139,13 @@ export default function KnowledgeHub() {
         )}
         
         {activePanel === 'calendar' && (
-          <div style={{ color: 'var(--cyan)', fontFamily: 'var(--mono)' }}>// CALENDAR.MATRIX_LOADED</div>
+          <div style={{ color: 'var(--cyan)', fontFamily: 'var(--mono)' }}>{"// CALENDAR.MATRIX_LOADED"}</div>
         )}
-      </aside>
+      </main>
 
       {/* UTILITY BAR */}
       <aside className="utility">
-        <div style={{ fontSize: '9px', color: 'var(--text3)', letterSpacing: '2px', marginBottom: '10px' }}>// SYSTEM STATUS</div>
+        <div style={{ fontSize: '9px', color: 'var(--text3)', letterSpacing: '2px', marginBottom: '10px' }}>{"// SYSTEM STATUS"}</div>
         <div style={{ fontSize: '10px', color: 'var(--green)' }}>● Online</div>
       </aside>
     </div>
