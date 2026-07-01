@@ -1,110 +1,31 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-type SupabasePublicConfig = {
-  url: string;
-  anonKey: string;
-};
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '';
 
-declare global {
-  interface Window {
-    __SUPABASE_PUBLIC_CONFIG__?: Partial<SupabasePublicConfig>;
-  }
-}
-
-function readSupabasePublicConfig(): SupabasePublicConfig | null {
-  const injectedConfig = typeof window !== 'undefined' ? window.__SUPABASE_PUBLIC_CONFIG__ : undefined;
-
-  const supabaseUrl = (injectedConfig?.url || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
-  const supabaseAnonKey = (injectedConfig?.anonKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-
-  return { url: supabaseUrl, anonKey: supabaseAnonKey };
-}
-
-const missingSupabaseError = new Error('Supabase is not configured');
-
-function createNoopQuery() {
-  const response = Promise.resolve({ data: null, error: missingSupabaseError });
-  const query = {
-    select: () => query,
-    insert: () => query,
-    update: () => query,
-    delete: () => query,
-    upsert: () => query,
-    eq: () => query,
-    neq: () => query,
-    gt: () => query,
-    gte: () => query,
-    lt: () => query,
-    lte: () => query,
-    order: () => query,
-    limit: () => query,
-    single: () => response,
-    maybeSingle: () => response,
-    then: response.then.bind(response),
-    catch: response.catch.bind(response),
-    finally: response.finally.bind(response),
-  };
-
-  return query;
-}
-
-function createMissingSupabaseClient() {
-  const missingMutation = async () => ({ data: null, error: missingSupabaseError });
-
-  return {
-    auth: {
-      getUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
-      getSession: async () => ({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({
-        data: {
-          subscription: {
-            unsubscribe: () => undefined,
-          },
-        },
-      }),
-      signInWithPassword: missingMutation,
-      signUp: missingMutation,
-      signOut: async () => ({ error: missingSupabaseError }),
-      resetPasswordForEmail: async () => ({ data: null, error: missingSupabaseError }),
-      updateUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
-    },
-    from: () => createNoopQuery(),
-    rpc: async () => ({ data: null, error: missingSupabaseError }),
-    storage: {
-      from: () => ({
-        upload: async () => ({ data: null, error: missingSupabaseError }),
-        remove: async () => ({ data: null, error: missingSupabaseError }),
-        getPublicUrl: () => ({ data: { publicUrl: '' } }),
-      }),
-    },
-  } as unknown as SupabaseClient;
-}
+const missingSupabaseConfigError = new Error(
+  'Supabase browser client is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+);
 
 let browserSupabase: SupabaseClient | null = null;
 
-function getResolvedSupabaseClient() {
-  const config = readSupabasePublicConfig();
-  if (!config) {
-    return createMissingSupabaseClient();
+function getBrowserSupabaseClient() {
+  if (browserSupabase) {
+    return browserSupabase;
   }
 
-  if (!browserSupabase) {
-    browserSupabase = createClient(config.url, config.anonKey);
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw missingSupabaseConfigError;
   }
 
+  browserSupabase = createClient(supabaseUrl, supabaseAnonKey);
   return browserSupabase;
 }
 
 function createSupabaseFacade(): SupabaseClient {
-  const fallback = createMissingSupabaseClient();
-
   return new Proxy({} as SupabaseClient, {
     get(_target, prop) {
-      const client = getResolvedSupabaseClient() || fallback;
+      const client = getBrowserSupabaseClient();
       const value = (client as unknown as Record<PropertyKey, unknown>)[prop];
 
       if (typeof value === 'function') {
@@ -116,20 +37,15 @@ function createSupabaseFacade(): SupabaseClient {
   });
 }
 
-// Shared browser/client Supabase instance. It resolves the public env config at runtime.
+// Shared browser/client Supabase instance. It is created directly from public env vars.
 export const supabase: SupabaseClient = createSupabaseFacade();
 
 export function getSupabaseClient() {
-  const config = readSupabasePublicConfig();
-  if (!config) {
-    return null;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw missingSupabaseConfigError;
   }
 
-  if (!browserSupabase) {
-    browserSupabase = createClient(config.url, config.anonKey);
-  }
-
-  return browserSupabase;
+  return getBrowserSupabaseClient();
 }
 
 // Types
