@@ -49,8 +49,26 @@ export interface HomeDictionary {
     title: string;
     subtitle: string;
     description: string;
+    availability: string;
+    role: string;
+    specialties: string[];
     viewProjects: string;
+    downloadResume: string;
     contact: string;
+    github: string;
+    githubAria: string;
+    scrollAria: string;
+    stats: {
+      value: string;
+      label: string;
+    }[];
+    visual: {
+      file: string;
+      threatModel: string;
+      criticalRisks: string;
+      latency: string;
+      edgeReady: string;
+    };
     terminal: {
       whoami: string;
       skills: string;

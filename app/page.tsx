@@ -102,15 +102,6 @@ const projectStatuses = [false, false, false, false]; // All goals are in progre
 
 const projectFilterOptions: ProjectFilter[] = ["all", "web", "backend", "ai", "cybersecurity", "mobile"];
 
-const heroSpecialties = ["AI Engineer", "Backend Developer", "Network Security", "Cybersecurity", "Cloud"];
-
-const heroStats = [
-  { value: "15+", label: "Projects" },
-  { value: "5+", label: "Technologies" },
-  { value: "4", label: "Languages" },
-  { value: "100%", label: "Responsive" },
-];
-
 const heroVisualNodes = [
   { label: "API", className: "left-[10%] top-[24%]" },
   { label: "AI", className: "right-[18%] top-[16%]" },
@@ -322,6 +313,9 @@ export default function Portfolio() {
   };
 
   const t = getHomeDictionary(language);
+  const heroTitleParts = t.hero.title.split(" ");
+  const heroPrimaryName = heroTitleParts.length > 1 ? heroTitleParts.slice(0, -1).join(" ") : t.hero.title;
+  const heroAccentName = heroTitleParts.length > 1 ? heroTitleParts[heroTitleParts.length - 1] : "";
   const filteredProjects = useMemo(
     () =>
       activeProjectFilter === "all"
@@ -2096,126 +2090,129 @@ export default function Portfolio() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen overflow-hidden px-4 pt-24 sm:px-6 lg:pt-28">
+      <section id="home" className="relative min-h-[100svh] overflow-hidden px-4 pt-20 sm:px-6 sm:pt-24 lg:pt-28">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_78%_24%,rgba(139,92,246,0.18),transparent_28%),linear-gradient(135deg,#020617_0%,#0f172a_48%,#020617_100%)]" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)] sm:bg-[size:48px_48px]" aria-hidden="true" />
         <motion.div
-          className="absolute left-[8%] top-[18%] h-56 w-56 rounded-full bg-cyan-400/12 blur-3xl"
+          className="absolute left-[4%] top-[14%] h-36 w-36 rounded-full bg-cyan-400/10 blur-3xl sm:left-[8%] sm:top-[18%] sm:h-56 sm:w-56 sm:bg-cyan-400/12"
           animate={{ opacity: [0.35, 0.65, 0.35], scale: [1, 1.08, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
         <motion.div
-          className="absolute bottom-[10%] right-[8%] h-72 w-72 rounded-full bg-violet-500/12 blur-3xl"
+          className="absolute bottom-[8%] right-[2%] h-44 w-44 rounded-full bg-violet-500/10 blur-3xl sm:right-[8%] sm:h-72 sm:w-72 sm:bg-violet-500/12"
           animate={{ opacity: [0.25, 0.55, 0.25], scale: [1.04, 1, 1.04] }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
 
-        <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col justify-center gap-10 pb-14 lg:grid lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12">
+        <div className="relative mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl flex-col justify-center gap-6 pb-10 sm:gap-8 sm:pb-12 lg:grid lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-10 xl:max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="max-w-3xl"
+            className="max-w-3xl pt-2 sm:pt-0"
           >
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl"
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-100 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl sm:mb-5 sm:px-4 sm:py-2 sm:text-xs"
             >
               <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]" aria-hidden="true" />
-              AVAILABLE FOR WORK
+              {t.hero.availability}
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18, duration: 0.65, ease: "easeOut" }}
-              className="text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+              className="max-w-[12ch] text-[2.85rem] font-black leading-[0.94] tracking-normal text-white min-[380px]:text-5xl sm:max-w-none sm:text-6xl lg:text-7xl xl:text-8xl"
             >
-              Abdujalilov
-              <span className="block gradient-text">Avrangzeb</span>
+              {heroPrimaryName}
+              {heroAccentName && <span className="block gradient-text">{heroAccentName}</span>}
             </motion.h1>
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.55 }}
-              className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
+              className="mt-4 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-center"
             >
-              <p className="text-2xl font-semibold text-slate-100 sm:text-3xl">Software Engineer</p>
-              <div className="hidden h-7 w-px bg-slate-700 sm:block" aria-hidden="true" />
-              <div className="relative h-8 overflow-hidden text-lg font-semibold text-cyan-200 sm:text-xl">
-                <motion.div
-                  animate={{ y: ["0%", "-20%", "-40%", "-60%", "-80%", "0%"] }}
-                  transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+              <p className="text-xl font-semibold text-slate-100 sm:text-2xl lg:text-3xl">{t.hero.role}</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.34, duration: 0.5 }}
+              className="mt-4 flex flex-wrap gap-2"
+            >
+              {t.hero.specialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className="rounded-full border border-cyan-300/15 bg-cyan-300/[0.06] px-3 py-1.5 text-xs font-semibold text-cyan-100 shadow-lg shadow-cyan-500/5 backdrop-blur-xl sm:text-sm"
                 >
-                  {heroSpecialties.map((specialty) => (
-                    <div key={specialty} className="h-8">
-                      {specialty}
-                    </div>
-                  ))}
-                </motion.div>
-              </div>
+                  {specialty}
+                </span>
+              ))}
             </motion.div>
 
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.36, duration: 0.55 }}
-              className="mt-6 max-w-2xl text-lg leading-8 text-slate-400 sm:text-xl"
+              transition={{ delay: 0.4, duration: 0.55 }}
+              className="mt-4 max-w-2xl text-base leading-7 text-slate-400 sm:mt-6 sm:text-lg sm:leading-8 lg:text-xl"
             >
-              I build secure, scalable and intelligent software systems.
+              {t.hero.description}
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.44, duration: 0.55 }}
-              className="mt-8 grid gap-3 sm:flex sm:flex-wrap"
+              transition={{ delay: 0.48, duration: 0.55 }}
+              className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap"
             >
               <button
                 onClick={() => scrollToSection("my-projects")}
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-2xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-cyan-500/35 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
-                View Projects
+                {t.hero.viewProjects}
               </button>
               <a
                 href={cvUrl || staticCvUrl}
                 download="Avrangzeb_CV.pdf"
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-sm font-bold text-slate-100 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
-                Download Resume
+                {t.hero.downloadResume}
               </a>
               <button
                 onClick={() => scrollToSection("contact")}
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
-                Contact Me
+                {t.hero.contact}
               </button>
               <a
                 href="https://github.com/UsmanSNT"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Open GitHub profile"
+                aria-label={t.hero.githubAria}
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-slate-950/40 px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/40 hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
-                GitHub
+                {t.hero.github}
               </a>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.54, duration: 0.55 }}
-              className="mt-9 grid grid-cols-2 gap-3 sm:grid-cols-4"
+              transition={{ delay: 0.58, duration: 0.55 }}
+              className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-9 sm:grid-cols-4 sm:gap-3"
             >
-              {heroStats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-xl">
-                  <p className="text-2xl font-black text-white">{stat.value}</p>
-                  <p className="mt-1 text-xs font-medium text-slate-500">{stat.label}</p>
+              {t.hero.stats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-3 backdrop-blur-xl sm:p-4">
+                  <p className="text-xl font-black text-white sm:text-2xl">{stat.value}</p>
+                  <p className="mt-1 text-[11px] font-medium text-slate-500 sm:text-xs">{stat.label}</p>
                 </div>
               ))}
             </motion.div>
@@ -2225,20 +2222,20 @@ export default function Portfolio() {
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: 0.24, duration: 0.75, ease: "easeOut" }}
-            className="relative mx-auto w-full max-w-xl lg:max-w-none"
+            className="relative mx-auto w-full max-w-md sm:max-w-xl lg:max-w-none"
           >
-            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-cyan-400/15 via-violet-500/10 to-transparent blur-2xl" aria-hidden="true" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/65 p-4 shadow-2xl shadow-slate-950/50 backdrop-blur-2xl">
-              <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/80">
-                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+            <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-cyan-400/15 via-violet-500/10 to-transparent blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" aria-hidden="true" />
+            <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/65 p-3 shadow-2xl shadow-slate-950/50 backdrop-blur-2xl sm:rounded-[2rem] sm:p-4">
+              <div className="rounded-[1.25rem] border border-white/10 bg-slate-900/80 sm:rounded-[1.5rem]">
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2.5 sm:px-4 sm:py-3">
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
                     <span className="h-2.5 w-2.5 rounded-full bg-yellow-300" />
                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
                   </div>
-                  <span className="font-mono text-xs text-slate-500">secure-system.ts</span>
+                  <span className="font-mono text-xs text-slate-500">{t.hero.visual.file}</span>
                 </div>
-                <div className="grid gap-4 p-4 sm:p-5">
+                <div className="grid gap-3 p-3 sm:gap-4 sm:p-5">
                   <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.06] p-4 font-mono text-xs text-slate-300 sm:text-sm">
                     <p><span className="text-violet-300">const</span> engineer = <span className="text-cyan-200">&quot;Avrangzeb&quot;</span>;</p>
                     <p><span className="text-violet-300">await</span> buildSecureSystems(&#123;</p>
@@ -2251,24 +2248,24 @@ export default function Portfolio() {
                     <motion.div
                       animate={{ y: [0, -6, 0] }}
                       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:p-4"
                     >
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Threat model</p>
-                      <p className="mt-2 text-2xl font-black text-cyan-200">0</p>
-                      <p className="text-xs text-slate-500">critical risks</p>
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500 sm:text-xs">{t.hero.visual.threatModel}</p>
+                      <p className="mt-1 text-xl font-black text-cyan-200 sm:mt-2 sm:text-2xl">0</p>
+                      <p className="text-xs text-slate-500">{t.hero.visual.criticalRisks}</p>
                     </motion.div>
                     <motion.div
                       animate={{ y: [0, 6, 0] }}
                       transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:p-4"
                     >
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Latency</p>
-                      <p className="mt-2 text-2xl font-black text-emerald-200">24ms</p>
-                      <p className="text-xs text-slate-500">edge ready</p>
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500 sm:text-xs">{t.hero.visual.latency}</p>
+                      <p className="mt-1 text-xl font-black text-emerald-200 sm:mt-2 sm:text-2xl">24ms</p>
+                      <p className="text-xs text-slate-500">{t.hero.visual.edgeReady}</p>
                     </motion.div>
                   </div>
 
-                  <div className="relative h-48 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80">
+                  <div className="relative h-36 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 sm:h-48">
                     <svg className="absolute inset-0 h-full w-full opacity-80" viewBox="0 0 420 220" fill="none" aria-hidden="true">
                       <path d="M74 98C132 44 188 153 246 92C296 40 334 91 366 54" stroke="url(#heroLineA)" strokeWidth="1.5" />
                       <path d="M70 152C130 106 182 189 250 136C302 96 342 150 382 118" stroke="url(#heroLineB)" strokeWidth="1.5" />
@@ -2288,7 +2285,7 @@ export default function Portfolio() {
                     {heroVisualNodes.map((node) => (
                       <motion.div
                         key={node.label}
-                        className={`absolute ${node.className} grid h-14 w-14 place-items-center rounded-2xl border border-cyan-300/20 bg-slate-900/80 font-mono text-xs font-bold text-cyan-100 shadow-lg shadow-cyan-500/10 backdrop-blur-xl`}
+                        className={`absolute ${node.className} grid h-11 w-11 place-items-center rounded-2xl border border-cyan-300/20 bg-slate-900/80 font-mono text-[10px] font-bold text-cyan-100 shadow-lg shadow-cyan-500/10 backdrop-blur-xl sm:h-14 sm:w-14 sm:text-xs`}
                         animate={{ scale: [1, 1.05, 1], opacity: [0.85, 1, 0.85] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                       >
@@ -2305,7 +2302,7 @@ export default function Portfolio() {
         <motion.button
           type="button"
           onClick={() => scrollToSection("about")}
-          aria-label="Scroll to about section"
+          aria-label={t.hero.scrollAria}
           className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 rounded-full border border-white/10 bg-white/[0.04] p-2 backdrop-blur-xl transition-colors hover:border-cyan-300/40 lg:block"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
