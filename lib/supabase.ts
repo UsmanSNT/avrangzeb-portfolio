@@ -57,7 +57,17 @@ const noopSupabase = {
         },
       },
     }),
+    signInWithPassword: async () => ({
+      data: { user: null, session: null },
+      error: missingSupabaseError,
+    }),
+    signUp: async () => ({
+      data: { user: null, session: null },
+      error: missingSupabaseError,
+    }),
     signOut: async () => ({ error: missingSupabaseError }),
+    resetPasswordForEmail: async () => ({ data: null, error: missingSupabaseError }),
+    updateUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
   },
   from: () => createNoopQuery(),
   storage: {
