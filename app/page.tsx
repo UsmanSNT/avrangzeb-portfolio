@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import NextImage from "next/image";
 import { getHomeDictionary } from "@/content/locales";
 import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/i18n/types";
@@ -81,21 +82,14 @@ const GlobeIcon = () => (
 
 // Logo Component
 const Logo = () => (
-  <svg viewBox="0 0 40 40" className="w-10 h-10" fill="none">
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#06b6d4" />
-        <stop offset="100%" stopColor="#8b5cf6" />
-      </linearGradient>
-    </defs>
-    <rect width="40" height="40" rx="8" fill="url(#logoGradient)" />
-    <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="monospace">
-      AA
-    </text>
-    <circle cx="8" cy="8" r="2" fill="rgba(255,255,255,0.5)" />
-    <circle cx="32" cy="32" r="2" fill="rgba(255,255,255,0.5)" />
-    <path d="M8 8 L32 32" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="2,2" />
-  </svg>
+  <NextImage
+    src="/brand/logo-icon.png"
+    alt="Avrangzeb Abdujalilov logo"
+    width={40}
+    height={40}
+    className="w-10 h-10 rounded-lg object-contain"
+    priority
+  />
 );
 
 const skillsData = [
