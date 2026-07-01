@@ -134,7 +134,7 @@ const defaultGalleryItems: GalleryItem[] = [
   {
     id: 1,
     title: "Woosuk Universiteti",
-    description: "?곗꽍??숆탳 - Janubiy Koreya, Jeonju shahridagi universitetim. Bu yerda axborot xavfsizligi yo'nalishida ta'lim olmoqdaman.",
+    description: "우석대학교 - Janubiy Koreya, Jeonju shahridagi universitetim. Bu yerda axborot xavfsizligi yo'nalishida ta'lim olmoqdaman.",
     category: "memory",
     images: [],
     date: "2024-01-15",
@@ -329,12 +329,6 @@ export default function Portfolio() {
     // Validation
     if (!contactName.trim()) {
       setContactError("Ism maydoni to'ldirilishi kerak");
-      setIsContactSending(false);
-      return;
-    }
-
-    if (!contactTelegram.trim()) {
-      setContactError("Telegram maydoni to'ldirilishi kerak");
       setIsContactSending(false);
       return;
     }
@@ -899,6 +893,25 @@ export default function Portfolio() {
       };
     }
   }, [viewingNews]);
+
+  // ESC tugmasi bilan boshqa modal/viewer'larni yopish
+  useEffect(() => {
+    const handleEscapeAll = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (isBookModalOpen) closeBookModal();
+      else if (isGalleryModalOpen) closeGalleryModal();
+      else if (isITNewsModalOpen) closeITNewsModal();
+      else if (viewingGallery) closeGalleryViewer();
+      else if (viewingQuote) setViewingQuote(null);
+    };
+
+    if (isBookModalOpen || isGalleryModalOpen || isITNewsModalOpen || viewingGallery || viewingQuote) {
+      document.addEventListener('keydown', handleEscapeAll);
+      return () => {
+        document.removeEventListener('keydown', handleEscapeAll);
+      };
+    }
+  }, [isBookModalOpen, isGalleryModalOpen, isITNewsModalOpen, viewingGallery, viewingQuote]);
 
   // Save language to localStorage
   const changeLanguage = (lang: Locale) => {
@@ -1535,11 +1548,11 @@ export default function Portfolio() {
 
   const getCategoryIcon = (category: GalleryItem['category']) => {
     switch (category) {
-      case 'certificate': return '?뱶';
-      case 'event': return '?럦';
-      case 'memory': return '?벝';
-      case 'achievement': return '?룇';
-      default: return '?뱚';
+      case 'certificate': return '📜';
+      case 'event': return '🎉';
+      case 'memory': return '📷';
+      case 'achievement': return '🏆';
+      default: return '📁';
     }
   };
 
@@ -1783,10 +1796,10 @@ export default function Portfolio() {
       const halfContent = news.content.substring(0, Math.floor(contentLength / 2));
       
       // Formatlangan shablon - mazmun yarimigacha
-      const shareText = `?벐 ${news.title}\n\n${halfContent}...\n\n?뵕 Davomi: ${newsUrl}`;
+      const shareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 Davomi: ${newsUrl}`;
       
       // Telegram share linki
-      const telegramShareText = `?벐 ${news.title}\n\n${halfContent}...\n\n?뵕 [Davomi...](${newsUrl})`;
+      const telegramShareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 [Davomi...](${newsUrl})`;
       const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
       
       if (navigator.share) {
@@ -1812,7 +1825,7 @@ export default function Portfolio() {
         const newsUrl = `${window.location.origin}/#it-news-${news.id}`;
         const contentLength = news.content.length;
         const halfContent = news.content.substring(0, Math.floor(contentLength / 2));
-        const telegramShareText = `?벐 ${news.title}\n\n${halfContent}...\n\n?뵕 [Davomi...](${newsUrl})`;
+        const telegramShareText = `📰 ${news.title}\n\n${halfContent}...\n\n🔗 [Davomi...](${newsUrl})`;
         const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(telegramShareText)}`;
         window.open(telegramShareLink, '_blank');
       }
@@ -2047,7 +2060,7 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">?뱰 {t.books.title}</span>
+              <span className="gradient-text">📚 {t.books.title}</span>
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.books.subtitle}
@@ -2068,7 +2081,7 @@ export default function Portfolio() {
           {bookQuotes.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">?뱴</span>
+                <span className="text-4xl">📚</span>
               </div>
               <p className="text-slate-500 mb-4">{t.books.noQuotes}</p>
               {isAdmin && (
@@ -2197,6 +2210,7 @@ export default function Portfolio() {
                             onClick={() => openBookModal(quote)}
                             className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
                             title="Edit"
+                            aria-label="Edit quote"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -2206,6 +2220,7 @@ export default function Portfolio() {
                             onClick={() => deleteBookQuote(quote.id)}
                             className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
                             title="Delete"
+                            aria-label="Delete quote"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2249,6 +2264,7 @@ export default function Portfolio() {
               <button
                 onClick={closeBookModal}
                 className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2328,7 +2344,7 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">?뼹截?{t.gallery.title}</span>
+              <span className="gradient-text">🖼️ {t.gallery.title}</span>
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.gallery.subtitle}
@@ -2437,6 +2453,7 @@ export default function Portfolio() {
                               onClick={() => openGalleryModal(item)}
                               className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
                               title="Edit"
+                              aria-label="Edit gallery item"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -2446,6 +2463,7 @@ export default function Portfolio() {
                               onClick={() => deleteGalleryItem(item.id)}
                               className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
                               title="Delete"
+                              aria-label="Delete gallery item"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2490,6 +2508,7 @@ export default function Portfolio() {
               <button
                 onClick={closeGalleryModal}
                 className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2629,6 +2648,7 @@ export default function Portfolio() {
           <button
             onClick={closeGalleryViewer}
             className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="Close image viewer"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2641,6 +2661,7 @@ export default function Portfolio() {
               <button
                 onClick={prevImage}
                 className="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
+                aria-label="Previous image"
               >
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -2649,6 +2670,7 @@ export default function Portfolio() {
               <button
                 onClick={nextImage}
                 className="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
+                aria-label="Next image"
               >
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -2694,7 +2716,7 @@ export default function Portfolio() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">?뱞 {t.cv.title}</span>
+              <span className="gradient-text">📄 {t.cv.title}</span>
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.cv.subtitle}
@@ -2851,7 +2873,7 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">?벐 {t.itNews.title}</span>
+              <span className="gradient-text">📰 {t.itNews.title}</span>
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
               {t.itNews.subtitle}
@@ -2876,7 +2898,7 @@ export default function Portfolio() {
           ) : itNews.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">?벐</span>
+                <span className="text-4xl">📰</span>
               </div>
               <p className="text-slate-500 mb-4">{t.itNews.noNews}</p>
               {isAdmin && (
@@ -2939,6 +2961,7 @@ export default function Portfolio() {
                           }}
                           className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
                           title={t.itNews.share}
+                          aria-label={t.itNews.share}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -2955,6 +2978,7 @@ export default function Portfolio() {
                               }}
                               className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
                               title="Edit"
+                              aria-label="Edit news"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -2967,6 +2991,7 @@ export default function Portfolio() {
                               }}
                               className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
                               title="Delete"
+                              aria-label="Delete news"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2995,6 +3020,7 @@ export default function Portfolio() {
               <button
                 onClick={closeITNewsModal}
                 className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3006,7 +3032,7 @@ export default function Portfolio() {
               {/* Image Upload */}
               {itNewsFormImage && (
                 <div className="relative">
-                  <img src={itNewsFormImage} alt="Preview" className="w-full h-48 object-cover rounded-xl" />
+                  <img src={itNewsFormImage} alt="IT news cover image preview" className="w-full h-48 object-cover rounded-xl" />
                   <button
                     type="button"
                     onClick={() => setItNewsFormImage(null)}
@@ -3112,6 +3138,7 @@ export default function Portfolio() {
                   onClick={() => shareITNews(viewingNews)}
                   className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
                   title={t.itNews.share}
+                  aria-label={t.itNews.share}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -3126,6 +3153,7 @@ export default function Portfolio() {
                     }}
                     className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
                     title="Edit"
+                    aria-label="Edit news"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -3137,6 +3165,7 @@ export default function Portfolio() {
                   onClick={closeNewsViewer}
                   className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
                   title="Close"
+                  aria-label="Close article"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3198,6 +3227,7 @@ export default function Portfolio() {
           <button
             onClick={() => setViewingQuote(null)}
             className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="Close quote viewer"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3396,7 +3426,6 @@ export default function Portfolio() {
                     type="text"
                     value={contactTelegram}
                     onChange={(e) => setContactTelegram(e.target.value)}
-                    required
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
                     placeholder={t.contact.form.telegramPlaceholder}
                   />

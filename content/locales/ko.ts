@@ -284,7 +284,7 @@ export const ko = {
       name: "이름",
       namePlaceholder: "이름을 입력하세요",
       email: "이메일",
-      telegram: "Telegram username",
+      telegram: "Telegram username (optional)",
       telegramPlaceholder: "@username",
       message: "메시지",
       messagePlaceholder: "메시지를 작성하세요...",

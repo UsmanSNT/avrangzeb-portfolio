@@ -284,7 +284,7 @@ export const uz = {
       name: "Ismingiz",
       namePlaceholder: "Ismingizni kiriting",
       email: "Email",
-      telegram: "Telegram username",
+      telegram: "Telegram username (optional)",
       telegramPlaceholder: "@username",
       message: "Xabar",
       messagePlaceholder: "Xabaringizni yozing...",

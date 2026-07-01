@@ -2,7 +2,7 @@ import type { HomeDictionary } from "@/lib/i18n/types";
 import { ShieldIcon } from "./icons";
 
 const certifications = [
-  { name: "?ㅽ듃?뚰겕 愿由ъ궗 2湲?(Network Administrator Level 2)", status: "preparing" },
+  { name: "네트워크관리사 2급 (Network Administrator Level 2)", status: "preparing" },
   { name: "CCNA - Cisco Certified Network Associate", status: "preparing" },
   { name: "CompTIA Network+", status: "preparing" },
   { name: "Linux Professional Institute (LPIC-1)", status: "preparing" },
@@ -34,7 +34,7 @@ export function AboutSection({ t }: AboutSectionProps) {
 
             {/* Education */}
             <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-              <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-3 sm:mb-4">?뱴 {t.about.education}</h3>
+              <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-3 sm:mb-4">🎓 {t.about.education}</h3>
               <div className="space-y-3">
                 <div>
                   <p className="font-medium text-slate-200 text-sm sm:text-base">{t.about.university}</p>
@@ -47,7 +47,7 @@ export function AboutSection({ t }: AboutSectionProps) {
 
           {/* Certifications */}
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">?렞 {t.about.certificates}</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">🏅 {t.about.certificates}</h3>
             {certifications.map((cert, index) => (
               <div
                 key={index}

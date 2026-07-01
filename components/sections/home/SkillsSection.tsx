@@ -48,7 +48,7 @@ export function SkillsSection({ t }: SkillsSectionProps) {
 
         {/* Additional Skills */}
         <div className="mt-8 sm:mt-12 p-4 sm:p-8 bg-slate-800/50 rounded-xl border border-slate-700">
-          <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">?썱 {t.skills.additional}</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">⚙️ {t.skills.additional}</h3>
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {[
               "TCP/IP", "DNS", "DHCP", "Active Directory", "VMware", "Docker",

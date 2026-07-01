@@ -284,7 +284,7 @@ export const en = {
       name: "Your Name",
       namePlaceholder: "Enter your name",
       email: "Email",
-      telegram: "Telegram username",
+      telegram: "Telegram username (optional)",
       telegramPlaceholder: "@username",
       message: "Message",
       messagePlaceholder: "Write your message...",

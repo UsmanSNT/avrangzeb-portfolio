@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Avrangzeb Abdujalilov | Network Administrator & Cybersecurity Student",
-  description: "Abdujalilov Avrangzeb - Janubiy Koreya, Woosuk Universiteti Axborot xavfsizligi talabasi. Network Administrator, CCNA, Cybersecurity mutaxassisi. Portfolio, loyihalar va bog'lanish.",
+  title: "Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer",
+  description: "Abdujalilov Avrangzeb - Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea. Portfolio, projects, and contact.",
   keywords: [
     "Avrangzeb Abdujalilov",
-    "Abdujalilov Avrangzeb", 
+    "Abdujalilov Avrangzeb",
     "압둘잘릴로프 아브랑젭",
+    "Software Engineer",
+    "AI Engineer",
+    "Backend Developer",
     "Network Administrator",
     "Cybersecurity",
     "CCNA",
@@ -43,8 +46,8 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US', 'ko_KR'],
     url: 'https://avrangzeb-portfolio.vercel.app',
     siteName: 'Avrangzeb Abdujalilov Portfolio',
-    title: 'Avrangzeb Abdujalilov | Network Administrator & Cybersecurity',
-    description: 'Janubiy Koreya, Woosuk Universiteti Axborot xavfsizligi talabasi. Network Administrator, CCNA, Cybersecurity mutaxassisi.',
+    title: 'Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer',
+    description: 'Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea.',
     images: [
       {
         url: '/images/profile.png',
@@ -56,8 +59,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Avrangzeb Abdujalilov | Network Administrator',
-    description: 'Network Administrator & Cybersecurity Student at Woosuk University, South Korea',
+    title: 'Avrangzeb Abdujalilov | Software Engineer',
+    description: 'Software Engineer specializing in AI, backend development, and cybersecurity, based in South Korea',
     images: ['/images/profile.png'],
   },
   verification: {
@@ -80,12 +83,12 @@ const jsonLd = {
   '@type': 'Person',
   name: 'Avrangzeb Abdujalilov',
   alternateName: ['Abdujalilov Avrangzeb', '압둘잘릴로프 아브랑젭'],
-  description: 'Network Administrator & Cybersecurity Student at Woosuk University, South Korea',
+  description: 'Software Engineer specializing in AI, backend development, network security, and cybersecurity, based in South Korea',
   url: 'https://avrangzeb-portfolio.vercel.app',
   image: 'https://avrangzeb-portfolio.vercel.app/images/profile.png',
   email: 'avrangzebabdujalilov@gmail.com',
   telephone: '+82-10-2349-2777',
-  jobTitle: 'Network Administrator Student',
+  jobTitle: 'Software Engineer',
   worksFor: {
     '@type': 'EducationalOrganization',
     name: 'Woosuk University',
@@ -101,6 +104,9 @@ const jsonLd = {
     name: 'Woosuk University',
   },
   knowsAbout: [
+    'Software Engineering',
+    'Artificial Intelligence',
+    'Backend Development',
     'Network Administration',
     'Cybersecurity',
     'Cisco Networking',

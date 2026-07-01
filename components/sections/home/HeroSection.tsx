@@ -124,27 +124,27 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
                 <ArrowRightIcon />
                 {t.hero.viewProjects}
               </button>
-              <a
-                href={cvUrl || staticCvUrl}
-                download="Avrangzeb_CV.pdf"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-sm font-bold text-slate-100 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-              >
-                <DownloadIcon />
-                {t.hero.downloadResume}
-              </a>
               <button
                 onClick={() => scrollToSection("contact")}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-cyan-300/25 bg-cyan-400/[0.06] px-5 py-3 text-sm font-bold text-cyan-100 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/50 hover:bg-cyan-400/[0.1] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
                 <MailIcon />
                 {t.hero.contact}
               </button>
               <a
+                href={cvUrl || staticCvUrl}
+                download="Avrangzeb_CV.pdf"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/8 px-5 py-3 text-sm font-semibold text-slate-400 transition-all duration-300 hover:border-white/20 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                <DownloadIcon />
+                {t.hero.downloadResume}
+              </a>
+              <a
                 href="https://github.com/UsmanSNT"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t.hero.githubAria}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-slate-950/40 px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/40 hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/8 px-5 py-3 text-sm font-semibold text-slate-400 transition-all duration-300 hover:border-white/20 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
               >
                 <GitHubIcon />
                 {t.hero.github}
@@ -160,7 +160,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
               {t.hero.stats.map((stat) => (
                 <div key={stat.label} className="rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-3 shadow-lg shadow-slate-950/10 backdrop-blur-xl sm:p-4">
                   <p className="text-xl font-black text-white sm:text-2xl lg:text-[2rem]">{stat.value}</p>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500 sm:text-xs">{stat.label}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400 sm:text-xs">{stat.label}</p>
                 </div>
               ))}
             </motion.div>
@@ -186,7 +186,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
                       <span className="h-2.5 w-2.5 rounded-full bg-amber-300/90" />
                       <span className="h-2.5 w-2.5 rounded-full bg-emerald-300/90" />
                     </div>
-                    <span className="font-mono text-xs text-slate-500">{t.hero.visual.file}</span>
+                    <span className="font-mono text-xs text-slate-400">{t.hero.visual.file}</span>
                   </div>
                   <div className="space-y-3 px-4 py-4 font-mono text-[13px] leading-6 text-slate-300 sm:text-sm">
                     <p className="text-cyan-100">{t.hero.terminal.whoami}</p>
@@ -215,7 +215,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
                         <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-2.5 text-slate-100">
                           {card.icon}
                         </div>
-                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Live</span>
+                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Live</span>
                       </div>
                       <p className="mt-4 text-sm font-semibold text-slate-100">{card.title}</p>
                       <p className="mt-1 text-base font-black text-white sm:text-lg">{card.value}</p>
@@ -232,7 +232,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:22px_22px] opacity-60" aria-hidden="true" />
                   <div className="relative flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{t.hero.visual.threatModel}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{t.hero.visual.threatModel}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold text-slate-200">{t.hero.visual.security}</span>
                         <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold text-slate-200">{t.hero.visual.server}</span>
@@ -312,71 +312,6 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
             <span className="mx-auto block h-2 w-1 rounded-full bg-cyan-300" />
           </span>
         </motion.button>
-      </section>
-
-      {/* Legacy Hero Section */}
-      <section id="legacy-home" className="hidden">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-6 sm:mb-8 animate-float">
-            <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1 animate-pulse-glow">
-              <div className="w-full h-full rounded-full overflow-hidden">
-                <img
-                  src="/images/profile.png"
-                  alt="Abdujalilov Avrangzeb"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML = '<span class="text-4xl sm:text-5xl flex items-center justify-center w-full h-full bg-slate-900">*</span>';
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6">
-            <span className="gradient-text">{t.hero.title}</span>
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-400 mb-3 sm:mb-4">
-            {t.hero.subtitle}
-          </p>
-          <p className="text-base sm:text-lg text-slate-500 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
-            {t.hero.description}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
-            <button
-              onClick={() => scrollToSection("projects")}
-              className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:scale-105 text-sm sm:text-base"
-            >
-              {t.hero.viewProjects}
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="px-6 sm:px-8 py-3 sm:py-4 border border-cyan-500/50 rounded-full font-semibold text-cyan-400 hover:bg-cyan-500/10 transition-all text-sm sm:text-base"
-            >
-              {t.hero.contact}
-            </button>
-          </div>
-
-          {/* Terminal Animation */}
-          <div className="mt-10 sm:mt-16 max-w-xl mx-auto px-2 sm:px-0">
-            <div className="bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-slate-800 border-b border-slate-700">
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500"></div>
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500"></div>
-                <span className="ml-2 text-xs text-slate-500">terminal</span>
-              </div>
-              <div className="p-3 sm:p-4 font-mono text-xs sm:text-sm text-left">
-                <p className="text-green-400">$ whoami</p>
-                <p className="text-slate-300 mb-2 break-all">{t.hero.terminal.whoami}</p>
-                <p className="text-green-400">$ cat skills.txt</p>
-                <p className="text-slate-300 mb-2 break-all">{t.hero.terminal.skills}</p>
-                <p className="text-green-400">$ echo $STATUS</p>
-                <p className="text-cyan-400">{t.hero.terminal.status}</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
     </>
   );

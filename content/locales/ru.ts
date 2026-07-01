@@ -284,7 +284,7 @@ export const ru = {
       name: "Ваше имя",
       namePlaceholder: "Введите ваше имя",
       email: "Email",
-      telegram: "Telegram username",
+      telegram: "Telegram username (optional)",
       telegramPlaceholder: "@username",
       message: "Сообщение",
       messagePlaceholder: "Напишите сообщение...",

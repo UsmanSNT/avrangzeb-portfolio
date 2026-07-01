@@ -89,7 +89,7 @@ async function sendTelegramMessage(name: string, telegram: string, message: stri
   }
 
   // Telegram username formatlash
-  const telegramLink = telegram.startsWith('@') ? telegram : `@${telegram}`;
+  const telegramLink = telegram ? (telegram.startsWith('@') ? telegram : `@${telegram}`) : 'Not provided';
 
   const text = `📬 *Yangi xabar!*
 
@@ -130,7 +130,9 @@ async function sendEmailNotification(name: string, telegram: string, message: st
     return false;
   }
 
-  const telegramLink = telegram.startsWith('@') ? telegram : `@${telegram}`;
+  const telegramLink = telegram
+    ? `<a href="https://t.me/${telegram.replace('@', '')}">${telegram.startsWith('@') ? telegram : `@${telegram}`}</a>`
+    : 'Not provided';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -148,7 +150,7 @@ async function sendEmailNotification(name: string, telegram: string, message: st
             <h2 style="color: #06b6d4;">📬 Yangi xabar keldi!</h2>
             <div style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
               <p><strong>👤 Ism:</strong> ${name}</p>
-              <p><strong>✈️ Telegram:</strong> <a href="https://t.me/${telegram.replace('@', '')}">${telegramLink}</a></p>
+              <p><strong>✈️ Telegram:</strong> ${telegramLink}</p>
               <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 15px 0;">
               <p><strong>💬 Xabar:</strong></p>
               <p style="white-space: pre-wrap;">${message}</p>
@@ -222,10 +224,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ism maydoni to\'ldirilishi kerak' }, { status: 400 });
     }
 
-    if (!telegram || !telegram.trim()) {
-      return NextResponse.json({ error: 'Telegram maydoni to\'ldirilishi kerak' }, { status: 400 });
-    }
-
     if (!message || !message.trim()) {
       return NextResponse.json({ error: 'Xabar maydoni to\'ldirilishi kerak' }, { status: 400 });
     }
@@ -234,10 +232,10 @@ export async function POST(request: NextRequest) {
     console.log('POST /api/contacts - Inserting to database...');
     const { data, error } = await supabase
       .from('portfolio_contacts')
-      .insert([{ 
-        name: name.trim(), 
-        telegram: telegram.trim(), 
-        message: message.trim() 
+      .insert([{
+        name: name.trim(),
+        telegram: telegram?.trim() || '',
+        message: message.trim()
       }])
       .select()
       .single();

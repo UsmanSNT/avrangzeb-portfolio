@@ -107,12 +107,14 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
               {githubLabel}
             </a>
           ) : (
-            <span
+            <button
+              type="button"
+              disabled
               aria-label={`GitHub repository for ${project.title} is not available yet`}
               className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-3.5 py-2 text-xs font-bold text-slate-500 sm:col-span-2 xl:col-span-1"
             >
               {githubLabel}
-            </span>
+            </button>
           )}
         </div>
       </div>
