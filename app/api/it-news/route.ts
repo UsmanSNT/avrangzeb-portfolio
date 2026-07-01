@@ -280,7 +280,33 @@ export async function PUT(request: Request) {
       }
     }
 
-    // News'ni yangilash
+    // News'ni yangilash - egasi yoki admin bo'lishi kerak
+    const { data: existingNews, error: fetchError } = await supabase
+      .from('portfolio_it_news')
+      .select('user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingNews) {
+      return NextResponse.json({ error: 'News topilmadi' }, { status: 404 });
+    }
+
+    const { data: profileData } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profileData?.role === 'admin' || profileData?.role === 'super_admin';
+    const isOwner = existingNews.user_id === user.id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { error: 'Forbidden: Bu newsni yangilash huquqi yo\'q' },
+        { status: 403 }
+      );
+    }
+
     const updateData: any = {};
     if (title !== undefined) updateData.title = title.trim();
     if (content !== undefined) updateData.content = content.trim();
@@ -329,6 +355,33 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'ID majburiy' }, { status: 400 });
+    }
+
+    // O'chirish - egasi yoki admin bo'lishi kerak
+    const { data: existingNews, error: fetchError } = await supabase
+      .from('portfolio_it_news')
+      .select('user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingNews) {
+      return NextResponse.json({ error: 'News topilmadi' }, { status: 404 });
+    }
+
+    const { data: profileData } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profileData?.role === 'admin' || profileData?.role === 'super_admin';
+    const isOwner = existingNews.user_id === user.id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { error: 'Forbidden: Bu newsni o\'chirish huquqi yo\'q' },
+        { status: 403 }
+      );
     }
 
     const { error } = await supabase

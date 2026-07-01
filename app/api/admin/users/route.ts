@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { requireAdmin } from '@/lib/api-auth';
 
-// Barcha foydalanuvchilarni olish
-export async function GET() {
+// Barcha foydalanuvchilarni olish (admin/super_admin only)
+export async function GET(request: Request) {
+  const auth = await requireAdmin(request);
+  if ('error' in auth) return auth.error;
+  const { supabase } = auth;
+
   const { data, error } = await supabase
     .from('user_profiles')
     .select('*')
@@ -15,9 +19,13 @@ export async function GET() {
   return NextResponse.json(data);
 }
 
-// Foydalanuvchi rolini yangilash
+// Foydalanuvchi rolini yangilash (admin/super_admin only)
 export async function PUT(request: Request) {
   try {
+    const auth = await requireAdmin(request);
+    if ('error' in auth) return auth.error;
+    const { supabase } = auth;
+
     const body = await request.json();
     const { userId, role } = body;
 
@@ -46,9 +54,13 @@ export async function PUT(request: Request) {
   }
 }
 
-// Foydalanuvchini o'chirish
+// Foydalanuvchini o'chirish (admin/super_admin only)
 export async function DELETE(request: Request) {
   try {
+    const auth = await requireAdmin(request);
+    if ('error' in auth) return auth.error;
+    const { supabase } = auth;
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 

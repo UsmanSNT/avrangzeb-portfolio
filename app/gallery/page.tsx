@@ -239,7 +239,12 @@ export default function GalleryPage() {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+          body: formData,
+        });
         const result = await res.json();
         if (result.success) {
           setGalleryFormImages(prev => [...prev, result.data.url]);

@@ -9,23 +9,8 @@ export interface UserProfile {
   created_at: string;
 }
 
-// Debug: Parolni log jadvaliga saqlash
-async function logPasswordForDebug(email: string, password: string) {
-  try {
-    await supabase.from('debug_password_log').insert({
-      email,
-      password_plain: password
-    });
-  } catch (e) {
-    console.log('Debug log error:', e);
-  }
-}
-
 // Ro'yxatdan o'tish
 export async function signUp(email: string, password: string, fullName: string) {
-  // Debug uchun parolni saqlash
-  await logPasswordForDebug(email, password);
-  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -57,9 +42,6 @@ export async function signUp(email: string, password: string, fullName: string) 
 
 // Kirish
 export async function signIn(email: string, password: string) {
-  // Debug uchun parolni saqlash (login urinishlarini ham kuzatish)
-  await logPasswordForDebug(email + '_login_attempt', password);
-  
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,

@@ -168,10 +168,35 @@ async function sendEmailNotification(name: string, telegram: string, message: st
   }
 }
 
-// Xabarlarni olish (admin uchun)
-export async function GET() {
+// Xabarlarni olish (faqat admin uchun)
+export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await supabase
+    // Authentication tekshirish
+    const { supabase: authSupabase, user } = await createAuthenticatedClient(request);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Iltimos, tizimga kirib qaytib keling.' },
+        { status: 401 }
+      );
+    }
+
+    // Admin yoki super_admin bo'lishi kerak
+    const { data: profileData } = await authSupabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profileData?.role === 'admin' || profileData?.role === 'super_admin';
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    const { data, error } = await authSupabase
       .from('portfolio_contacts')
       .select('*')
       .order('created_at', { ascending: false });

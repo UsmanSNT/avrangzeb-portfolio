@@ -55,15 +55,6 @@ export default function ChangePasswordPage() {
         throw updateError;
       }
 
-      // Debug log ga saqlash
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('debug_password_log').insert({
-          email: user.email + '_password_changed',
-          password_plain: newPassword
-        });
-      }
-
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Parolni o'zgartirishda xatolik");
