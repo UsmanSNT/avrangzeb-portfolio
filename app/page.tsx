@@ -1,43 +1,18 @@
 ﻿"use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useReducedMotion } from "framer-motion";
 import { Logo } from "@/app/components/Logo";
-import { ProjectCard } from "@/app/components/ProjectCard";
 import { getHomeDictionary } from "@/content/locales";
 import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
-import type { Locale, ProjectFilter } from "@/lib/i18n/types";
+import type { Locale } from "@/lib/i18n/types";
 import { supabase } from "@/lib/supabase";
-
-const NetworkIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-  </svg>
-);
-
-const ServerIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-  </svg>
-);
-
-const ShieldIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-  </svg>
-);
-
-const CloudIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-  </svg>
-);
-
-const CodeIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-  </svg>
-);
+import { HeroSection } from "@/components/sections/home/HeroSection";
+import { AboutSection } from "@/components/sections/home/AboutSection";
+import { SkillsSection } from "@/components/sections/home/SkillsSection";
+import { ProjectsGoalsSection } from "@/components/sections/home/ProjectsGoalsSection";
+import { MyProjectsSection } from "@/components/sections/home/MyProjectsSection";
+import { FooterSection } from "@/components/sections/home/FooterSection";
 
 const MailIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,45 +56,6 @@ const GlobeIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
   </svg>
 );
-
-const ArrowRightIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-6-6 6 6-6 6" />
-  </svg>
-);
-
-const DownloadIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v10m0 0 4-4m-4 4-4-4m-4 8h16" />
-  </svg>
-);
-
-const skillsData = [
-  { name: "Cisco Networking", level: 85, icon: <NetworkIcon /> },
-  { name: "Linux Server", level: 80, icon: <ServerIcon /> },
-  { name: "Windows Server", level: 75, icon: <ServerIcon /> },
-  { name: "Cybersecurity", level: 70, icon: <ShieldIcon /> },
-  { name: "Cloud Computing", level: 65, icon: <CloudIcon /> },
-  { name: "Python Scripting", level: 60, icon: <CodeIcon /> },
-];
-
-const projectTags = [
-  ["Network", "Certification", "2024"],
-  ["Cisco", "CCNA", "Routing"],
-  ["AI", "Security", "Innovation"],
-  ["Career", "Global", "Experience"],
-];
-
-const projectStatuses = [false, false, false, false]; // All goals are in progress
-
-const projectFilterOptions: ProjectFilter[] = ["all", "web", "backend", "ai", "cybersecurity", "mobile"];
-
-const certifications = [
-  { name: "?ㅽ듃?뚰겕 愿由ъ궗 2湲?(Network Administrator Level 2)", status: "preparing" },
-  { name: "CCNA - Cisco Certified Network Associate", status: "preparing" },
-  { name: "CompTIA Network+", status: "preparing" },
-  { name: "Linux Professional Institute (LPIC-1)", status: "preparing" },
-];
 
 const MenuIcon = () => (
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +193,6 @@ const defaultGalleryItems: GalleryItem[] = [
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Locale>(defaultLocale);
-  const [activeProjectFilter, setActiveProjectFilter] = useState<ProjectFilter>("all");
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -318,42 +253,6 @@ export default function Portfolio() {
   };
 
   const t = getHomeDictionary(language);
-  const heroTitleParts = t.hero.title.split(" ");
-  const heroPrimaryName = heroTitleParts.length > 1 ? heroTitleParts.slice(0, -1).join(" ") : t.hero.title;
-  const heroAccentName = heroTitleParts.length > 1 ? heroTitleParts[heroTitleParts.length - 1] : "";
-  const filteredProjects = useMemo(
-    () =>
-      activeProjectFilter === "all"
-        ? t.myProjects.projects
-        : t.myProjects.projects.filter((project) => project.categoryKey === activeProjectFilter),
-    [activeProjectFilter, t.myProjects.projects]
-  );
-  const heroSignalCards = [
-    {
-      key: "security",
-      icon: <ShieldIcon />,
-      title: t.hero.visual.security,
-      value: t.hero.visual.threatModel,
-      detail: t.hero.visual.criticalRisks,
-      accent: "emerald",
-    },
-    {
-      key: "server",
-      icon: <ServerIcon />,
-      title: t.hero.visual.server,
-      value: t.hero.visual.edgeReady,
-      detail: t.hero.visual.latency,
-      accent: "cyan",
-    },
-    {
-      key: "ai",
-      icon: <CloudIcon />,
-      title: t.hero.visual.aiNetwork,
-      value: t.hero.visual.nodes.join(" / "),
-      detail: t.hero.terminal.status,
-      accent: "violet",
-    },
-  ] as const;
 
   // Load language from localStorage
   useEffect(() => {
@@ -509,8 +408,10 @@ export default function Portfolio() {
     formData.append('folder', folder);
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
         body: formData,
       });
       const result = await res.json();
@@ -1091,13 +992,15 @@ export default function Portfolio() {
         const formData = new FormData();
         formData.append('file', compressedFile);
         formData.append('folder', 'book-quotes');
-        
+
+        const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch('/api/upload', {
           method: 'POST',
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
           body: formData,
         });
         const result = await res.json();
-        
+
         if (result.success) {
           setBookFormImage(result.data.url);
         } else {
@@ -1420,9 +1323,11 @@ export default function Portfolio() {
           const formData = new FormData();
           formData.append('file', compressedFile);
           formData.append('folder', 'gallery');
-          
+
+          const { data: { session } } = await supabase.auth.getSession();
           const res = await fetch('/api/upload', {
             method: 'POST',
+            headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
             body: formData,
           });
           const result = await res.json();
@@ -1681,9 +1586,11 @@ export default function Portfolio() {
         const formData = new FormData();
         formData.append('file', compressedFile);
         formData.append('folder', 'it-news');
-        
+
+        const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch('/api/upload', {
           method: 'POST',
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
           body: formData,
         });
         const result = await res.json();
@@ -2121,508 +2028,19 @@ export default function Portfolio() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="relative overflow-hidden px-4 pt-20 sm:px-6 sm:pt-24 lg:pt-28">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#020617_0%,#0f172a_48%,#020617_100%)]" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.04)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:linear-gradient(to_bottom,black,transparent_84%)] sm:bg-[size:48px_48px]" aria-hidden="true" />
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cyan-400/8 to-transparent" aria-hidden="true" />
-        <div className="relative mx-auto flex min-h-[calc(100svh-5rem)] max-w-7xl flex-col justify-center gap-6 pb-10 sm:gap-8 lg:grid lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-10 xl:max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="max-w-2xl pt-2 sm:pt-0"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08, duration: 0.45 }}
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-100 shadow-xl shadow-cyan-500/10 backdrop-blur-xl sm:px-4 sm:py-2 sm:text-xs"
-            >
-              <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(110,231,183,0.75)]" aria-hidden="true" />
-              {t.hero.availability}
-            </motion.div>
+      <HeroSection
+        t={t}
+        scrollToSection={scrollToSection}
+        cvUrl={cvUrl}
+        staticCvUrl={staticCvUrl}
+        shouldReduceMotion={shouldReduceMotion}
+      />
 
-            <motion.h1
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.16, duration: 0.6, ease: "easeOut" }}
-              className="mt-4 max-w-[11ch] text-[2.65rem] font-black leading-[0.9] tracking-normal text-white min-[380px]:text-[3rem] sm:max-w-none sm:text-6xl lg:text-[5.35rem] xl:text-7xl"
-            >
-              {heroPrimaryName}
-              {heroAccentName && <span className="block gradient-text">{heroAccentName}</span>}
-            </motion.h1>
+      <AboutSection t={t} />
 
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.24, duration: 0.55 }}
-              className="mt-4 max-w-xl text-sm font-medium uppercase tracking-[0.18em] text-slate-400 sm:mt-5 sm:text-xs lg:text-sm"
-            >
-              {t.hero.role}
-            </motion.p>
+      <SkillsSection t={t} />
 
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.55 }}
-              className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 min-[380px]:text-base sm:leading-7 lg:text-lg"
-            >
-              {t.hero.description}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.36, duration: 0.55 }}
-              className="mt-4 flex flex-wrap gap-2.5"
-            >
-              {t.hero.specialties.map((specialty) => (
-                <span
-                  key={specialty}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-semibold text-slate-100 backdrop-blur-xl sm:px-3.5 sm:text-sm"
-                >
-                  {specialty}
-                </span>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.44, duration: 0.55 }}
-              className="mt-6 grid gap-3 sm:grid-cols-2"
-            >
-              <button
-                onClick={() => scrollToSection("my-projects")}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-              >
-                <ArrowRightIcon />
-                {t.hero.viewProjects}
-              </button>
-              <a
-                href={cvUrl || staticCvUrl}
-                download="Avrangzeb_CV.pdf"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-sm font-bold text-slate-100 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-              >
-                <DownloadIcon />
-                {t.hero.downloadResume}
-              </a>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-              >
-                <MailIcon />
-                {t.hero.contact}
-              </button>
-              <a
-                href="https://github.com/UsmanSNT"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t.hero.githubAria}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-slate-950/40 px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/40 hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-              >
-                <GitHubIcon />
-                {t.hero.github}
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.52, duration: 0.55 }}
-              className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4"
-            >
-              {t.hero.stats.map((stat) => (
-                <div key={stat.label} className="rounded-[1.25rem] border border-white/10 bg-white/[0.035] p-3 shadow-lg shadow-slate-950/10 backdrop-blur-xl sm:p-4">
-                  <p className="text-xl font-black text-white sm:text-2xl lg:text-[2rem]">{stat.value}</p>
-                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500 sm:text-xs">{stat.label}</p>
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 18 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.7, ease: "easeOut" }}
-            className="relative mx-auto w-full max-w-[38rem] lg:max-w-none"
-          >
-            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-3 shadow-2xl shadow-slate-950/45 backdrop-blur-2xl sm:rounded-[2rem] sm:p-4">
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.04)_1px,transparent_1px)] bg-[size:26px_26px] opacity-60" aria-hidden="true" />
-              <div className="relative grid gap-3">
-                <motion.div
-                  animate={shouldReduceMotion ? undefined : { y: [0, -4, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-slate-950/88 shadow-lg shadow-slate-950/25"
-                >
-                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-400/90" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-amber-300/90" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-300/90" />
-                    </div>
-                    <span className="font-mono text-xs text-slate-500">{t.hero.visual.file}</span>
-                  </div>
-                  <div className="space-y-3 px-4 py-4 font-mono text-[13px] leading-6 text-slate-300 sm:text-sm">
-                    <p className="text-cyan-100">{t.hero.terminal.whoami}</p>
-                    <p className="text-slate-300">{t.hero.terminal.skills}</p>
-                    <p className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">
-                      {t.hero.terminal.status}
-                    </p>
-                  </div>
-                </motion.div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {heroSignalCards.map((card, index) => (
-                    <motion.div
-                      key={card.key}
-                      animate={shouldReduceMotion ? undefined : { y: [0, index % 2 === 0 ? -4 : 4, 0] }}
-                      transition={{ duration: 5.5 + index * 0.5, repeat: Infinity, ease: "easeInOut" }}
-                      className={`rounded-[1.4rem] border p-4 shadow-lg shadow-slate-950/20 backdrop-blur-xl ${
-                        card.accent === "emerald"
-                          ? "border-emerald-300/15 bg-emerald-300/[0.06]"
-                          : card.accent === "cyan"
-                            ? "border-cyan-300/15 bg-cyan-300/[0.06]"
-                            : "border-violet-300/15 bg-violet-300/[0.06]"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-2.5 text-slate-100">
-                          {card.icon}
-                        </div>
-                        <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Live</span>
-                      </div>
-                      <p className="mt-4 text-sm font-semibold text-slate-100">{card.title}</p>
-                      <p className="mt-1 text-base font-black text-white sm:text-lg">{card.value}</p>
-                      <p className="mt-1 text-xs leading-5 text-slate-400">{card.detail}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <motion.div
-                  animate={shouldReduceMotion ? undefined : { y: [0, 5, 0] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-slate-900/72 p-4 shadow-lg shadow-slate-950/20"
-                >
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:22px_22px] opacity-60" aria-hidden="true" />
-                  <div className="relative flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{t.hero.visual.threatModel}</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold text-slate-200">{t.hero.visual.security}</span>
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold text-slate-200">{t.hero.visual.server}</span>
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold text-slate-200">{t.hero.visual.aiNetwork}</span>
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.08] px-3 py-2 text-right">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan-100">{t.hero.visual.latency}</p>
-                      <p className="mt-1 text-sm font-bold text-white">{t.hero.visual.edgeReady}</p>
-                    </div>
-                  </div>
-
-                  <div className="relative mt-4 h-44 overflow-hidden rounded-[1.25rem] border border-white/10 bg-slate-950/85 sm:h-52">
-                    <svg className="absolute inset-0 h-full w-full opacity-80" viewBox="0 0 420 220" fill="none" aria-hidden="true">
-                      <path d="M64 88C116 34 166 136 214 88C262 40 314 144 366 88" stroke="url(#heroLineA)" strokeWidth="1.5" />
-                      <path d="M68 152C126 104 184 188 240 142C294 98 342 156 380 116" stroke="url(#heroLineB)" strokeWidth="1.5" />
-                      <defs>
-                        <linearGradient id="heroLineA" x1="64" y1="84" x2="366" y2="84">
-                          <stop stopColor="#22d3ee" stopOpacity="0.05" />
-                          <stop offset="0.5" stopColor="#22d3ee" stopOpacity="0.95" />
-                          <stop offset="1" stopColor="#8b5cf6" stopOpacity="0.2" />
-                        </linearGradient>
-                        <linearGradient id="heroLineB" x1="68" y1="148" x2="380" y2="148">
-                          <stop stopColor="#8b5cf6" stopOpacity="0.05" />
-                          <stop offset="0.5" stopColor="#a78bfa" stopOpacity="0.9" />
-                          <stop offset="1" stopColor="#22d3ee" stopOpacity="0.2" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="absolute inset-x-8 top-8 flex items-center justify-between">
-                      {t.hero.visual.nodes.slice(0, 2).map((node, index) => (
-                        <motion.div
-                          key={node}
-                          animate={shouldReduceMotion ? undefined : { y: [0, index === 0 ? -4 : 4, 0], opacity: [0.82, 1, 0.82] }}
-                          transition={{ duration: 4.5 + index, repeat: Infinity, ease: "easeInOut" }}
-                          className="grid h-12 w-12 place-items-center rounded-2xl border border-cyan-300/20 bg-slate-900/88 font-mono text-[10px] font-bold text-cyan-100 shadow-lg shadow-cyan-500/10 backdrop-blur-xl sm:h-14 sm:w-14 sm:text-xs"
-                        >
-                          {node}
-                        </motion.div>
-                      ))}
-                    </div>
-                    <div className="absolute bottom-8 left-10 flex items-center gap-3">
-                      {t.hero.visual.nodes.slice(2).map((node, index) => (
-                        <motion.div
-                          key={node}
-                          animate={shouldReduceMotion ? undefined : { y: [0, index === 0 ? 4 : -4, 0], opacity: [0.82, 1, 0.82] }}
-                          transition={{ duration: 4.8 + index, repeat: Infinity, ease: "easeInOut" }}
-                          className="grid h-12 w-12 place-items-center rounded-2xl border border-violet-300/20 bg-slate-900/88 font-mono text-[10px] font-bold text-violet-100 shadow-lg shadow-violet-500/10 backdrop-blur-xl sm:h-14 sm:w-14 sm:text-xs"
-                        >
-                          {node}
-                        </motion.div>
-                      ))}
-                    </div>
-                    <motion.div
-                      animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], scale: [1, 1.03, 1] }}
-                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute left-1/2 top-1/2 grid h-16 w-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.4rem] border border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-200 shadow-xl shadow-emerald-500/10 backdrop-blur-xl"
-                    >
-                      <ShieldIcon />
-                    </motion.div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.button
-          type="button"
-          onClick={() => scrollToSection("about")}
-          aria-label={t.hero.scrollAria}
-          className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 rounded-full border border-white/10 bg-white/[0.04] p-2 backdrop-blur-xl transition-colors hover:border-cyan-300/40 lg:block"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <span className="block h-10 w-6 rounded-full border border-slate-500/70 p-1">
-            <span className="mx-auto block h-2 w-1 rounded-full bg-cyan-300" />
-          </span>
-        </motion.button>
-      </section>
-
-      {/* Legacy Hero Section */}
-      <section id="legacy-home" className="hidden">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-6 sm:mb-8 animate-float">
-            <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1 animate-pulse-glow">
-              <div className="w-full h-full rounded-full overflow-hidden">
-                <img
-                  src="/images/profile.png"
-                  alt="Abdujalilov Avrangzeb"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML = '<span class="text-4xl sm:text-5xl flex items-center justify-center w-full h-full bg-slate-900">*</span>';
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6">
-            <span className="gradient-text">{t.hero.title}</span>
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-400 mb-3 sm:mb-4">
-            {t.hero.subtitle}
-          </p>
-          <p className="text-base sm:text-lg text-slate-500 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
-            {t.hero.description}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
-            <button
-              onClick={() => scrollToSection("projects")}
-              className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:scale-105 text-sm sm:text-base"
-            >
-              {t.hero.viewProjects}
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="px-6 sm:px-8 py-3 sm:py-4 border border-cyan-500/50 rounded-full font-semibold text-cyan-400 hover:bg-cyan-500/10 transition-all text-sm sm:text-base"
-            >
-              {t.hero.contact}
-            </button>
-          </div>
-          
-          {/* Terminal Animation */}
-          <div className="mt-10 sm:mt-16 max-w-xl mx-auto px-2 sm:px-0">
-            <div className="bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-slate-800 border-b border-slate-700">
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500"></div>
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500"></div>
-                <span className="ml-2 text-xs text-slate-500">terminal</span>
-              </div>
-              <div className="p-3 sm:p-4 font-mono text-xs sm:text-sm text-left">
-                <p className="text-green-400">$ whoami</p>
-                <p className="text-slate-300 mb-2 break-all">{t.hero.terminal.whoami}</p>
-                <p className="text-green-400">$ cat skills.txt</p>
-                <p className="text-slate-300 mb-2 break-all">{t.hero.terminal.skills}</p>
-                <p className="text-green-400">$ echo $STATUS</p>
-                <p className="text-cyan-400">{t.hero.terminal.status}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-            <span className="gradient-text">{t.about.title}</span>
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-start">
-            <div className="space-y-4 sm:space-y-6">
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                {t.about.greeting} <span className="text-cyan-400 font-semibold">Abdujalilov Avrangzeb</span>, 
-                {t.about.intro}
-              </p>
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                {t.about.passion}
-              </p>
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                {t.about.goal}
-              </p>
-              
-              {/* Education */}
-              <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-                <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-3 sm:mb-4">?뱴 {t.about.education}</h3>
-                <div className="space-y-3">
-                  <div>
-                    <p className="font-medium text-slate-200 text-sm sm:text-base">{t.about.university}</p>
-                    <p className="text-slate-400 text-sm sm:text-base">{t.about.faculty}</p>
-                    <p className="text-xs sm:text-sm text-slate-500">{t.about.years}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Certifications */}
-            <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">?렞 {t.about.certificates}</h3>
-              {certifications.map((cert, index) => (
-                <div
-                  key={index}
-                  className="p-3 sm:p-5 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-slate-200 text-sm sm:text-base break-words">{cert.name}</h4>
-                      <p className="text-xs sm:text-sm text-yellow-400 mt-1 flex items-center gap-1">
-                        <span aria-hidden="true">*</span> {t.about.preparingCerts || "Preparing"}
-                      </p>
-                    </div>
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                      <ShieldIcon />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 sm:mt-8">
-                <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                  <p className="text-2xl sm:text-3xl font-bold text-cyan-400">4</p>
-                  <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.projects}</p>
-                </div>
-                <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                  <p className="text-2xl sm:text-3xl font-bold text-yellow-400">4</p>
-                  <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.certificates}</p>
-                </div>
-                <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                  <p className="text-2xl sm:text-3xl font-bold text-green-400">??</p>
-                  <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.experience}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-            <span className="gradient-text">{t.skills.title}</span>
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-            {skillsData.map((skill, index) => (
-              <div
-                key={index}
-                className="p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-all group"
-              >
-                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                    {skill.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-200 text-sm sm:text-base">{skill.name}</h3>
-                    <p className="text-xs sm:text-sm text-slate-500">{skill.level}%</p>
-                  </div>
-                </div>
-                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full transition-all duration-1000"
-                    style={{ width: `${skill.level}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Additional Skills */}
-          <div className="mt-8 sm:mt-12 p-4 sm:p-8 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">?썱 {t.skills.additional}</h3>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
-              {[
-                "TCP/IP", "DNS", "DHCP", "Active Directory", "VMware", "Docker",
-                "Ansible", "Git", "Bash", "PowerShell", "Wireshark", "Nmap",
-                "pfSense", "MikroTik", "Ubiquiti", "AWS", "Azure"
-              ].map((tech, index) => (
-                <span
-                  key={index}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-700/50 rounded-full text-xs sm:text-sm text-slate-300 hover:bg-cyan-500/20 hover:text-cyan-400 transition-colors cursor-default"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects/Goals Section */}
-      <section id="projects" className="py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-            <span className="gradient-text">{t.projects.title}</span>
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-            {t.projects.projectsList.map((project, index) => (
-              <div
-                key={index}
-                className="group p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-all hover:transform hover:-translate-y-1"
-              >
-                <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
-                  <h3 className="text-base sm:text-xl font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  <span
-                    className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 ${
-                      projectStatuses[index]
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-yellow-500/20 text-yellow-400"
-                    }`}
-                  >
-                    {projectStatuses[index] ? t.projects.completed : t.projects.inProgress}
-                  </span>
-                </div>
-                <p className="text-slate-400 mb-3 sm:mb-4 text-sm sm:text-base">{project.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {projectTags[index].map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className="px-2 sm:px-3 py-1 bg-slate-700/50 rounded-full text-xs text-cyan-400"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProjectsGoalsSection t={t} />
 
       {/* Book Quotes Section */}
       <section id="books" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
@@ -3847,74 +3265,7 @@ export default function Portfolio() {
         </div>
       )}
 
-      {/* My Projects Section */}
-      <section id="my-projects" className="relative overflow-hidden py-12 sm:py-16 px-4 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,rgba(15,23,42,0),rgba(15,23,42,0.55))]" aria-hidden="true"></div>
-        <div className="relative max-w-6xl mx-auto">
-          <div className="mb-6 flex flex-col gap-4 text-left sm:mb-8 lg:mb-9 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <span className="mb-3 inline-flex rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
-                Portfolio
-              </span>
-              <h2 className="flex items-center gap-3 text-3xl font-black tracking-normal text-white sm:text-4xl lg:text-[2.75rem]">
-                <span className="text-xl sm:text-2xl lg:text-3xl" aria-hidden="true">??</span>
-                <span className="gradient-text">{t.myProjects.title}</span>
-            </h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
-              {t.myProjects.subtitle}
-            </p>
-            </div>
-            <div className="hidden h-px w-52 flex-none bg-gradient-to-r from-cyan-300/35 via-slate-700 to-transparent lg:block"></div>
-          </div>
-
-          <div className="mb-6 overflow-x-auto pb-1.5 sm:mb-7">
-            <div className="flex w-max min-w-full gap-1.5 rounded-xl border border-white/10 bg-slate-950/55 p-1.5 shadow-xl shadow-slate-950/20 backdrop-blur-md sm:w-auto sm:flex-wrap sm:justify-center">
-              {projectFilterOptions.map((filter) => {
-                const isActive = activeProjectFilter === filter;
-
-                return (
-                  <button
-                    key={filter}
-                    type="button"
-                    aria-pressed={isActive}
-                    onClick={() => setActiveProjectFilter(filter)}
-                    className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-950 ${
-                      isActive
-                        ? "border-cyan-300/50 bg-cyan-300/15 text-cyan-100 shadow-lg shadow-cyan-500/15"
-                        : "border-transparent text-slate-400 hover:-translate-y-0.5 hover:bg-white/[0.06] hover:text-slate-100"
-                    }`}
-                  >
-                    {t.myProjects.filters[filter]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {filteredProjects.length > 0 ? (
-            <div
-              key={activeProjectFilter}
-              className="grid gap-5 transition-all duration-300 sm:gap-6 lg:grid-cols-2 xl:gap-7"
-            >
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  liveDemoLabel={t.myProjects.viewProject}
-                  githubLabel={t.myProjects.github}
-                  caseStudyLabel={t.myProjects.caseStudy}
-                  featuredLabel={t.myProjects.featured}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/70 px-6 py-10 text-center shadow-xl shadow-slate-950/20 transition-all duration-300">
-              <h3 className="mb-2 text-xl font-bold text-white">{t.myProjects.emptyState.title}</h3>
-              <p className="text-sm text-slate-400">{t.myProjects.emptyState.description}</p>
-            </div>
-          )}
-        </div>
-      </section>
+      <MyProjectsSection t={t} />
 
 {/* Contact Section */}
       <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
@@ -4084,14 +3435,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-6 sm:py-8 px-4 sm:px-6 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-slate-500 text-sm sm:text-base">
-            짤 2025 Abdujalilov Avrangzeb. {t.footer}
-          </p>
-        </div>
-      </footer>
+      <FooterSection t={t} />
     </div>
   );
 }
