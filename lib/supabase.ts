@@ -1,13 +1,30 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '';
+type SupabasePublicConfig = {
+  url: string;
+  anonKey: string;
+};
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+declare global {
+  interface Window {
+    __SUPABASE_PUBLIC_CONFIG__?: Partial<SupabasePublicConfig>;
+  }
+}
+
+function readSupabasePublicConfig(): SupabasePublicConfig | null {
+  const injectedConfig = typeof window !== 'undefined' ? window.__SUPABASE_PUBLIC_CONFIG__ : undefined;
+
+  const supabaseUrl = (injectedConfig?.url || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+  const supabaseAnonKey = (injectedConfig?.anonKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return { url: supabaseUrl, anonKey: supabaseAnonKey };
+}
 
 const missingSupabaseError = new Error('Supabase is not configured');
-
-let browserSupabase: SupabaseClient | null = null;
 
 function createNoopQuery() {
   const response = Promise.resolve({ data: null, error: missingSupabaseError });
@@ -67,30 +84,52 @@ function createMissingSupabaseClient() {
   } as unknown as SupabaseClient;
 }
 
-function getBrowserSupabaseClient(): SupabaseClient {
-  if (browserSupabase) {
-    return browserSupabase;
-  }
+let browserSupabase: SupabaseClient | null = null;
 
-  if (!isSupabaseConfigured) {
+function getResolvedSupabaseClient() {
+  const config = readSupabasePublicConfig();
+  if (!config) {
     return createMissingSupabaseClient();
   }
 
-  try {
-    browserSupabase = createClient(supabaseUrl, supabaseAnonKey);
-    return browserSupabase;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn('Failed to create Supabase client', err);
-    return createMissingSupabaseClient();
+  if (!browserSupabase) {
+    browserSupabase = createClient(config.url, config.anonKey);
   }
+
+  return browserSupabase;
 }
 
-// Shared browser/client Supabase instance. Returns the real client when env vars exist.
-export const supabase = getBrowserSupabaseClient();
+function createSupabaseFacade(): SupabaseClient {
+  const fallback = createMissingSupabaseClient();
+
+  return new Proxy({} as SupabaseClient, {
+    get(_target, prop) {
+      const client = getResolvedSupabaseClient() || fallback;
+      const value = (client as unknown as Record<PropertyKey, unknown>)[prop];
+
+      if (typeof value === 'function') {
+        return value.bind(client);
+      }
+
+      return value;
+    },
+  });
+}
+
+// Shared browser/client Supabase instance. It resolves the public env config at runtime.
+export const supabase: SupabaseClient = createSupabaseFacade();
 
 export function getSupabaseClient() {
-  return isSupabaseConfigured ? supabase : null;
+  const config = readSupabasePublicConfig();
+  if (!config) {
+    return null;
+  }
+
+  if (!browserSupabase) {
+    browserSupabase = createClient(config.url, config.anonKey);
+  }
+
+  return browserSupabase;
 }
 
 // Types

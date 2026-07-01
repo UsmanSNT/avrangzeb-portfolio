@@ -141,6 +141,14 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0f172a" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__SUPABASE_PUBLIC_CONFIG__=${JSON.stringify({
+              url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+              anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+            })};`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
