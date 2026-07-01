@@ -4,13 +4,129 @@ const missingSupabaseConfigError = new Error(
   'Supabase browser client is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
 );
 
+type SupabaseConfig = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+};
+
 let browserSupabase: SupabaseClient | null = null;
 
-function getSupabasePublicConfig() {
+function getSupabasePublicConfig(): SupabaseConfig {
   return {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '',
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '',
   };
+}
+
+function hasSupabasePublicConfig(config: SupabaseConfig) {
+  return Boolean(config.supabaseUrl && config.supabaseAnonKey);
+}
+
+function createMissingConfigPromise<T>(data: T) {
+  return Promise.resolve({ data, error: missingSupabaseConfigError });
+}
+
+function createMissingConfigQueryBuilder() {
+  const builder = new Proxy({} as Record<PropertyKey, unknown>, {
+    get(_target, prop) {
+      if (prop === 'then') {
+        return (resolve: (value: unknown) => unknown, reject?: (reason: unknown) => unknown) =>
+          createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }).then(resolve, reject);
+      }
+
+      if (prop === 'catch') {
+        return (reject: (reason: unknown) => unknown) =>
+          createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }).catch(reject);
+      }
+
+      if (prop === 'finally') {
+        return (handler: () => void) =>
+          createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }).finally(handler);
+      }
+
+      return () => builder;
+    },
+  });
+
+  return builder;
+}
+
+function createMissingConfigStorageBucket() {
+  const bucket = new Proxy({} as Record<PropertyKey, unknown>, {
+    get(_target, prop) {
+      if (prop === 'getPublicUrl') {
+        return () => ({ data: { publicUrl: '' }, error: missingSupabaseConfigError });
+      }
+
+      if (prop === 'download') {
+        return () => createMissingConfigPromise({ data: null, error: missingSupabaseConfigError });
+      }
+
+      return () => createMissingConfigPromise({ data: null, error: missingSupabaseConfigError });
+    },
+  });
+
+  return bucket;
+}
+
+function createMissingConfigAuth() {
+  const auth = {
+    signInWithPassword: () =>
+      createMissingConfigPromise({ data: { user: null, session: null }, error: missingSupabaseConfigError }),
+    signUp: () =>
+      createMissingConfigPromise({ data: { user: null, session: null }, error: missingSupabaseConfigError }),
+    signOut: () => createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }),
+    getUser: () =>
+      createMissingConfigPromise({ data: { user: null }, error: missingSupabaseConfigError }),
+    getSession: () =>
+      createMissingConfigPromise({ data: { session: null }, error: missingSupabaseConfigError }),
+    updateUser: () =>
+      createMissingConfigPromise({ data: { user: null }, error: missingSupabaseConfigError }),
+    resetPasswordForEmail: () => createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }),
+    onAuthStateChange: () => ({
+      data: {
+        subscription: {
+          unsubscribe() {
+            return undefined;
+          },
+        },
+      },
+      error: missingSupabaseConfigError,
+    }),
+  };
+
+  return auth;
+}
+
+function createMissingConfigClient(): SupabaseClient {
+  const queryBuilder = createMissingConfigQueryBuilder();
+  const storageBucket = createMissingConfigStorageBucket();
+
+  return new Proxy({} as SupabaseClient, {
+    get(_target, prop) {
+      if (prop === 'auth') {
+        return createMissingConfigAuth();
+      }
+
+      if (prop === 'storage') {
+        return {
+          from() {
+            return storageBucket;
+          },
+        };
+      }
+
+      if (prop === 'from' || prop === 'rpc' || prop === 'schema' || prop === 'channel') {
+        return () => queryBuilder;
+      }
+
+      if (prop === 'removeChannel' || prop === 'getChannels') {
+        return () => (prop === 'getChannels' ? [] : undefined);
+      }
+
+      return queryBuilder;
+    },
+  });
 }
 
 function getBrowserSupabaseClient() {
@@ -18,13 +134,14 @@ function getBrowserSupabaseClient() {
     return browserSupabase;
   }
 
-  const { supabaseUrl, supabaseAnonKey } = getSupabasePublicConfig();
+  const config = getSupabasePublicConfig();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw missingSupabaseConfigError;
+  if (!hasSupabasePublicConfig(config)) {
+    browserSupabase = createMissingConfigClient();
+    return browserSupabase;
   }
 
-  browserSupabase = createClient(supabaseUrl, supabaseAnonKey);
+  browserSupabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
   return browserSupabase;
 }
 
@@ -47,12 +164,6 @@ function createSupabaseFacade(): SupabaseClient {
 export const supabase: SupabaseClient = createSupabaseFacade();
 
 export function getSupabaseClient() {
-  const { supabaseUrl, supabaseAnonKey } = getSupabasePublicConfig();
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw missingSupabaseConfigError;
-  }
-
   return getBrowserSupabaseClient();
 }
 
