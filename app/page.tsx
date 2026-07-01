@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Logo } from "@/app/components/Logo";
 import { ProjectCard } from "@/app/components/ProjectCard";
 import { getHomeDictionary } from "@/content/locales";
@@ -100,6 +101,22 @@ const projectTags = [
 const projectStatuses = [false, false, false, false]; // All goals are in progress
 
 const projectFilterOptions: ProjectFilter[] = ["all", "web", "backend", "ai", "cybersecurity", "mobile"];
+
+const heroSpecialties = ["AI Engineer", "Backend Developer", "Network Security", "Cybersecurity", "Cloud"];
+
+const heroStats = [
+  { value: "15+", label: "Projects" },
+  { value: "5+", label: "Technologies" },
+  { value: "4", label: "Languages" },
+  { value: "100%", label: "Responsive" },
+];
+
+const heroVisualNodes = [
+  { label: "API", className: "left-[10%] top-[24%]" },
+  { label: "AI", className: "right-[18%] top-[16%]" },
+  { label: "SEC", className: "right-[8%] bottom-[30%]" },
+  { label: "DB", className: "left-[18%] bottom-[18%]" },
+];
 
 const certifications = [
   { name: "네트워크 관리사 2급 (Network Administrator Level 2)", status: "preparing" },
@@ -2079,7 +2096,228 @@ export default function Portfolio() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center pt-20 px-4 sm:px-6">
+      <section id="home" className="relative min-h-screen overflow-hidden px-4 pt-24 sm:px-6 lg:pt-28">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.18),transparent_30%),radial-gradient(circle_at_78%_24%,rgba(139,92,246,0.18),transparent_28%),linear-gradient(135deg,#020617_0%,#0f172a_48%,#020617_100%)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]" aria-hidden="true" />
+        <motion.div
+          className="absolute left-[8%] top-[18%] h-56 w-56 rounded-full bg-cyan-400/12 blur-3xl"
+          animate={{ opacity: [0.35, 0.65, 0.35], scale: [1, 1.08, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden="true"
+        />
+        <motion.div
+          className="absolute bottom-[10%] right-[8%] h-72 w-72 rounded-full bg-violet-500/12 blur-3xl"
+          animate={{ opacity: [0.25, 0.55, 0.25], scale: [1.04, 1, 1.04] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden="true"
+        />
+
+        <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl flex-col justify-center gap-10 pb-14 lg:grid lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12">
+          <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="max-w-3xl"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]" aria-hidden="true" />
+              AVAILABLE FOR WORK
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18, duration: 0.65, ease: "easeOut" }}
+              className="text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+            >
+              Abdujalilov
+              <span className="block gradient-text">Avrangzeb</span>
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.55 }}
+              className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
+            >
+              <p className="text-2xl font-semibold text-slate-100 sm:text-3xl">Software Engineer</p>
+              <div className="hidden h-7 w-px bg-slate-700 sm:block" aria-hidden="true" />
+              <div className="relative h-8 overflow-hidden text-lg font-semibold text-cyan-200 sm:text-xl">
+                <motion.div
+                  animate={{ y: ["0%", "-20%", "-40%", "-60%", "-80%", "0%"] }}
+                  transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {heroSpecialties.map((specialty) => (
+                    <div key={specialty} className="h-8">
+                      {specialty}
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.36, duration: 0.55 }}
+              className="mt-6 max-w-2xl text-lg leading-8 text-slate-400 sm:text-xl"
+            >
+              I build secure, scalable and intelligent software systems.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.44, duration: 0.55 }}
+              className="mt-8 grid gap-3 sm:flex sm:flex-wrap"
+            >
+              <button
+                onClick={() => scrollToSection("my-projects")}
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-violet-500 px-5 py-3 text-sm font-bold text-white shadow-2xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-cyan-500/35 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                View Projects
+              </button>
+              <a
+                href={cvUrl || staticCvUrl}
+                download="Avrangzeb_CV.pdf"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-white/[0.05] px-5 py-3 text-sm font-bold text-slate-100 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300/40 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                Download Resume
+              </a>
+              <button
+                onClick={() => scrollToSection("contact")}
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-300/40 hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                Contact Me
+              </button>
+              <a
+                href="https://github.com/UsmanSNT"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open GitHub profile"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/12 bg-slate-950/40 px-5 py-3 text-sm font-bold text-slate-200 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/40 hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                GitHub
+              </a>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.54, duration: 0.55 }}
+              className="mt-9 grid grid-cols-2 gap-3 sm:grid-cols-4"
+            >
+              {heroStats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-xl">
+                  <p className="text-2xl font-black text-white">{stat.value}</p>
+                  <p className="mt-1 text-xs font-medium text-slate-500">{stat.label}</p>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.24, duration: 0.75, ease: "easeOut" }}
+            className="relative mx-auto w-full max-w-xl lg:max-w-none"
+          >
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-cyan-400/15 via-violet-500/10 to-transparent blur-2xl" aria-hidden="true" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/65 p-4 shadow-2xl shadow-slate-950/50 backdrop-blur-2xl">
+              <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/80">
+                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-yellow-300" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
+                  </div>
+                  <span className="font-mono text-xs text-slate-500">secure-system.ts</span>
+                </div>
+                <div className="grid gap-4 p-4 sm:p-5">
+                  <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.06] p-4 font-mono text-xs text-slate-300 sm:text-sm">
+                    <p><span className="text-violet-300">const</span> engineer = <span className="text-cyan-200">&quot;Avrangzeb&quot;</span>;</p>
+                    <p><span className="text-violet-300">await</span> buildSecureSystems(&#123;</p>
+                    <p className="pl-4 text-slate-400">ai: true, backend: true, cloud: true,</p>
+                    <p className="pl-4 text-slate-400">security: <span className="text-emerald-300">&quot;by-design&quot;</span></p>
+                    <p>&#125;);</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.div
+                      animate={{ y: [0, -6, 0] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Threat model</p>
+                      <p className="mt-2 text-2xl font-black text-cyan-200">0</p>
+                      <p className="text-xs text-slate-500">critical risks</p>
+                    </motion.div>
+                    <motion.div
+                      animate={{ y: [0, 6, 0] }}
+                      transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Latency</p>
+                      <p className="mt-2 text-2xl font-black text-emerald-200">24ms</p>
+                      <p className="text-xs text-slate-500">edge ready</p>
+                    </motion.div>
+                  </div>
+
+                  <div className="relative h-48 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80">
+                    <svg className="absolute inset-0 h-full w-full opacity-80" viewBox="0 0 420 220" fill="none" aria-hidden="true">
+                      <path d="M74 98C132 44 188 153 246 92C296 40 334 91 366 54" stroke="url(#heroLineA)" strokeWidth="1.5" />
+                      <path d="M70 152C130 106 182 189 250 136C302 96 342 150 382 118" stroke="url(#heroLineB)" strokeWidth="1.5" />
+                      <defs>
+                        <linearGradient id="heroLineA" x1="74" y1="90" x2="366" y2="90">
+                          <stop stopColor="#22d3ee" stopOpacity="0.1" />
+                          <stop offset="0.5" stopColor="#22d3ee" />
+                          <stop offset="1" stopColor="#8b5cf6" stopOpacity="0.25" />
+                        </linearGradient>
+                        <linearGradient id="heroLineB" x1="70" y1="150" x2="382" y2="150">
+                          <stop stopColor="#8b5cf6" stopOpacity="0.1" />
+                          <stop offset="0.5" stopColor="#a78bfa" />
+                          <stop offset="1" stopColor="#22d3ee" stopOpacity="0.25" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    {heroVisualNodes.map((node) => (
+                      <motion.div
+                        key={node.label}
+                        className={`absolute ${node.className} grid h-14 w-14 place-items-center rounded-2xl border border-cyan-300/20 bg-slate-900/80 font-mono text-xs font-bold text-cyan-100 shadow-lg shadow-cyan-500/10 backdrop-blur-xl`}
+                        animate={{ scale: [1, 1.05, 1], opacity: [0.85, 1, 0.85] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        {node.label}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.button
+          type="button"
+          onClick={() => scrollToSection("about")}
+          aria-label="Scroll to about section"
+          className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 rounded-full border border-white/10 bg-white/[0.04] p-2 backdrop-blur-xl transition-colors hover:border-cyan-300/40 lg:block"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <span className="block h-10 w-6 rounded-full border border-slate-500/70 p-1">
+            <span className="mx-auto block h-2 w-1 rounded-full bg-cyan-300" />
+          </span>
+        </motion.button>
+      </section>
+
+      {/* Legacy Hero Section */}
+      <section id="legacy-home" className="hidden">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-6 sm:mb-8 animate-float">
             <div className="w-28 h-28 sm:w-40 sm:h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1 animate-pulse-glow">
