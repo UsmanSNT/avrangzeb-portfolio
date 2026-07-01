@@ -41,6 +41,9 @@ export const ko = {
       criticalRisks: "중요 위험",
       latency: "지연 시간",
       edgeReady: "엣지 준비",
+      security: "보안 계층",
+      server: "백엔드 코어",
+      aiNetwork: "AI 네트워크",
     },
     terminal: {
       whoami: "security_student_korea",

@@ -41,6 +41,9 @@ export const en = {
       criticalRisks: "critical risks",
       latency: "Latency",
       edgeReady: "edge ready",
+      security: "Security layer",
+      server: "Backend core",
+      aiNetwork: "AI network",
     },
     terminal: {
       whoami: "security_student_korea",

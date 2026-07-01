@@ -68,6 +68,9 @@ export interface HomeDictionary {
       criticalRisks: string;
       latency: string;
       edgeReady: string;
+      security: string;
+      server: string;
+      aiNetwork: string;
     };
     terminal: {
       whoami: string;

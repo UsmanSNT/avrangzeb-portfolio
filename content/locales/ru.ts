@@ -41,6 +41,9 @@ export const ru = {
       criticalRisks: "критических рисков",
       latency: "Задержка",
       edgeReady: "готово для edge",
+      security: "Слой защиты",
+      server: "Backend core",
+      aiNetwork: "AI-сеть",
     },
     terminal: {
       whoami: "security_student_korea",

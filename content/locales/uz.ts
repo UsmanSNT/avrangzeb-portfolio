@@ -41,6 +41,9 @@ export const uz = {
       criticalRisks: "critical risks",
       latency: "Latency",
       edgeReady: "edge ready",
+      security: "Xavfsizlik qatlami",
+      server: "Backend yadrosi",
+      aiNetwork: "AI tarmoq",
     },
     terminal: {
       whoami: "security_student_korea",
