@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase ulanishi
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 export default function KnowledgeHub() {
   const [activePanel, setActivePanel] = useState('notes');
@@ -17,6 +16,11 @@ export default function KnowledgeHub() {
   // Ma'lumotlarni Supabase'dan yuklash
   useEffect(() => {
     async function fetchData() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('portfolio_calendar_events')

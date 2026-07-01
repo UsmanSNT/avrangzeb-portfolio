@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient, getMissingSupabaseEnvResponse, getSupabaseEnv } from '@/lib/supabase/server';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // POST - Sertifikat rasmlarini yuklash va gallery'ga qo'shish
 export async function POST(request: Request) {
   try {
+    const { supabaseUrl, supabaseKey } = getSupabaseEnv();
+    const supabase = createSupabaseServerClient();
+
     // Session token olish
     const authHeader = request.headers.get('authorization');
     let accessToken: string | null = null;
@@ -28,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     // Authenticated client yaratish
-    const authenticatedSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+    const authenticatedSupabase = createClient(supabaseUrl, supabaseKey, {
       global: {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -146,6 +145,11 @@ export async function POST(request: Request) {
       results,
     });
   } catch (error: any) {
+    const missingEnvResponse = getMissingSupabaseEnvResponse(error);
+    if (missingEnvResponse) {
+      return NextResponse.json(missingEnvResponse, { status: 500 });
+    }
+
     console.error('Add certificates error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to add certificates' },

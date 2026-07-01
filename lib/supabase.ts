@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+﻿import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,9 +15,7 @@ if (supabaseUrl && supabaseAnonKey) {
     _supabase = null;
   }
 } else {
-  // env not set — avoid throwing during import to prevent client-side crash
-  // eslint-disable-next-line no-console
-  console.warn('NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY not set');
+  // Avoid throwing during import when build or preview env vars are not configured.
 }
 
 // Export a lightweight wrapper that mirrors the minimal supabase interface used in this app.
