@@ -18,10 +18,59 @@ if (supabaseUrl && supabaseAnonKey) {
   // Avoid throwing during import when build or preview env vars are not configured.
 }
 
-// Export a lightweight wrapper that mirrors the minimal supabase interface used in this app.
-export const supabase: any = _supabase || {
-  from: () => ({ select: async () => ({ data: null, error: new Error('Supabase not configured') }) }),
+const missingSupabaseError = new Error('Supabase is not configured');
+
+function createNoopQuery() {
+  const response = Promise.resolve({ data: null, error: missingSupabaseError });
+  const query = {
+    select: () => query,
+    insert: () => query,
+    update: () => query,
+    delete: () => query,
+    upsert: () => query,
+    eq: () => query,
+    neq: () => query,
+    gt: () => query,
+    gte: () => query,
+    lt: () => query,
+    lte: () => query,
+    order: () => query,
+    limit: () => query,
+    single: () => response,
+    maybeSingle: () => response,
+    then: response.then.bind(response),
+    catch: response.catch.bind(response),
+    finally: response.finally.bind(response),
+  };
+
+  return query;
+}
+
+const noopSupabase = {
+  auth: {
+    getUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
+    getSession: async () => ({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({
+      data: {
+        subscription: {
+          unsubscribe: () => undefined,
+        },
+      },
+    }),
+    signOut: async () => ({ error: missingSupabaseError }),
+  },
+  from: () => createNoopQuery(),
+  storage: {
+    from: () => ({
+      upload: async () => ({ data: null, error: missingSupabaseError }),
+      remove: async () => ({ data: null, error: missingSupabaseError }),
+      getPublicUrl: () => ({ data: { publicUrl: '' } }),
+    }),
+  },
 };
+
+// Export a lightweight wrapper that mirrors the minimal supabase interface used in this app.
+export const supabase: any = _supabase || noopSupabase;
 
 // Types
 export interface BookQuote {

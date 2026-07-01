@@ -12,5 +12,5 @@ export const homeDictionaries = {
 } satisfies Record<Locale, HomeDictionary>;
 
 export function getHomeDictionary(locale: Locale): HomeDictionary {
-  return homeDictionaries[locale];
+  return homeDictionaries[locale] ?? homeDictionaries.uz;
 }
