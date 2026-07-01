@@ -8,10 +8,18 @@ export interface ProjectGoal {
 
 export interface ShowcaseProject {
   id: number;
+  slug: string;
   title: string;
   categoryKey: Exclude<ProjectFilter, "all">;
   category: string;
   shortDescription: string;
+  overview: string;
+  problem: string;
+  solution: string;
+  keyFeatures: string[];
+  challenges: string[];
+  lessonsLearned: string[];
+  futureImprovements: string[];
   image: string;
   technologies: readonly string[];
   status: string;
@@ -179,9 +187,20 @@ export interface HomeDictionary {
     title: string;
     subtitle: string;
     viewProject: string;
+    caseStudy: string;
     technologies: string;
     github: string;
     featured: string;
+    backToProjects: string;
+    details: {
+      overview: string;
+      problem: string;
+      solution: string;
+      keyFeatures: string;
+      challenges: string;
+      lessonsLearned: string;
+      futureImprovements: string;
+    };
     filters: Record<ProjectFilter, string>;
     emptyState: {
       title: string;

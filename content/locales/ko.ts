@@ -183,9 +183,20 @@ export const ko = {
     title: "나의 프로젝트",
     subtitle: "제가 만든 웹 프로젝트",
     viewProject: "Live Demo",
+    caseStudy: "Case Study 보기",
     technologies: "기술",
     github: "GitHub",
     featured: "대표",
+    backToProjects: "프로젝트로 돌아가기",
+    details: {
+      overview: "개요",
+      problem: "문제",
+      solution: "해결",
+      keyFeatures: "주요 기능",
+      challenges: "어려웠던 점",
+      lessonsLearned: "배운 점",
+      futureImprovements: "향후 개선 사항",
+    },
     filters: {
       all: "전체",
       web: "웹",
@@ -205,6 +216,16 @@ export const ko = {
         category: "교육 플랫폼",
         shortDescription:
           "책 리뷰, Pomodoro 타이머, 사용자 시스템을 갖춘 지식 공유 교육 플랫폼입니다.",
+        overview:
+          "Bir Ilm은 독서 습관, 책 토론, 개인 학습 루틴에 집중한 웹 플랫폼입니다.",
+        problem:
+          "독자들은 책, 노트, 학습 시간을 여러 도구에 나누어 관리하는 경우가 많아 꾸준함을 유지하기 어렵습니다.",
+        solution:
+          "책 리뷰, Pomodoro 흐름, 사용자 중심 지식 공유를 하나의 간결한 인터페이스로 결합했습니다.",
+        keyFeatures: ["책 리뷰 콘텐츠", "Pomodoro 학습 타이머", "사용자 중심 지식 공유", "반응형 웹 레이아웃"],
+        challenges: ["인터페이스를 단순하게 유지하기", "학습 기능을 명확하게 구성하기", "콘텐츠와 생산성 도구의 균형 맞추기"],
+        lessonsLearned: ["작은 워크플로에는 명확한 위계가 필요합니다", "학습 도구는 가벼울수록 사용성이 좋습니다", "읽기 중심 페이지에서는 반응형 여백이 중요합니다"],
+        futureImprovements: ["사용자 프로필 강화", "저장된 독서 목록 개선", "학습 세션 분석 추가"],
       },
       {
         ...showcaseProjectMeta.uzTravel,
@@ -212,6 +233,16 @@ export const ko = {
         category: "여행 웹사이트",
         shortDescription:
           "우즈베키스탄 도시 정보, 서비스, 갤러리 콘텐츠를 관광객에게 제공하는 여행 정보 플랫폼입니다.",
+        overview:
+          "Uz Travel은 도시 정보, 서비스, 시각 콘텐츠를 통해 우즈베키스탄 여행 정보를 제공합니다.",
+        problem:
+          "관광객은 여행을 계획하기 전에 도시, 서비스, 현장 분위기를 쉽게 파악할 수 있어야 합니다.",
+        solution:
+          "목적지 정보와 미디어 콘텐츠를 명확한 여행 탐색 경험으로 구성했습니다.",
+        keyFeatures: ["도시 정보", "관광 서비스 섹션", "갤러리형 시각 콘텐츠", "반응형 페이지 구조"],
+        challenges: ["넓은 여행 정보를 명확하게 제시하기", "시각 섹션을 가볍게 유지하기", "내비게이션 단순화하기"],
+        lessonsLearned: ["여행 페이지는 빠르게 훑어볼 수 있어야 합니다", "이미지는 의사결정을 도와야 합니다", "단순한 구조는 방문자 신뢰를 높입니다"],
+        futureImprovements: ["지도 기반 탐색 추가", "일정 추천 추가", "다국어 여행 콘텐츠 개선"],
       },
     ],
   },

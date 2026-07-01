@@ -3580,6 +3580,7 @@ export default function Portfolio() {
                   project={project}
                   liveDemoLabel={t.myProjects.viewProject}
                   githubLabel={t.myProjects.github}
+                  caseStudyLabel={t.myProjects.caseStudy}
                   featuredLabel={t.myProjects.featured}
                 />
               ))}

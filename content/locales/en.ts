@@ -183,9 +183,20 @@ export const en = {
     title: "My Projects",
     subtitle: "Web projects I have created",
     viewProject: "Live Demo",
+    caseStudy: "View Case Study",
     technologies: "Technologies",
     github: "GitHub",
     featured: "Featured",
+    backToProjects: "Back to projects",
+    details: {
+      overview: "Overview",
+      problem: "Problem",
+      solution: "Solution",
+      keyFeatures: "Key features",
+      challenges: "Challenges",
+      lessonsLearned: "Lessons learned",
+      futureImprovements: "Future improvements",
+    },
     filters: {
       all: "All",
       web: "Web",
@@ -205,6 +216,16 @@ export const en = {
         category: "Education Platform",
         shortDescription:
           "An education platform with book reviews, a Pomodoro timer, and a user system for sharing knowledge and discussing books.",
+        overview:
+          "Bir Ilm is a web platform focused on reading discipline, book discussions, and personal learning routines.",
+        problem:
+          "Readers often track books, notes, and study sessions in separate tools, which makes consistency harder.",
+        solution:
+          "The project combines book review content, a Pomodoro workflow, and user-oriented knowledge sharing in one focused interface.",
+        keyFeatures: ["Book review content", "Pomodoro study timer", "User-focused knowledge sharing", "Responsive web layout"],
+        challenges: ["Keeping the interface simple", "Organizing learning features clearly", "Balancing content and productivity tools"],
+        lessonsLearned: ["Small workflows need clear hierarchy", "Study tools work best when they stay lightweight", "Responsive spacing matters for reading-focused pages"],
+        futureImprovements: ["Add richer user profiles", "Improve saved reading lists", "Add analytics for study sessions"],
       },
       {
         ...showcaseProjectMeta.uzTravel,
@@ -212,6 +233,16 @@ export const en = {
         category: "Travel Website",
         shortDescription:
           "A travel information platform for Uzbekistan with city details, services, and gallery content for tourists.",
+        overview:
+          "Uz Travel presents Uzbekistan travel information through city-focused content, services, and visual exploration.",
+        problem:
+          "Tourists need a simple way to discover cities, services, and visual context before planning a trip.",
+        solution:
+          "The website organizes destination information and supporting media into a clear travel browsing experience.",
+        keyFeatures: ["City information", "Tourism service sections", "Gallery-style visual content", "Responsive page structure"],
+        challenges: ["Presenting broad travel content clearly", "Making visual sections lightweight", "Keeping navigation simple"],
+        lessonsLearned: ["Travel pages need fast scanning", "Images should support decisions", "Simple structure improves visitor confidence"],
+        futureImprovements: ["Add map-based discovery", "Add itinerary suggestions", "Improve multilingual travel content"],
       },
     ],
   },

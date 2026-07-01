@@ -1,6 +1,7 @@
 export const showcaseProjectMeta = {
   birIlm: {
     id: 1,
+    slug: "bir-ilm",
     categoryKey: "web",
     image: "/images/projects/bir-ilm.svg",
     technologies: ["HTML", "CSS", "JavaScript"],
@@ -13,6 +14,7 @@ export const showcaseProjectMeta = {
   },
   uzTravel: {
     id: 2,
+    slug: "uz-travel",
     categoryKey: "web",
     image: "/images/projects/uz-travel.svg",
     technologies: ["HTML", "CSS", "JavaScript"],

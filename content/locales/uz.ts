@@ -183,9 +183,20 @@ export const uz = {
     title: "Loyihalarim",
     subtitle: "Men yaratgan web loyihalar",
     viewProject: "Live Demo",
+    caseStudy: "Case Study ko'rish",
     technologies: "Texnologiyalar",
     github: "GitHub",
     featured: "Tanlangan",
+    backToProjects: "Loyihalarga qaytish",
+    details: {
+      overview: "Umumiy ko'rinish",
+      problem: "Muammo",
+      solution: "Yechim",
+      keyFeatures: "Asosiy imkoniyatlar",
+      challenges: "Qiyinchiliklar",
+      lessonsLearned: "O'rganilgan saboqlar",
+      futureImprovements: "Kelajakdagi yaxshilanishlar",
+    },
     filters: {
       all: "Barchasi",
       web: "Web",
@@ -205,6 +216,16 @@ export const uz = {
         category: "Ta'lim platformasi",
         shortDescription:
           "Kitob taqrizlari, Pomodoro taymer va foydalanuvchi tizimiga ega ta'lim platformasi.",
+        overview:
+          "Bir Ilm o'qish intizomi, kitob muhokamalari va shaxsiy o'rganish odatlariga qaratilgan web platforma.",
+        problem:
+          "O'quvchilar kitoblar, qaydlar va o'qish seanslarini ko'pincha alohida vositalarda yuritadi, bu esa barqarorlikni qiyinlashtiradi.",
+        solution:
+          "Loyiha kitob taqrizlari, Pomodoro jarayoni va bilim almashish imkoniyatlarini bitta sodda interfeysda birlashtiradi.",
+        keyFeatures: ["Kitob taqrizlari", "Pomodoro o'qish taymeri", "Bilim almashish", "Moslashuvchan web dizayn"],
+        challenges: ["Interfeysni sodda saqlash", "O'rganish funksiyalarini aniq joylashtirish", "Kontent va produktivlik vositalarini muvozanatlash"],
+        lessonsLearned: ["Kichik jarayonlar aniq iyerarxiyani talab qiladi", "O'qish vositalari yengil bo'lsa yaxshi ishlaydi", "Matnli sahifalarda responsive oraliqlar muhim"],
+        futureImprovements: ["Foydalanuvchi profillarini boyitish", "Saqlangan o'qish ro'yxatlarini yaxshilash", "O'qish seanslari statistikalarini qo'shish"],
       },
       {
         ...showcaseProjectMeta.uzTravel,
@@ -212,6 +233,16 @@ export const uz = {
         category: "Sayohat sayti",
         shortDescription:
           "Turistlar uchun O'zbekiston shaharlari, xizmatlari va galereyasi haqida ma'lumot beruvchi sayohat platformasi.",
+        overview:
+          "Uz Travel O'zbekiston bo'ylab sayohat ma'lumotlarini shaharlar, xizmatlar va vizual kontent orqali taqdim etadi.",
+        problem:
+          "Turistlarga safarni rejalashtirishdan oldin shaharlar, xizmatlar va muhit haqida sodda ma'lumot kerak.",
+        solution:
+          "Sayt manzil ma'lumotlari va media kontentni tushunarli sayohat tajribasiga birlashtiradi.",
+        keyFeatures: ["Shaharlar haqida ma'lumot", "Turizm xizmatlari bo'limlari", "Galereya ko'rinishidagi kontent", "Responsive sahifa tuzilmasi"],
+        challenges: ["Keng sayohat kontentini aniq ko'rsatish", "Vizual bo'limlarni yengil saqlash", "Navigatsiyani sodda qilish"],
+        lessonsLearned: ["Sayohat sahifalari tez ko'zdan kechirishga qulay bo'lishi kerak", "Rasmlar qaror qabul qilishga yordam berishi kerak", "Sodda tuzilma ishonchni oshiradi"],
+        futureImprovements: ["Xarita orqali qidirishni qo'shish", "Marshrut tavsiyalarini qo'shish", "Ko'p tilli sayohat kontentini yaxshilash"],
       },
     ],
   },
