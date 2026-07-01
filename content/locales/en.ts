@@ -30,7 +30,7 @@ export const en = {
     githubAria: "Open GitHub profile",
     scrollAria: "Scroll to about section",
     stats: [
-      { value: "15+", label: "Projects" },
+      { value: "5+", label: "Focus Areas" },
       { value: "5+", label: "Technologies" },
       { value: "4", label: "Languages" },
       { value: "100%", label: "Responsive" },

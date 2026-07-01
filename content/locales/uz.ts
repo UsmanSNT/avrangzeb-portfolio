@@ -30,7 +30,7 @@ export const uz = {
     githubAria: "GitHub profilini ochish",
     scrollAria: "Men haqimda bo'limiga o'tish",
     stats: [
-      { value: "15+", label: "Loyihalar" },
+      { value: "5+", label: "Yo'nalishlar" },
       { value: "5+", label: "Texnologiyalar" },
       { value: "4", label: "Tillar" },
       { value: "100%", label: "Moslashuvchan" },

@@ -30,7 +30,7 @@ export const ko = {
     githubAria: "GitHub 프로필 열기",
     scrollAria: "소개 섹션으로 이동",
     stats: [
-      { value: "15+", label: "프로젝트" },
+      { value: "5+", label: "전문 분야" },
       { value: "5+", label: "기술" },
       { value: "4", label: "언어" },
       { value: "100%", label: "반응형" },

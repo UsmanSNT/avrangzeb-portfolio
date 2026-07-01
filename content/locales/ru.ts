@@ -30,7 +30,7 @@ export const ru = {
     githubAria: "Открыть профиль GitHub",
     scrollAria: "Перейти к разделу обо мне",
     stats: [
-      { value: "15+", label: "Проекты" },
+      { value: "5+", label: "Направления" },
       { value: "5+", label: "Технологии" },
       { value: "4", label: "Языка" },
       { value: "100%", label: "Адаптивность" },
