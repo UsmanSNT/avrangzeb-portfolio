@@ -16,6 +16,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    console.log("Supabase public env", {
+      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      hasAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    });
 
     try {
       const { user } = await signIn(email, password);
