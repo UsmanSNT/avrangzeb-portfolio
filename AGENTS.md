@@ -13,6 +13,103 @@ Priorities:
 
 --------------------------------
 
+# Project Identity
+
+Project Name:
+Avrangzeb Portfolio
+
+Purpose:
+
+A premium personal portfolio for Abdujalilov Avrangzeb.
+
+The website should represent:
+
+- Software Engineer
+- AI Engineer
+- Cybersecurity Engineer
+- Network Engineer
+- Backend Developer
+
+Audience:
+
+- Recruiters
+- International companies
+- Clients
+- Startup founders
+- Technical interviewers
+
+Primary goal:
+
+Demonstrate engineering quality rather than simply showcasing projects.
+
+Every design decision should increase credibility.
+
+--------------------------------
+
+# Design Philosophy
+
+Minimal.
+
+Professional.
+
+Modern.
+
+Technical.
+
+Elegant.
+
+Confident.
+
+Never flashy.
+
+Never template-looking.
+
+--------------------------------
+
+# Inspiration
+
+Use the design quality of:
+
+- Stripe
+- Linear
+- Vercel
+- Apple
+- Raycast
+- GitHub
+- Anthropic
+
+Do NOT copy.
+
+Take inspiration from spacing, hierarchy, typography and polish.
+
+--------------------------------
+
+# UX Rules
+
+Every page should answer:
+
+Who is this engineer?
+
+What can he build?
+
+Why should I trust him?
+
+How can I contact him?
+
+Every screen should have a clear purpose.
+
+--------------------------------
+
+# Quality Standard
+
+Before considering any feature complete, ask internally:
+
+Would this impress a senior engineer at Google, Microsoft, OpenAI or Stripe?
+
+If not, continue improving.
+
+--------------------------------
+
 # Development Rules
 
 Always think before coding.
