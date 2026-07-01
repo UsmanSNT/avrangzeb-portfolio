@@ -1,24 +1,13 @@
-﻿import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '';
 
-let _supabase: SupabaseClient | null = null;
-
-if (supabaseUrl && supabaseAnonKey) {
-  try {
-    _supabase = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (err) {
-    // fall through to null client
-    // eslint-disable-next-line no-console
-    console.warn('Failed to create Supabase client', err);
-    _supabase = null;
-  }
-} else {
-  // Avoid throwing during import when build or preview env vars are not configured.
-}
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 const missingSupabaseError = new Error('Supabase is not configured');
+
+let browserSupabase: SupabaseClient | null = null;
 
 function createNoopQuery() {
   const response = Promise.resolve({ data: null, error: missingSupabaseError });
@@ -46,41 +35,63 @@ function createNoopQuery() {
   return query;
 }
 
-const noopSupabase = {
-  auth: {
-    getUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
-    getSession: async () => ({ data: { session: null }, error: null }),
-    onAuthStateChange: () => ({
-      data: {
-        subscription: {
-          unsubscribe: () => undefined,
-        },
-      },
-    }),
-    signInWithPassword: async () => ({
-      data: { user: null, session: null },
-      error: missingSupabaseError,
-    }),
-    signUp: async () => ({
-      data: { user: null, session: null },
-      error: missingSupabaseError,
-    }),
-    signOut: async () => ({ error: missingSupabaseError }),
-    resetPasswordForEmail: async () => ({ data: null, error: missingSupabaseError }),
-    updateUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
-  },
-  from: () => createNoopQuery(),
-  storage: {
-    from: () => ({
-      upload: async () => ({ data: null, error: missingSupabaseError }),
-      remove: async () => ({ data: null, error: missingSupabaseError }),
-      getPublicUrl: () => ({ data: { publicUrl: '' } }),
-    }),
-  },
-};
+function createMissingSupabaseClient() {
+  const missingMutation = async () => ({ data: null, error: missingSupabaseError });
 
-// Export a lightweight wrapper that mirrors the minimal supabase interface used in this app.
-export const supabase: any = _supabase || noopSupabase;
+  return {
+    auth: {
+      getUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({
+        data: {
+          subscription: {
+            unsubscribe: () => undefined,
+          },
+        },
+      }),
+      signInWithPassword: missingMutation,
+      signUp: missingMutation,
+      signOut: async () => ({ error: missingSupabaseError }),
+      resetPasswordForEmail: async () => ({ data: null, error: missingSupabaseError }),
+      updateUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
+    },
+    from: () => createNoopQuery(),
+    rpc: async () => ({ data: null, error: missingSupabaseError }),
+    storage: {
+      from: () => ({
+        upload: async () => ({ data: null, error: missingSupabaseError }),
+        remove: async () => ({ data: null, error: missingSupabaseError }),
+        getPublicUrl: () => ({ data: { publicUrl: '' } }),
+      }),
+    },
+  } as unknown as SupabaseClient;
+}
+
+function getBrowserSupabaseClient(): SupabaseClient {
+  if (browserSupabase) {
+    return browserSupabase;
+  }
+
+  if (!isSupabaseConfigured) {
+    return createMissingSupabaseClient();
+  }
+
+  try {
+    browserSupabase = createClient(supabaseUrl, supabaseAnonKey);
+    return browserSupabase;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('Failed to create Supabase client', err);
+    return createMissingSupabaseClient();
+  }
+}
+
+// Shared browser/client Supabase instance. Returns the real client when env vars exist.
+export const supabase = getBrowserSupabaseClient();
+
+export function getSupabaseClient() {
+  return isSupabaseConfigured ? supabase : null;
+}
 
 // Types
 export interface BookQuote {
@@ -112,4 +123,3 @@ export interface Note {
   important: boolean;
   created_at: string;
 }
-
