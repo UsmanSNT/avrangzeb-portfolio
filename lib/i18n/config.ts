@@ -1,6 +1,6 @@
 import type { Locale } from "./types";
 
-export const defaultLocale: Locale = "uz";
+export const defaultLocale: Locale = "en";
 
 export const supportedLocales = ["en", "ko", "uz", "ru"] as const satisfies readonly Locale[];
 
