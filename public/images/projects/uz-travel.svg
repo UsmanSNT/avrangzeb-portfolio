@@ -1,0 +1,11 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="640" fill="#0f172a"/>
+  <rect x="74" y="76" width="812" height="488" rx="32" fill="#111827" stroke="#38bdf8" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M160 410c90-126 168-190 236-190 86 0 122 104 206 104 62 0 110-54 198-150v236H160Z" fill="#0ea5e9" fill-opacity=".25"/>
+  <path d="M160 410c90-126 168-190 236-190 86 0 122 104 206 104 62 0 110-54 198-150" stroke="#7dd3fc" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="244" cy="176" r="54" fill="#facc15" fill-opacity=".9"/>
+  <rect x="166" y="458" width="628" height="42" rx="21" fill="#0ea5e9" fill-opacity=".24"/>
+  <path d="M220 480h520" stroke="#bae6fd" stroke-width="12" stroke-linecap="round"/>
+  <path d="M710 180l54 54-54 54-54-54 54-54Z" fill="#22d3ee" fill-opacity=".32" stroke="#67e8f9" stroke-width="10"/>
+  <text x="126" y="544" fill="#ecfeff" font-family="Arial, sans-serif" font-size="44" font-weight="700">Uz Travel</text>
+</svg>

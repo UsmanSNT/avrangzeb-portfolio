@@ -1,0 +1,11 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="640" fill="#0f172a"/>
+  <rect x="72" y="72" width="816" height="496" rx="32" fill="#111827" stroke="#10b981" stroke-opacity=".35" stroke-width="2"/>
+  <rect x="120" y="124" width="244" height="340" rx="20" fill="#064e3b"/>
+  <path d="M168 180h148M168 226h148M168 272h112M168 356h148M168 402h96" stroke="#d1fae5" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="590" cy="246" r="92" fill="#14b8a6" fill-opacity=".2" stroke="#2dd4bf" stroke-width="16"/>
+  <path d="M590 194v56l42 28" stroke="#ccfbf1" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="482" y="392" width="268" height="56" rx="16" fill="#10b981" fill-opacity=".22" stroke="#34d399" stroke-opacity=".5"/>
+  <path d="M526 420h180" stroke="#d1fae5" stroke-width="14" stroke-linecap="round"/>
+  <text x="120" y="524" fill="#ecfeff" font-family="Arial, sans-serif" font-size="44" font-weight="700">Bir Ilm</text>
+</svg>

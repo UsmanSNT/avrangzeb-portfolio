@@ -182,19 +182,22 @@ export const en = {
   myProjects: {
     title: "My Projects",
     subtitle: "Web projects I have created",
-    viewProject: "View Project",
+    viewProject: "Live Demo",
     technologies: "Technologies",
+    github: "GitHub",
     projects: [
       {
         ...showcaseProjectMeta.birIlm,
         title: "Bir Ilm",
-        description:
+        category: "Education Platform",
+        shortDescription:
           "An education platform with book reviews, a Pomodoro timer, and a user system for sharing knowledge and discussing books.",
       },
       {
         ...showcaseProjectMeta.uzTravel,
         title: "Uz Travel",
-        description:
+        category: "Travel Website",
+        shortDescription:
           "A travel information platform for Uzbekistan with city details, services, and gallery content for tourists.",
       },
     ],

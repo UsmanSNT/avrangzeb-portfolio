@@ -8,10 +8,15 @@ export interface ProjectGoal {
 export interface ShowcaseProject {
   id: number;
   title: string;
-  description: string;
+  category: string;
+  shortDescription: string;
   image: string;
-  link: string;
   technologies: readonly string[];
+  status: string;
+  year: string;
+  githubUrl: string;
+  demoUrl: string;
+  featured: boolean;
   color: string;
 }
 
@@ -173,6 +178,7 @@ export interface HomeDictionary {
     subtitle: string;
     viewProject: string;
     technologies: string;
+    github: string;
     projects: ShowcaseProject[];
   };
   contact: {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Logo } from "@/app/components/Logo";
+import { ProjectCard } from "@/app/components/ProjectCard";
 import { getHomeDictionary } from "@/content/locales";
 import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/i18n/types";
@@ -3536,72 +3537,14 @@ export default function Portfolio() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
             {t.myProjects.projects.map((project) => (
-              <div
+              <ProjectCard
                 key={project.id}
-                className="group relative bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10"
-              >
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                
-                {/* Project Image/Preview */}
-                <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-20`}></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br ${project.color} flex items-center justify-center shadow-lg`}>
-                        {project.id === 1 ? (
-                          <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                          </svg>
-                        ) : (
-                          <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-white">{project.title}</h3>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
-                </div>
-
-                {/* Content */}
-                <div className="relative p-5 sm:p-6">
-                  <p className="text-slate-400 text-sm sm:text-base mb-4 line-clamp-3">
-                    {project.description}
-                  </p>
-
-                  {/* Technologies */}
-                  <div className="mb-4">
-                    <p className="text-xs text-slate-500 mb-2">{t.myProjects.technologies}:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* View Project Button */}
-                  <a
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${project.color} rounded-lg text-white font-medium text-sm hover:shadow-lg transition-all duration-300`}
-                  >
-                    {t.myProjects.viewProject}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
+                project={project}
+                liveDemoLabel={t.myProjects.viewProject}
+                githubLabel={t.myProjects.github}
+              />
             ))}
           </div>
         </div>

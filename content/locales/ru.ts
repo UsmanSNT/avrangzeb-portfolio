@@ -182,19 +182,22 @@ export const ru = {
   myProjects: {
     title: "Мои проекты",
     subtitle: "Веб-проекты, которые я создал",
-    viewProject: "Открыть проект",
+    viewProject: "Live Demo",
     technologies: "Технологии",
+    github: "GitHub",
     projects: [
       {
         ...showcaseProjectMeta.birIlm,
         title: "Bir Ilm",
-        description:
+        category: "Образовательная платформа",
+        shortDescription:
           "Образовательная платформа с обзорами книг, Pomodoro-таймером и системой пользователей для обмена знаниями.",
       },
       {
         ...showcaseProjectMeta.uzTravel,
         title: "Uz Travel",
-        description:
+        category: "Туристический сайт",
+        shortDescription:
           "Туристическая платформа об Узбекистане с информацией о городах, услугах и галереей для путешественников.",
       },
     ],

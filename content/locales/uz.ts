@@ -182,19 +182,22 @@ export const uz = {
   myProjects: {
     title: "Loyihalarim",
     subtitle: "Men yaratgan web loyihalar",
-    viewProject: "Loyihani ko'rish",
+    viewProject: "Live Demo",
     technologies: "Texnologiyalar",
+    github: "GitHub",
     projects: [
       {
         ...showcaseProjectMeta.birIlm,
         title: "Bir Ilm",
-        description:
+        category: "Ta'lim platformasi",
+        shortDescription:
           "Kitob taqrizlari, Pomodoro taymer va foydalanuvchi tizimiga ega ta'lim platformasi.",
       },
       {
         ...showcaseProjectMeta.uzTravel,
         title: "Uz Travel",
-        description:
+        category: "Sayohat sayti",
+        shortDescription:
           "Turistlar uchun O'zbekiston shaharlari, xizmatlari va galereyasi haqida ma'lumot beruvchi sayohat platformasi.",
       },
     ],

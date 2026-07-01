@@ -182,19 +182,22 @@ export const ko = {
   myProjects: {
     title: "나의 프로젝트",
     subtitle: "제가 만든 웹 프로젝트",
-    viewProject: "프로젝트 보기",
+    viewProject: "Live Demo",
     technologies: "기술",
+    github: "GitHub",
     projects: [
       {
         ...showcaseProjectMeta.birIlm,
         title: "Bir Ilm",
-        description:
+        category: "교육 플랫폼",
+        shortDescription:
           "책 리뷰, Pomodoro 타이머, 사용자 시스템을 갖춘 지식 공유 교육 플랫폼입니다.",
       },
       {
         ...showcaseProjectMeta.uzTravel,
         title: "Uz Travel",
-        description:
+        category: "여행 웹사이트",
+        shortDescription:
           "우즈베키스탄 도시 정보, 서비스, 갤러리 콘텐츠를 관광객에게 제공하는 여행 정보 플랫폼입니다.",
       },
     ],
