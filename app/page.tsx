@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NextImage from "next/image";
+import { Logo } from "@/app/components/Logo";
 import { getHomeDictionary } from "@/content/locales";
 import { defaultLocale, isSupportedLocale, languageLabels, languageStorageKey, supportedLocales } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/i18n/types";
@@ -78,18 +78,6 @@ const GlobeIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
   </svg>
-);
-
-// Logo Component
-const Logo = () => (
-  <NextImage
-    src="/brand/logo-icon.png"
-    alt="Avrangzeb Abdujalilov logo"
-    width={40}
-    height={40}
-    className="w-10 h-10 rounded-lg object-contain"
-    priority
-  />
 );
 
 const skillsData = [

@@ -20,7 +20,7 @@ export const ko = {
     title: "Abdujalilov Avrangzeb",
     subtitle: "정보보안 및 네트워크 전문가",
     description:
-      "대한민국 전주 우석대학교 정보보안 전공 졸업반 학생입니다. 네트워크, 사이버보안, 실무형 AI 통합에 집중하고 있습니다.",
+      "대한민국 전주 우석대학교 정보보안 전공 4학년 학생입니다. 네트워킹, 사이버보안, 실무형 AI 통합에 집중하고 있습니다.",
     viewProjects: "목표 보기",
     contact: "연락하기",
     terminal: {
@@ -33,7 +33,7 @@ export const ko = {
     title: "소개",
     greeting: "안녕하세요! 저는",
     intro:
-      "대한민국 전주 우석대학교 정보보안 전공 졸업반 학생입니다.",
+      "대한민국 전주 우석대학교에서 정보보안을 전공하는 4학년 학생입니다.",
     passion:
       "현재 네트워크관리사 2급 시험을 준비하고 있으며 CCNA, CompTIA Network+, LPIC-1 자격증도 함께 준비하고 있습니다.",
     goal:
@@ -41,13 +41,13 @@ export const ko = {
     education: "학력",
     university: "우석대학교",
     faculty: "정보보안 전공",
-    years: "전주, 대한민국 - 졸업반",
+    years: "전주, 대한민국 - 4학년",
     certificates: "준비 중인 자격증",
     preparingCerts: "현재 준비 중",
     stats: {
       projects: "목표",
       certificates: "준비 중",
-      experience: "시작",
+      experience: "시작 단계",
     },
   },
   skills: {
@@ -68,7 +68,7 @@ export const ko = {
       {
         title: "CCNA 자격증 취득",
         description:
-          "Cisco Certified Network Associate 자격증을 통해 Cisco 네트워크 지식을 더 깊게 쌓습니다.",
+          "Cisco Certified Network Associate 자격증을 통해 Cisco 네트워크 지식을 더 깊게 학습합니다.",
       },
       {
         title: "AI와 네트워크 통합",
@@ -78,7 +78,7 @@ export const ko = {
       {
         title: "국제 IT 기업에서 근무",
         description:
-          "글로벌 IT 환경에서 실무 경험을 쌓고 실제 시스템에 기술 지식을 적용합니다.",
+          "글로벌 IT 환경에서 실무 경험을 쌓고 기술 지식을 실제 시스템에 적용합니다.",
       },
     ],
   },
@@ -116,7 +116,7 @@ export const ko = {
     itemTitle: "제목",
     itemTitlePlaceholder: "예: CCNA 자격증",
     itemDescription: "설명",
-    itemDescriptionPlaceholder: "이 사진 또는 자격증에 대해 작성하세요...",
+    itemDescriptionPlaceholder: "이 사진이나 자격증에 대해 작성하세요...",
     itemCategory: "카테고리",
     categories: {
       certificate: "자격증",
@@ -128,7 +128,7 @@ export const ko = {
     images: "이미지 (1-5)",
     uploadImages: "이미지 업로드",
     addMore: "더 추가",
-    maxImages: "최대 5장",
+    maxImages: "최대 5개 이미지",
     cancel: "취소",
     save: "저장",
     add: "추가",
@@ -164,14 +164,14 @@ export const ko = {
   },
   cv: {
     title: "이력서",
-    subtitle: "이력서 다운로드",
+    subtitle: "이력서를 다운로드하세요",
     download: "이력서 다운로드",
     upload: "이력서 업로드",
     uploadNew: "새 이력서 업로드",
     noCv: "아직 이력서가 업로드되지 않았습니다",
     uploadFirst: "이력서 업로드",
     uploading: "업로드 중...",
-    uploadSuccess: "이력서가 업로드되었습니다",
+    uploadSuccess: "이력서가 성공적으로 업로드되었습니다",
     uploadError: "이력서 업로드 오류",
     deleteConfirm: "이력서를 삭제하시겠습니까?",
     deleteSuccess: "이력서가 삭제되었습니다",
@@ -195,7 +195,7 @@ export const ko = {
         ...showcaseProjectMeta.uzTravel,
         title: "Uz Travel",
         description:
-          "우즈베키스탄 도시, 서비스, 갤러리 정보를 관광객에게 제공하는 여행 플랫폼입니다.",
+          "우즈베키스탄 도시 정보, 서비스, 갤러리 콘텐츠를 관광객에게 제공하는 여행 정보 플랫폼입니다.",
       },
     ],
   },
@@ -203,7 +203,7 @@ export const ko = {
     title: "연락처",
     subtitle: "연락하기",
     description:
-      "새 프로젝트, 협업, 프리랜스 작업 또는 채용 기회와 관련해 연락할 수 있습니다.",
+      "새 프로젝트, 협업, 프리랜스 작업 또는 채용 기회에 대해 언제든지 연락해 주세요.",
     email: "이메일",
     phone: "전화",
     location: "위치",
