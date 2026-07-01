@@ -110,6 +110,111 @@ If not, continue improving.
 
 --------------------------------
 
+# Development Workflow
+
+This project follows an iterative engineering workflow.
+
+For every feature:
+
+Phase 1
+Architecture
+
+- Analyze the existing implementation.
+- Identify reusable components.
+- Avoid duplicate logic.
+
+Phase 2
+Implementation
+
+- Implement only the requested scope.
+- Do not modify unrelated code.
+- Keep changes small and maintainable.
+
+Phase 3
+Review
+
+Before finishing, review your own implementation.
+
+Ask yourself:
+
+- Can this component be cleaner?
+- Can this UI be more professional?
+- Is the mobile version excellent?
+- Is accessibility preserved?
+- Is performance preserved?
+- Is the code reusable?
+
+Improve the implementation before verification.
+
+--------------------------------
+
+# Deployment Workflow
+
+Automatically perform:
+
+npm run lint
+
+npm run typecheck
+
+npm run build
+
+If build fails:
+
+- diagnose
+- fix
+- build again
+
+Do not stop after the first failure.
+
+--------------------------------
+
+# Vercel
+
+After every successful push:
+
+- Wait for Vercel deployment.
+- Verify deployment completed successfully.
+- Verify the homepage loads.
+- Verify there are no runtime errors.
+- Return deployment URL.
+
+--------------------------------
+
+# UI Review
+
+After every UI sprint:
+
+Review the page as if you were:
+
+- Senior Frontend Engineer
+- Product Designer
+- UX Designer
+
+List:
+
+- strengths
+- weaknesses
+- possible improvements
+
+before ending the sprint.
+
+--------------------------------
+
+# Mobile First
+
+Desktop is important.
+
+Mobile is mandatory.
+
+Every feature must be reviewed on:
+
+- Mobile
+- Tablet
+- Laptop
+- Desktop
+
+Never finish a sprint without checking all breakpoints.
+
 # Development Rules
 
 Always think before coding.
