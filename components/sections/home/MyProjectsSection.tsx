@@ -30,7 +30,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
               Portfolio
             </span>
             <h2 className="flex items-center gap-3 text-3xl font-black tracking-normal text-white sm:text-4xl lg:text-[2.75rem]">
-              <span className="text-xl sm:text-2xl lg:text-3xl" aria-hidden="true">??</span>
+              <span className="text-xl sm:text-2xl lg:text-3xl" aria-hidden="true">💼</span>
               <span className="gradient-text">{t.myProjects.title}</span>
           </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">

@@ -78,7 +78,7 @@ export function AboutSection({ t }: AboutSectionProps) {
                 <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.certificates}</p>
               </div>
               <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-green-400">??</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-400">🚀</p>
                 <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.experience}</p>
               </div>
             </div>
