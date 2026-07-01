@@ -1,18 +1,24 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '';
-
 const missingSupabaseConfigError = new Error(
   'Supabase browser client is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
 );
 
 let browserSupabase: SupabaseClient | null = null;
 
+function getSupabasePublicConfig() {
+  return {
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '',
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '',
+  };
+}
+
 function getBrowserSupabaseClient() {
   if (browserSupabase) {
     return browserSupabase;
   }
+
+  const { supabaseUrl, supabaseAnonKey } = getSupabasePublicConfig();
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw missingSupabaseConfigError;
@@ -41,6 +47,8 @@ function createSupabaseFacade(): SupabaseClient {
 export const supabase: SupabaseClient = createSupabaseFacade();
 
 export function getSupabaseClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabasePublicConfig();
+
   if (!supabaseUrl || !supabaseAnonKey) {
     throw missingSupabaseConfigError;
   }
