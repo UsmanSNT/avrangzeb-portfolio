@@ -1848,7 +1848,7 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="min-h-screen network-bg text-slate-200">
+    <div className="min-h-screen bg-[#05070d] text-slate-200">
       {/* Migration Loading Overlay */}
       {isMigrating && (
         <div className="fixed inset-0 z-[100] bg-slate-900/95 flex items-center justify-center">
@@ -1862,8 +1862,8 @@ export default function Portfolio() {
       )}
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#05070d]/78 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Logo - bosh sahifaga havola */}
             <button 
@@ -1891,7 +1891,7 @@ export default function Portfolio() {
                   <a
                     key={item.id}
                     href={item.href}
-                    className="text-sm font-medium transition-colors hover:text-cyan-400 text-slate-400"
+                    className="rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-cyan-100"
                   >
                     {item.label}
                   </a>
@@ -1899,8 +1899,8 @@ export default function Portfolio() {
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`text-sm font-medium transition-colors hover:text-cyan-400 ${
-                      activeSection === item.id ? "text-cyan-400" : "text-slate-400"
+                    className={`rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors hover:bg-white/[0.05] hover:text-cyan-100 ${
+                      activeSection === item.id ? "bg-cyan-300/10 text-cyan-100" : "text-slate-400"
                     }`}
                   >
                     {item.label}
@@ -1914,20 +1914,20 @@ export default function Portfolio() {
               <div className="relative">
                 <button
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500/50 transition-colors"
+                  className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] px-2 py-2 transition-colors hover:border-cyan-300/40 sm:gap-2 sm:px-3"
                 >
                   <GlobeIcon />
                   <span className="text-lg">{languageLabels[language].flag}</span>
                 </button>
                 
                 {isLangMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
+                  <div className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-xl border border-white/10 bg-slate-950/95 shadow-2xl shadow-slate-950/40 backdrop-blur-2xl">
                     {supportedLocales.map((lang) => (
                       <button
                         key={lang}
                         onClick={() => changeLanguage(lang)}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-700/50 transition-colors ${
-                          language === lang ? "bg-cyan-500/20 text-cyan-400" : "text-slate-300"
+                          language === lang ? "bg-cyan-500/20 text-cyan-200" : "text-slate-300"
                         }`}
                       >
                         <span className="text-xl">{languageLabels[lang].flag}</span>
@@ -1942,7 +1942,7 @@ export default function Portfolio() {
               {isLoggedIn ? (
                 <a
                   href={isAdmin ? "/admin" : "/dashboard"}
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="hidden items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-100 sm:flex"
                 >
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
                     {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
@@ -1952,7 +1952,7 @@ export default function Portfolio() {
               ) : (
                 <a
                   href="/auth/login"
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="hidden items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-100 sm:flex"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -1964,7 +1964,7 @@ export default function Portfolio() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                className="rounded-lg border border-white/10 bg-white/[0.04] p-2 text-slate-400 transition-colors hover:text-cyan-100 md:hidden"
               >
                 {isMobileMenuOpen ? <CloseMenuIcon /> : <MenuIcon />}
               </button>
@@ -1973,7 +1973,7 @@ export default function Portfolio() {
           
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-slate-700 pt-4">
+            <div className="mt-4 border-t border-white/10 pb-4 pt-4 md:hidden">
               <div className="flex flex-col gap-2">
                 {[
                   { id: "books", label: t.nav.books },
@@ -2056,19 +2056,27 @@ export default function Portfolio() {
       <ProjectsGoalsSection t={t} />
 
       {/* Book Quotes Section */}
-      <section id="books" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📚 {t.books.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="books" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+        <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.9))]" aria-hidden="true" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-100">
+                {t.books.title}
+              </p>
+              <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-white">
+                {t.books.subtitle}
+              </h2>
+            </div>
+            <div className="lg:justify-self-end">
+              <p className="text-slate-300 text-base sm:text-lg max-w-2xl mb-5 leading-7">
               {t.books.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openBookModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-slate-950 rounded-lg font-black hover:bg-cyan-50 transition-all text-sm sm:text-base shadow-xl shadow-cyan-500/15"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2076,12 +2084,13 @@ export default function Portfolio() {
                 {t.books.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {bookQuotes.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">📚</span>
+            <div className="text-center py-16 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-cyan-300/[0.08] border border-cyan-300/20 flex items-center justify-center">
+                <span className="text-4xl" aria-hidden="true">B</span>
               </div>
               <p className="text-slate-500 mb-4">{t.books.noQuotes}</p>
               {isAdmin && (
@@ -2095,7 +2104,7 @@ export default function Portfolio() {
             </div>
           ) : (
             <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {/* TOP 5 - sorted by likes */}
               {[...bookQuotes].sort((a, b) => b.likes - a.likes).slice(0, 5).map((quote) => {
                 const isExpanded = expandedQuotes.has(quote.id);
@@ -2104,12 +2113,12 @@ export default function Portfolio() {
                 return (
                 <div
                   key={quote.id}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
+                  className="group bg-white/[0.045] rounded-2xl border border-white/10 overflow-hidden hover:-translate-y-1 hover:border-cyan-300/35 transition-all duration-300 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl"
                 >
                   {/* Image - kattaroq va bosiladigan */}
                   {quote.image && (
                     <div 
-                      className="relative h-52 sm:h-64 overflow-hidden cursor-pointer"
+                      className="relative h-52 sm:h-64 overflow-hidden cursor-pointer bg-slate-950"
                       onClick={() => setViewingQuote(quote)}
                     >
                       <img
@@ -2117,7 +2126,7 @@ export default function Portfolio() {
                         alt={quote.bookTitle}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent"></div>
                       {/* Zoom icon */}
                       <div className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2172,7 +2181,7 @@ export default function Portfolio() {
                     </div>
                     
                     {/* Actions */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
                       {/* Reactions */}
                       <div className="flex items-center gap-3">
                         <button
@@ -2239,7 +2248,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/books"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.05] border border-white/10 rounded-lg text-slate-200 hover:text-white hover:border-cyan-300/40 transition-all backdrop-blur-xl"
                 >
                   {t.books.viewAll} ({bookQuotes.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2340,19 +2349,27 @@ export default function Portfolio() {
       )}
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">🖼️ {t.gallery.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="gallery" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+        <div className="absolute inset-0 bg-[#080b14]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(139,92,246,0.14),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.88))]" aria-hidden="true" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+                {t.gallery.title}
+              </p>
+              <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-white">
+                {t.gallery.subtitle}
+              </h2>
+            </div>
+            <div className="lg:justify-self-end">
+              <p className="text-slate-300 text-base sm:text-lg max-w-2xl mb-5 leading-7">
               {t.gallery.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openGalleryModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-slate-950 rounded-lg font-black hover:bg-violet-50 transition-all text-sm sm:text-base shadow-xl shadow-violet-500/15"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2360,12 +2377,13 @@ export default function Portfolio() {
                 {t.gallery.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {galleryItems.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">*</span>
+            <div className="text-center py-16 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-violet-300/[0.08] border border-violet-300/20 flex items-center justify-center">
+                <span className="text-4xl" aria-hidden="true">G</span>
               </div>
               <p className="text-slate-500 mb-4">{t.gallery.noItems}</p>
               {isAdmin && (
@@ -2379,17 +2397,17 @@ export default function Portfolio() {
             </div>
           ) : (
             <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {/* TOP 5 gallery items */}
               {galleryItems.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
+                  className="group bg-white/[0.045] rounded-2xl border border-white/10 overflow-hidden hover:-translate-y-1 hover:border-violet-300/35 transition-all duration-300 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl"
                 >
                   {/* Images Preview */}
                   {item.images.length > 0 ? (
                     <div 
-                      className="relative h-48 sm:h-56 cursor-pointer overflow-hidden"
+                      className="relative h-48 sm:h-56 cursor-pointer overflow-hidden bg-slate-950"
                       onClick={() => openGalleryViewer(item, 0)}
                     >
                       <img
@@ -2405,13 +2423,13 @@ export default function Portfolio() {
                           +{item.images.length - 1}
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent"></div>
                       <div className="absolute bottom-3 left-3">
                         <span className="text-2xl">{getCategoryIcon(item.category)}</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="h-48 sm:h-56 bg-slate-700/30 flex items-center justify-center">
+                    <div className="h-48 sm:h-56 bg-slate-950/60 flex items-center justify-center">
                       <span className="text-6xl opacity-30">{getCategoryIcon(item.category)}</span>
                     </div>
                   )}
@@ -2430,7 +2448,7 @@ export default function Portfolio() {
                     </p>
                     
                     {/* Date and Actions */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
                       <span className="text-xs text-slate-500">{item.date}</span>
                       
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -2483,7 +2501,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/gallery"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.05] border border-white/10 rounded-lg text-slate-200 hover:text-white hover:border-violet-300/40 transition-all backdrop-blur-xl"
                 >
                   {t.gallery.viewAll} ({galleryItems.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2712,13 +2730,20 @@ export default function Portfolio() {
       )}
 
       {/* CV Section */}
-      <section id="cv" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📄 {t.cv.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="cv" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+        <div className="absolute inset-0 bg-[#070a12]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(34,211,238,0.12),transparent_34%,rgba(16,185,129,0.1)_72%,transparent),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-emerald-300/20 bg-emerald-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-100">
+                {t.cv.title}
+              </p>
+              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-white sm:text-5xl">
+                {t.cv.title}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg lg:justify-self-end">
               {t.cv.subtitle}
             </p>
           </div>
@@ -2728,10 +2753,10 @@ export default function Portfolio() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
             </div>
           ) : cvUrl ? (
-            <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 sm:p-8">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-2xl sm:p-8">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200/25 bg-cyan-300/[0.12] text-cyan-100">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -2751,7 +2776,7 @@ export default function Portfolio() {
                     target="_blank"
                     rel="noopener noreferrer"
                     download="Avrangzeb_CV.pdf"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-bold text-slate-950 transition-colors hover:bg-cyan-100"
                     onClick={(e) => {
                       // Yangi tab'da ochilishini ta'minlash
                       e.preventDefault();
@@ -2772,7 +2797,7 @@ export default function Portfolio() {
                   </a>
                   {isAdmin && (
                     <>
-                      <label className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-slate-600 rounded-xl font-semibold text-slate-300 hover:bg-slate-700/50 transition-all cursor-pointer">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-slate-300 transition-all hover:bg-white/[0.08]">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
@@ -2787,7 +2812,7 @@ export default function Portfolio() {
                       </label>
                       <button
                         onClick={handleCVDelete}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-red-500/50 rounded-xl font-semibold text-red-400 hover:bg-red-500/10 transition-all"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/50 px-6 py-3 font-semibold text-red-300 transition-all hover:bg-red-500/10"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2801,15 +2826,15 @@ export default function Portfolio() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
                 <svg className="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               {/* Static CV mavjud bo'lsa, uni ko'rsatish */}
-              <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 sm:p-8 max-w-md mx-auto">
+              <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-2xl sm:p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200/25 bg-cyan-300/[0.12] text-cyan-100">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -2828,7 +2853,7 @@ export default function Portfolio() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download="Avrangzeb_CV.pdf"
-                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-bold text-slate-950 transition-colors hover:bg-cyan-100"
                   onClick={(e) => {
                     // Yangi tab'da ochilishini ta'minlash
                     e.preventDefault();
@@ -2848,7 +2873,7 @@ export default function Portfolio() {
                   {t.cv.download}
                 </a>
                 {isAdmin && (
-                  <label className="mt-4 inline-flex items-center justify-center gap-2 w-full px-6 py-3 border border-slate-600 rounded-xl font-semibold text-slate-300 hover:bg-slate-700/50 transition-all cursor-pointer">
+                  <label className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-slate-300 transition-all hover:bg-white/[0.08]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
@@ -2869,19 +2894,27 @@ export default function Portfolio() {
       </section>
 
       {/* IT News Section */}
-      <section id="it-news" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📰 {t.itNews.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="it-news" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+        <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(125deg,rgba(139,92,246,0.12),transparent_35%,rgba(34,211,238,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+                {t.itNews.title}
+              </p>
+              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-white sm:text-5xl">
+                {t.itNews.title}
+              </h2>
+            </div>
+            <div className="max-w-2xl lg:justify-self-end">
+              <p className="text-base leading-7 text-slate-300 sm:text-lg">
               {t.itNews.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openITNewsModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-100 sm:px-6 sm:py-3 sm:text-base"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2889,6 +2922,7 @@ export default function Portfolio() {
                 {t.itNews.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {isLoadingITNews ? (
@@ -2897,8 +2931,8 @@ export default function Portfolio() {
             </div>
           ) : itNews.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">📰</span>
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
+                <span className="text-2xl font-black text-slate-300">N</span>
               </div>
               <p className="text-slate-500 mb-4">{t.itNews.noNews}</p>
               {isAdmin && (
@@ -2911,12 +2945,12 @@ export default function Portfolio() {
               )}
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {itNews.map((news) => (
                 <div
                   key={news.id}
                   id={`it-news-${news.id}`}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer"
+                  className="group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-slate-950/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-cyan-300/40"
                   onClick={() => {
                     openNewsViewer(news);
                   }}
@@ -2929,7 +2963,7 @@ export default function Portfolio() {
                         alt={news.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 to-transparent"></div>
                     </div>
                   )}
                   
@@ -2944,7 +2978,7 @@ export default function Portfolio() {
                     </p>
                     
                     {/* Meta info */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
                       <div className="flex items-center gap-2 text-xs text-slate-500">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -2959,7 +2993,7 @@ export default function Portfolio() {
                             e.stopPropagation();
                             shareITNews(news);
                           }}
-                          className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                          className="rounded-lg border border-white/10 bg-white/[0.04] p-2 text-slate-300 transition-all hover:bg-cyan-500/10 hover:text-cyan-300"
                           title={t.itNews.share}
                           aria-label={t.itNews.share}
                         >
@@ -3297,50 +3331,62 @@ export default function Portfolio() {
 
       <MyProjectsSection t={t} />
 
-{/* Contact Section */}
-      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-            <span className="gradient-text">{t.contact.title}</span>
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+      {/* Contact Section */}
+      <section id="contact" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+        <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(34,211,238,0.13),transparent_35%,rgba(139,92,246,0.12)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.22),rgba(2,6,23,0.95))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-100">
+                {t.contact.title}
+              </p>
+              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-white sm:text-5xl">
+                {t.contact.subtitle}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg lg:justify-self-end">
+              {t.contact.description}
+            </p>
+          </div>
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             {/* Contact Info */}
             <div className="space-y-4 sm:space-y-6">
               <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
                 {t.contact.subtitle}
               </h3>
-              <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-base">
+              <p className="mb-6 text-sm text-slate-400 sm:mb-8 sm:text-base">
                 {t.contact.description}
               </p>
               
               <div className="space-y-3 sm:space-y-4">
                 <a
                   href="mailto:avrangzebabdujalilov@gmail.com"
-                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
                     <MailIcon />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs sm:text-sm text-slate-500">{t.contact.email}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base truncate">avrangzebabdujalilov@gmail.com</p>
+                    <p className="truncate text-sm text-slate-200 transition-colors group-hover:text-cyan-200 sm:text-base">avrangzebabdujalilov@gmail.com</p>
                   </div>
                 </a>
                 
                 <a
                   href="tel:+821023492777"
-                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
                     <PhoneIcon />
         </div>
                   <div>
                     <p className="text-xs sm:text-sm text-slate-500">{t.contact.phone}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base">+82 10-2349-2777</p>
+                    <p className="text-sm text-slate-200 transition-colors group-hover:text-cyan-200 sm:text-base">+82 10-2349-2777</p>
                   </div>
                 </a>
                 
-                <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl sm:gap-4 sm:p-4">
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
                     <LocationIcon />
                   </div>
@@ -3354,10 +3400,10 @@ export default function Portfolio() {
               {/* Social Links */}
               <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <a
-                  href="https://t.me/Avrangzeb_Abdujalilov"
+                  href="https://t.me/Avrangzeb_99"
             target="_blank"
             rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
                   title="Telegram"
                 >
                   <TelegramIcon />
@@ -3366,7 +3412,7 @@ export default function Portfolio() {
                   href="https://www.linkedin.com/in/avrangzeb-abdujalilov-365b5221a/"
             target="_blank"
             rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
                   title="LinkedIn"
                 >
                   <LinkedInIcon />
@@ -3375,7 +3421,7 @@ export default function Portfolio() {
                   href="https://github.com/UsmanSNT"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
                   title="GitHub"
                 >
                   <GitHubIcon />
@@ -3384,7 +3430,7 @@ export default function Portfolio() {
             </div>
             
             {/* Contact Form */}
-            <div className="p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-slate-950/30 backdrop-blur-2xl sm:p-6">
               <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
                 {t.contact.sendMessage}
               </h3>
@@ -3409,7 +3455,7 @@ export default function Portfolio() {
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                    className="w-full rounded-lg border border-white/10 bg-slate-950/55 px-3 py-2.5 text-sm text-slate-200 placeholder-slate-500 transition-colors focus:border-cyan-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.namePlaceholder}
                   />
                 </div>
@@ -3426,7 +3472,7 @@ export default function Portfolio() {
                     type="text"
                     value={contactTelegram}
                     onChange={(e) => setContactTelegram(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                    className="w-full rounded-lg border border-white/10 bg-slate-950/55 px-3 py-2.5 text-sm text-slate-200 placeholder-slate-500 transition-colors focus:border-cyan-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.telegramPlaceholder}
                   />
                 </div>
@@ -3437,14 +3483,14 @@ export default function Portfolio() {
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                    className="w-full resize-none rounded-lg border border-white/10 bg-slate-950/55 px-3 py-2.5 text-sm text-slate-200 placeholder-slate-500 transition-colors focus:border-cyan-300 focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.messagePlaceholder}
                   ></textarea>
                 </div>
                 <button
                   type="submit"
                   disabled={isContactSending}
-                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-lg bg-white py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3 sm:text-base"
                 >
                   {isContactSending ? (
                     <span className="flex items-center justify-center gap-2">

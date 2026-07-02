@@ -6,7 +6,7 @@ export const uz = {
     home: "Bosh sahifa",
     about: "Men haqimda",
     skills: "Ko'nikmalar",
-    projects: "Maqsadlar",
+    projects: "Xizmatlar",
     books: "Kitob fikrlari",
     gallery: "Galereya",
     itNews: "IT News",
@@ -68,40 +68,41 @@ export const uz = {
     certificates: "Tayyorlanayotgan sertifikatlar",
     preparingCerts: "Hozirda tayyorgarlik ko'rilmoqda",
     stats: {
-      projects: "Maqsadlar",
+      projects: "Xizmatlar",
       certificates: "Tayyorlanmoqda",
       experience: "Boshlanish",
     },
   },
   skills: {
     title: "Texnik ko'nikmalar",
+    headline: "Foydali software uchun production-ready texnologiyalar.",
     additional: "Qo'shimcha texnologiyalar",
     cybersecurity: "Kiberxavfsizlik",
   },
   projects: {
-    title: "Maqsadlarim",
-    completed: "Maqsad",
-    inProgress: "Ustida ishlanmoqda",
+    title: "Zamonaviy product jamoalari uchun xizmatlar",
+    completed: "Natija",
+    inProgress: "Nimalar qura olaman",
     projectsList: [
       {
-        title: "Network Administrator 2-daraja sertifikati",
+        title: "Premium landing page va portfolio saytlar",
         description:
-          "Tarmoq administratori sertifikatini olish va professional tarmoq boshqaruvi ko'nikmalarini rivojlantirish.",
+          "Ishonch uyg'otadigan responsive saytlar: aniq positioning, toza UI, tez yuklanish va lead olib keladigan aloqa oqimi.",
       },
       {
-        title: "CCNA sertifikatini olish",
+        title: "Backend API va Supabase tizimlari",
         description:
-          "Cisco Certified Network Associate sertifikati orqali Cisco tarmoqlari bo'yicha chuqur bilim olish.",
+          "Dashboard, CRUD product, auth flow, storage, database modeli va xavfsiz API endpointlar uchun amaliy backend poydevori.",
       },
       {
-        title: "AI va tarmoq integratsiyasi",
+        title: "Biznes jarayonlari uchun AI avtomatlashtirish",
         description:
-          "Sun'iy intellektni tarmoq xavfsizligi va infratuzilma boshqaruviga qo'llash bo'yicha ko'nikma hosil qilish.",
+          "Kontent, support, data handling, internal tool va qo'lda bajarilmasligi kerak bo'lgan takroriy vazifalar uchun foydali AI workflowlar.",
       },
       {
-        title: "Xalqaro IT kompaniyasida ishlash",
+        title: "Xavfsizlikka e'tiborli texnik cleanup",
         description:
-          "Global IT muhitida amaliy tajriba orttirish va texnik bilimlarni real tizimlarda qo'llash.",
+          "Zaif route, ochiq qolgan data, buzilgan auth flow, beqaror deploy va ishonchni tiklashi kerak bo'lgan portfolio yoki SaaS app fixlari.",
       },
     ],
   },

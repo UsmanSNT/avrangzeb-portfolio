@@ -6,7 +6,7 @@ export const en = {
     home: "Home",
     about: "About",
     skills: "Skills",
-    projects: "Goals",
+    projects: "Services",
     books: "Book Quotes",
     gallery: "Gallery",
     itNews: "IT News",
@@ -68,40 +68,41 @@ export const en = {
     certificates: "Certifications in Progress",
     preparingCerts: "Currently preparing",
     stats: {
-      projects: "Goals",
+      projects: "Services",
       certificates: "In Progress",
       experience: "Starting",
     },
   },
   skills: {
     title: "Technical Skills",
+    headline: "Production-ready stack for useful software.",
     additional: "Additional Technologies",
     cybersecurity: "Cybersecurity",
   },
   projects: {
-    title: "My Goals",
-    completed: "Goal",
-    inProgress: "Working on",
+    title: "Services built for modern product teams",
+    completed: "Outcome",
+    inProgress: "What I can build",
     projectsList: [
       {
-        title: "Network Administrator Level 2 Certification",
+        title: "Premium landing pages and portfolio sites",
         description:
-          "Earn the Network Administrator certification and build professional network management skills.",
+          "High-trust responsive websites with strong positioning, clean UI, fast loading, and contact flows built to convert visitors into leads.",
       },
       {
-        title: "Earn the CCNA Certification",
+        title: "Backend APIs and Supabase systems",
         description:
-          "Develop deeper Cisco networking knowledge through the Cisco Certified Network Associate certification.",
+          "Practical backend foundations for dashboards, CRUD products, authentication flows, storage, database models, and secure API endpoints.",
       },
       {
-        title: "AI and Network Integration",
+        title: "AI automations for business workflows",
         description:
-          "Become skilled at applying artificial intelligence to network security and infrastructure management.",
+          "Useful AI-powered workflows for content, support, data handling, internal tools, and repeatable tasks that should not stay manual.",
       },
       {
-        title: "Work at an International IT Company",
+        title: "Security-minded technical cleanup",
         description:
-          "Gain practical experience in a global IT environment and apply technical knowledge to real systems.",
+          "Focused fixes for vulnerable routes, exposed data, broken auth flows, unstable deployments, and portfolio or SaaS apps that need trust restored.",
       },
     ],
   },

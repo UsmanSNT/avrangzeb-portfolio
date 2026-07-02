@@ -1,11 +1,10 @@
 import type { HomeDictionary } from "@/lib/i18n/types";
-import { ShieldIcon } from "./icons";
+import { CodeIcon, ServerIcon, ShieldIcon } from "./icons";
 
-const certifications = [
-  { name: "네트워크관리사 2급 (Network Administrator Level 2)", status: "preparing" },
-  { name: "CCNA - Cisco Certified Network Associate", status: "preparing" },
-  { name: "CompTIA Network+", status: "preparing" },
-  { name: "Linux Professional Institute (LPIC-1)", status: "preparing" },
+const trustCards = [
+  { value: "MVP", tone: "text-cyan-200", icon: <CodeIcon /> },
+  { value: "API", tone: "text-violet-200", icon: <ServerIcon /> },
+  { value: "SEC", tone: "text-emerald-200", icon: <ShieldIcon /> },
 ];
 
 interface AboutSectionProps {
@@ -14,73 +13,53 @@ interface AboutSectionProps {
 
 export function AboutSection({ t }: AboutSectionProps) {
   return (
-    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-          <span className="gradient-text">{t.about.title}</span>
-        </h2>
-        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-start">
-          <div className="space-y-4 sm:space-y-6">
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.greeting} <span className="text-cyan-400 font-semibold">Abdujalilov Avrangzeb</span>,
-              {t.about.intro}
-            </p>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.passion}
-            </p>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.goal}
-            </p>
+    <section id="about" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#05070d_0%,#080b14_58%,#05070d_100%)]" aria-hidden="true" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" aria-hidden="true" />
 
-            {/* Education */}
-            <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-              <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-3 sm:mb-4">🎓 {t.about.education}</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="font-medium text-slate-200 text-sm sm:text-base">{t.about.university}</p>
-                  <p className="text-slate-400 text-sm sm:text-base">{t.about.faculty}</p>
-                  <p className="text-xs sm:text-sm text-slate-500">{t.about.years}</p>
+      <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div>
+          <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+            {t.about.title}
+          </p>
+          <h2 className="mt-5 max-w-2xl text-4xl font-black leading-[0.98] tracking-normal text-white sm:text-5xl">
+            {t.about.greeting} <span className="bg-gradient-to-r from-cyan-200 via-white to-violet-200 bg-clip-text text-transparent">Abdujalilov Avrangzeb</span>
+          </h2>
+          <div className="mt-6 space-y-4 text-base leading-7 text-slate-300 sm:text-lg">
+            <p>{t.about.intro}</p>
+            <p>{t.about.passion}</p>
+            <p>{t.about.goal}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
+            <div className="grid gap-4 sm:grid-cols-3">
+              {trustCards.map((card, index) => (
+                <div key={card.value} className="rounded-xl border border-white/10 bg-slate-950/55 p-4">
+                  <div className={`mb-5 grid h-11 w-11 place-items-center rounded-lg border border-white/10 bg-white/[0.04] ${card.tone}`}>
+                    {card.icon}
+                  </div>
+                  <p className="text-2xl font-black text-white">{card.value}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                    {index === 0 ? t.hero.specialties[0] : index === 1 ? t.hero.specialties[1] : t.skills.cybersecurity}
+                  </p>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Certifications */}
-          <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">🏅 {t.about.certificates}</h3>
-            {certifications.map((cert, index) => (
-              <div
-                key={index}
-                className="p-3 sm:p-5 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-slate-200 text-sm sm:text-base break-words">{cert.name}</h4>
-                    <p className="text-xs sm:text-sm text-yellow-400 mt-1 flex items-center gap-1">
-                      <span aria-hidden="true">*</span> {t.about.preparingCerts || "Preparing"}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                    <ShieldIcon />
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 sm:mt-8">
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-cyan-400">4</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.projects}</p>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-400">4</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.certificates}</p>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-green-400">🚀</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.experience}</p>
-              </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.065] p-5 shadow-xl shadow-cyan-950/20 backdrop-blur-xl">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-cyan-100">{t.about.education}</p>
+              <p className="mt-3 text-lg font-black text-white">{t.about.university}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-300">{t.about.faculty}</p>
+              <p className="mt-2 text-xs font-semibold text-slate-500">{t.about.years}</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.065] p-5 shadow-xl shadow-emerald-950/20 backdrop-blur-xl">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-100">{t.about.certificates}</p>
+              <p className="mt-3 text-lg font-black text-white">CCNA / Network+ / LPIC-1</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{t.about.preparingCerts}</p>
             </div>
           </div>
         </div>

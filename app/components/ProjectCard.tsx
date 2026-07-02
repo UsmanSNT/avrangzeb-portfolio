@@ -21,7 +21,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-900/80 shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-2 hover:border-cyan-300/40 hover:shadow-cyan-500/20 focus-within:border-cyan-300/50 ${cardSizeClass}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.03] backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-cyan-500/20 focus-within:border-cyan-300/50 ${cardSizeClass}`}
     >
       <div
         className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 transition-opacity duration-500 group-hover:opacity-15`}
@@ -78,7 +78,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
           <Link
             href={`/projects/${project.slug}`}
             aria-label={`View case study for ${project.title}`}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-3.5 py-2 text-xs font-bold text-cyan-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-400/20 hover:shadow-lg hover:shadow-cyan-500/15 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-cyan-300/40 bg-cyan-400/10 px-3.5 py-2 text-xs font-bold text-cyan-100 transition-all duration-300 hover:border-cyan-200/70 hover:bg-cyan-400/20 hover:shadow-lg hover:shadow-cyan-500/15 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900"
           >
             {caseStudyLabel}
           </Link>
@@ -88,7 +88,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open live demo for ${project.title}`}
-            className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${project.color} px-3.5 py-2 text-xs font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
+            className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-gradient-to-r ${project.color} px-3.5 py-2 text-xs font-bold text-white transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
           >
             {liveDemoLabel}
             <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -102,7 +102,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open GitHub repository for ${project.title}`}
-              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900 sm:col-span-2 xl:col-span-1"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-white/15 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all duration-300 hover:border-slate-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900 sm:col-span-2 xl:col-span-1"
             >
               {githubLabel}
             </a>
@@ -111,7 +111,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
               type="button"
               disabled
               aria-label={`GitHub repository for ${project.title} is not available yet`}
-              className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-3.5 py-2 text-xs font-bold text-slate-500 sm:col-span-2 xl:col-span-1"
+              className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] px-3.5 py-2 text-xs font-bold text-slate-500 sm:col-span-2 xl:col-span-1"
             >
               {githubLabel}
             </button>

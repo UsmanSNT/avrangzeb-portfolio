@@ -21,27 +21,34 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
   );
 
   return (
-    <section id="my-projects" className="relative overflow-hidden py-12 sm:py-16 px-4 sm:px-6">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,rgba(15,23,42,0),rgba(15,23,42,0.55))]" aria-hidden="true"></div>
-      <div className="relative max-w-6xl mx-auto">
-        <div className="mb-6 flex flex-col gap-4 text-left sm:mb-8 lg:mb-9 lg:flex-row lg:items-end lg:justify-between">
+    <section id="my-projects" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.25),rgba(2,6,23,0.9)),linear-gradient(115deg,rgba(34,211,238,0.1),transparent_36%,rgba(139,92,246,0.1)_74%,transparent)]"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_78%,transparent)]"
+        aria-hidden="true"
+      />
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="max-w-2xl">
-            <span className="mb-3 inline-flex rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
-              Portfolio
+            <span className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+              {t.myProjects.featured}
             </span>
-            <h2 className="flex items-center gap-3 text-3xl font-black tracking-normal text-white sm:text-4xl lg:text-[2.75rem]">
-              <span className="text-xl sm:text-2xl lg:text-3xl" aria-hidden="true">💼</span>
-              <span className="gradient-text">{t.myProjects.title}</span>
-          </h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
+            <h2 className="mt-5 text-4xl font-black leading-[0.98] tracking-normal text-white sm:text-5xl">
+              {t.myProjects.title}
+            </h2>
+          </div>
+          <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg lg:justify-self-end">
             {t.myProjects.subtitle}
           </p>
-          </div>
-          <div className="hidden h-px w-52 flex-none bg-gradient-to-r from-cyan-300/35 via-slate-700 to-transparent lg:block"></div>
         </div>
 
-        <div className="mb-6 overflow-x-auto pb-1.5 sm:mb-7">
-          <div className="flex w-max min-w-full gap-1.5 rounded-xl border border-white/10 bg-slate-950/55 p-1.5 shadow-xl shadow-slate-950/20 backdrop-blur-md sm:w-auto sm:flex-wrap sm:justify-center">
+        <div className="mb-8 overflow-x-auto pb-1.5">
+          <div className="flex w-max min-w-full gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:w-auto sm:flex-wrap">
             {projectFilterOptions.map((filter) => {
               const isActive = activeProjectFilter === filter;
 
@@ -53,8 +60,8 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
                   onClick={() => setActiveProjectFilter(filter)}
                   className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                     isActive
-                      ? "border-cyan-300/50 bg-cyan-300/15 text-cyan-100 shadow-lg shadow-cyan-500/15"
-                      : "border-transparent text-slate-400 hover:-translate-y-0.5 hover:bg-white/[0.06] hover:text-slate-100"
+                      ? "border-cyan-300/45 bg-cyan-300/15 text-cyan-100 shadow-lg shadow-cyan-500/15"
+                      : "border-transparent text-slate-400 hover:bg-white/[0.07] hover:text-slate-100"
                   }`}
                 >
                   {t.myProjects.filters[filter]}
@@ -65,10 +72,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
         </div>
 
         {filteredProjects.length > 0 ? (
-          <div
-            key={activeProjectFilter}
-            className="grid gap-5 transition-all duration-300 sm:gap-6 lg:grid-cols-2 xl:gap-7"
-          >
+          <div key={activeProjectFilter} className="grid gap-5 transition-all duration-300 sm:gap-6 lg:grid-cols-2 xl:gap-7">
             {filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
@@ -81,7 +85,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
             ))}
           </div>
         ) : (
-          <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/70 px-6 py-10 text-center shadow-xl shadow-slate-950/20 transition-all duration-300">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-10 text-center shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
             <h3 className="mb-2 text-xl font-bold text-white">{t.myProjects.emptyState.title}</h3>
             <p className="text-sm text-slate-400">{t.myProjects.emptyState.description}</p>
           </div>

@@ -6,7 +6,7 @@ export const ko = {
     home: "홈",
     about: "소개",
     skills: "기술",
-    projects: "목표",
+    projects: "서비스",
     books: "책 문장",
     gallery: "갤러리",
     itNews: "IT 뉴스",
@@ -68,40 +68,41 @@ export const ko = {
     certificates: "준비 중인 자격증",
     preparingCerts: "현재 준비 중",
     stats: {
-      projects: "목표",
+      projects: "서비스",
       certificates: "준비 중",
       experience: "시작 단계",
     },
   },
   skills: {
     title: "기술 역량",
+    headline: "실용적인 소프트웨어를 위한 production-ready 기술 스택.",
     additional: "추가 기술",
     cybersecurity: "사이버보안",
   },
   projects: {
-    title: "나의 목표",
-    completed: "목표",
-    inProgress: "진행 중",
+    title: "현대적인 제품 팀을 위한 서비스",
+    completed: "결과",
+    inProgress: "제가 만들 수 있는 것",
     projectsList: [
       {
-        title: "네트워크관리사 2급 자격증",
+        title: "프리미엄 랜딩 페이지와 포트폴리오",
         description:
-          "네트워크관리사 자격증을 취득하고 전문적인 네트워크 관리 역량을 키웁니다.",
+          "신뢰를 주는 반응형 웹사이트를 만듭니다. 명확한 포지셔닝, 깔끔한 UI, 빠른 로딩, 문의 전환 흐름을 함께 설계합니다.",
       },
       {
-        title: "CCNA 자격증 취득",
+        title: "Backend API와 Supabase 시스템",
         description:
-          "Cisco Certified Network Associate 자격증을 통해 Cisco 네트워크 지식을 더 깊게 학습합니다.",
+          "대시보드, CRUD 제품, 인증 흐름, 스토리지, 데이터베이스 모델, 안전한 API endpoint를 위한 실용적인 백엔드 기반을 구축합니다.",
       },
       {
-        title: "AI와 네트워크 통합",
+        title: "비즈니스 워크플로를 위한 AI 자동화",
         description:
-          "인공지능을 네트워크 보안과 인프라 관리에 적용하는 역량을 갖춥니다.",
+          "콘텐츠, 고객 지원, 데이터 처리, 내부 도구, 반복 작업을 위한 실용적인 AI workflow를 설계하고 구현합니다.",
       },
       {
-        title: "국제 IT 기업에서 근무",
+        title: "보안을 고려한 기술 cleanup",
         description:
-          "글로벌 IT 환경에서 실무 경험을 쌓고 기술 지식을 실제 시스템에 적용합니다.",
+          "취약한 route, 노출된 데이터, 깨진 auth flow, 불안정한 배포, 신뢰 회복이 필요한 포트폴리오나 SaaS 앱을 집중적으로 개선합니다.",
       },
     ],
   },

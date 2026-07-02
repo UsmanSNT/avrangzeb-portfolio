@@ -99,6 +99,7 @@ export interface HomeDictionary {
   };
   skills: {
     title: string;
+    headline: string;
     additional: string;
     cybersecurity: string;
   };
