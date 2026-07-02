@@ -12,6 +12,8 @@ interface AboutSectionProps {
 }
 
 export function AboutSection({ t }: AboutSectionProps) {
+  const proofLabels = t.projects.projectsList.slice(0, 3).map((service) => service.title);
+
   return (
     <section id="about" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#05070d_0%,#080b14_58%,#05070d_100%)]" aria-hidden="true" />
@@ -42,7 +44,7 @@ export function AboutSection({ t }: AboutSectionProps) {
                   </div>
                   <p className="text-2xl font-black text-white">{card.value}</p>
                   <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                    {index === 0 ? t.hero.specialties[0] : index === 1 ? t.hero.specialties[1] : t.skills.cybersecurity}
+                    {proofLabels[index] ?? t.skills.cybersecurity}
                   </p>
                 </div>
               ))}

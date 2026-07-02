@@ -95,7 +95,7 @@ export function SkillsSection({ t }: SkillsSectionProps) {
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-black text-white">{t.skills.additional}</h3>
-            <p className="text-sm text-slate-400">{t.hero.terminal.skills}</p>
+            <p className="text-sm text-slate-400">{t.skills.cybersecurity}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {platformTools.map((tech) => (

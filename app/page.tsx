@@ -1847,6 +1847,10 @@ export default function Portfolio() {
     document.body.style.overflow = '';
   };
 
+  const credentialPreviewItems = galleryItems.filter((item) => item.category === "certificate").slice(0, 3);
+  const featuredCredential = credentialPreviewItems[0] ?? galleryItems[0];
+  const technicalNotesPreview = itNews.slice(0, 2);
+
   return (
     <div className="min-h-screen bg-[#05070d] text-slate-200">
       {/* Migration Loading Overlay */}
@@ -2085,20 +2089,30 @@ export default function Portfolio() {
                     {t.gallery.viewAll}
                   </a>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {galleryItems.slice(0, 2).map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => openGalleryViewer(item)}
-                      className="group overflow-hidden rounded-xl border border-white/10 bg-slate-950/45 text-left transition-colors hover:border-emerald-300/40"
-                    >
-                      {item.images[0] ? (
-                        <img src={item.images[0]} alt={item.title} className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                      ) : (
-                        <div className="grid h-28 place-items-center bg-white/[0.04] text-lg font-black text-slate-400">C</div>
-                      )}
-                      <p className="line-clamp-2 px-3 py-2 text-xs font-bold text-slate-200">{item.title}</p>
+                {featuredCredential && (
+                  <button
+                    type="button"
+                    onClick={() => openGalleryViewer(featuredCredential)}
+                    className="group grid w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 text-left transition-colors hover:border-emerald-300/40"
+                  >
+                    {featuredCredential.images[0] ? (
+                      <img src={featuredCredential.images[0]} alt={featuredCredential.title} className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="grid h-44 place-items-center bg-white/[0.04] text-lg font-black text-slate-400">{t.about.certificates}</div>
+                    )}
+                    <div className="p-4">
+                      <p className="line-clamp-1 text-base font-black text-white">{featuredCredential.title}</p>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">{featuredCredential.description}</p>
+                    </div>
+                  </button>
+                )}
+                <div className="mt-3 grid gap-2">
+                  {credentialPreviewItems.slice(1, 3).map((item) => (
+                    <button key={item.id} type="button" onClick={() => openGalleryViewer(item)} className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/35 p-3 text-left transition-colors hover:border-emerald-300/40">
+                      <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-xs font-black text-emerald-100">
+                        {t.about.certificates.slice(0, 1)}
+                      </span>
+                      <span className="line-clamp-1 text-sm font-bold text-slate-200">{item.title}</span>
                     </button>
                   ))}
                 </div>
@@ -2148,19 +2162,49 @@ export default function Portfolio() {
                     </button>
                   )}
                 </div>
-                <div className="space-y-2">
-                  {itNews.slice(0, 2).map((news) => (
-                    <button key={news.id} type="button" onClick={() => openNewsViewer(news)} className="w-full rounded-xl border border-white/10 bg-slate-950/45 p-3 text-left transition-colors hover:border-violet-300/40">
-                      <p className="line-clamp-1 text-sm font-bold text-slate-100">{news.title}</p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{news.content}</p>
-                    </button>
-                  ))}
-                </div>
+                {technicalNotesPreview.length > 0 ? (
+                  <div className="space-y-3">
+                    {technicalNotesPreview.map((news, index) => (
+                      <button key={news.id} type="button" onClick={() => openNewsViewer(news)} className="group grid w-full grid-cols-[auto_1fr] gap-3 rounded-xl border border-white/10 bg-slate-950/45 p-3 text-left transition-colors hover:border-violet-300/40">
+                        <span className="grid h-10 w-10 place-items-center rounded-lg border border-violet-300/20 bg-violet-300/10 font-mono text-xs font-black text-violet-100">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="line-clamp-1 text-sm font-black text-slate-100 group-hover:text-violet-100">{news.title}</span>
+                          <span className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{news.content}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-400">
+                    {t.itNews.noNews}
+                  </div>
+                )}
               </article>
 
-              <article className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-300">{t.cv.title}</p>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{t.cv.subtitle}</p>
+              <article className="relative overflow-hidden rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.07] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
+                <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" aria-hidden="true" />
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.cv.title}</p>
+                    <p className="mt-3 text-xl font-black text-white">{t.cv.download}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-xs font-black text-slate-300">
+                    {t.cv.title}
+                  </div>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-slate-300">{t.cv.subtitle}</p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{t.about.education}</p>
+                    <p className="mt-1 line-clamp-1 text-sm font-bold text-slate-200">{t.about.university}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{t.about.certificates}</p>
+                    <p className="mt-1 line-clamp-1 text-sm font-bold text-slate-200">{t.about.preparingCerts}</p>
+                  </div>
+                </div>
                 <a
                   href={cvUrl || staticCvUrl}
                   target="_blank"
@@ -3494,15 +3538,15 @@ export default function Portfolio() {
           <div className="mb-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.07] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
             <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.hero.availability}</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.contact.title}</p>
                 <h3 className="mt-2 text-2xl font-black text-white sm:text-3xl">{t.contact.subtitle}</h3>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">{t.contact.description}</p>
               </div>
               <div className="grid grid-cols-3 gap-2 sm:min-w-96">
-                {t.hero.stats.slice(0, 3).map((stat) => (
-                  <div key={stat.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-3 text-center">
-                    <p className="text-lg font-black text-white">{stat.value}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{stat.label}</p>
+                {t.projects.projectsList.slice(0, 3).map((service, index) => (
+                  <div key={service.title} className="rounded-xl border border-white/10 bg-slate-950/35 p-3 text-center">
+                    <p className="font-mono text-sm font-black text-cyan-100">{String(index + 1).padStart(2, "0")}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{service.title}</p>
                   </div>
                 ))}
               </div>

@@ -40,7 +40,7 @@ interface ProjectsGoalsSectionProps {
 
 export function ProjectsGoalsSection({ t }: ProjectsGoalsSectionProps) {
   const [featuredService, ...secondaryServices] = t.projects.projectsList;
-  const metrics = t.hero.stats.slice(0, 3);
+  const serviceHighlights = t.projects.projectsList.slice(0, 4);
 
   return (
     <section id="projects" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
@@ -66,15 +66,15 @@ export function ProjectsGoalsSection({ t }: ProjectsGoalsSectionProps) {
           </div>
           <div className="max-w-2xl lg:justify-self-end">
             <p className="text-base leading-7 text-slate-300 sm:text-lg">
-              {t.hero.description}
+              {featuredService.description}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              {t.hero.specialties.slice(0, 4).map((specialty) => (
+              {serviceHighlights.map((service) => (
                 <span
-                  key={specialty}
+                  key={service.title}
                   className="rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2 text-xs font-bold text-slate-200 backdrop-blur-xl"
                 >
-                  {specialty}
+                  {service.title}
                 </span>
               ))}
             </div>
@@ -105,10 +105,10 @@ export function ProjectsGoalsSection({ t }: ProjectsGoalsSectionProps) {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
-                {metrics.map((metric) => (
-                  <div key={metric.label} className="rounded-xl border border-white/10 bg-slate-950/40 p-4 backdrop-blur-xl">
-                    <p className="text-2xl font-black text-white">{metric.value}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{metric.label}</p>
+                {serviceHighlights.slice(1, 4).map((service, index) => (
+                  <div key={service.title} className="rounded-xl border border-white/10 bg-slate-950/40 p-4 backdrop-blur-xl">
+                    <p className="font-mono text-sm font-black text-cyan-100">{String(index + 2).padStart(2, "0")}</p>
+                    <p className="mt-2 text-sm font-bold leading-5 text-slate-200">{service.title}</p>
                   </div>
                 ))}
               </div>
