@@ -1,68 +1,68 @@
 import type { HomeDictionary } from "@/lib/i18n/types";
 import { CodeIcon, ServerIcon, ShieldIcon } from "./icons";
 
-const trustCards = [
-  { value: "MVP", tone: "text-cyan-200", icon: <CodeIcon /> },
-  { value: "API", tone: "text-violet-200", icon: <ServerIcon /> },
-  { value: "SEC", tone: "text-emerald-200", icon: <ShieldIcon /> },
-];
+const profileIcons = [<ShieldIcon key="degree" />, <ServerIcon key="graduated" />, <CodeIcon key="position" />];
 
 interface AboutSectionProps {
   t: HomeDictionary;
 }
 
 export function AboutSection({ t }: AboutSectionProps) {
-  const proofLabels = t.projects.projectsList.slice(0, 3).map((service) => service.title);
+  const profileItems = [
+    {
+      label: t.about.university,
+      value: t.about.university,
+      detail: t.about.education,
+    },
+    {
+      label: t.about.degree,
+      value: t.about.degreeValue,
+      detail: t.about.faculty,
+    },
+    {
+      label: t.about.graduated,
+      value: t.about.graduatedValue,
+      detail: t.about.currentPositionValue,
+    },
+    {
+      label: t.about.currentPosition,
+      value: t.about.currentPositionValue,
+      detail: t.skills.additional,
+    },
+  ];
 
   return (
-    <section id="about" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+    <section id="about" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#05070d_0%,#080b14_58%,#05070d_100%)]" aria-hidden="true" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" aria-hidden="true" />
 
-      <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div>
-          <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
-            {t.about.title}
-          </p>
-          <h2 className="mt-5 max-w-2xl text-4xl font-black leading-[0.98] tracking-normal text-white sm:text-5xl">
-            {t.about.greeting} <span className="bg-gradient-to-r from-cyan-200 via-white to-violet-200 bg-clip-text text-transparent">Abdujalilov Avrangzeb</span>
-          </h2>
-          <div className="mt-6 space-y-4 text-base leading-7 text-slate-300 sm:text-lg">
-            <p>{t.about.intro}</p>
-            <p>{t.about.passion}</p>
-            <p>{t.about.goal}</p>
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+          <div>
+            <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+              {t.about.title}
+            </p>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
+              {t.about.education}
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-slate-300 sm:text-base">
+              {t.about.preparingCerts}
+            </p>
           </div>
-        </div>
 
-        <div className="grid gap-4">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
-            <div className="grid gap-4 sm:grid-cols-3">
-              {trustCards.map((card, index) => (
-                <div key={card.value} className="rounded-xl border border-white/10 bg-slate-950/55 p-4">
-                  <div className={`mb-5 grid h-11 w-11 place-items-center rounded-lg border border-white/10 bg-white/[0.04] ${card.tone}`}>
-                    {card.icon}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {profileItems.map((item, index) => (
+              <article key={`${item.label}-${item.value}`} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-5">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-slate-950/55 text-cyan-100">
+                    {profileIcons[index % profileIcons.length]}
                   </div>
-                  <p className="text-2xl font-black text-white">{card.value}</p>
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                    {proofLabels[index] ?? t.skills.cybersecurity}
-                  </p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{item.label}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.065] p-5 shadow-xl shadow-cyan-950/20 backdrop-blur-xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-cyan-100">{t.about.education}</p>
-              <p className="mt-3 text-lg font-black text-white">{t.about.university}</p>
-              <p className="mt-1 text-sm leading-6 text-slate-300">{t.about.faculty}</p>
-              <p className="mt-2 text-xs font-semibold text-slate-500">{t.about.years}</p>
-            </div>
-            <div className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.065] p-5 shadow-xl shadow-emerald-950/20 backdrop-blur-xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-100">{t.about.certificates}</p>
-              <p className="mt-3 text-lg font-black text-white">CCNA / Network+ / LPIC-1</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">{t.about.preparingCerts}</p>
-            </div>
+                <h3 className="text-xl font-black text-white">{item.value}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{item.detail}</p>
+              </article>
+            ))}
           </div>
         </div>
       </div>

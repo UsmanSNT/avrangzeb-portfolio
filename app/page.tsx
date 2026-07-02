@@ -26,13 +26,6 @@ const PhoneIcon = () => (
   </svg>
 );
 
-const LocationIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
 const TelegramIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
@@ -1848,8 +1841,6 @@ export default function Portfolio() {
   };
 
   const credentialPreviewItems = galleryItems.filter((item) => item.category === "certificate").slice(0, 3);
-  const featuredCredential = credentialPreviewItems[0] ?? galleryItems[0];
-  const technicalNotesPreview = itNews.slice(0, 2);
 
   return (
     <div className="min-h-screen bg-[#05070d] text-slate-200">
@@ -1887,7 +1878,9 @@ export default function Portfolio() {
                 { id: "my-projects", label: t.nav.myProjects },
                 { id: "about", label: t.about.title },
                 { id: "skills", label: t.nav.skills },
-                { id: "resources", label: t.nav.books },
+                { id: "gallery", label: t.nav.gallery },
+                { id: "books", label: t.nav.books },
+                { id: "it-news", label: t.nav.itNews },
                 { id: "contact", label: t.contact.title },
                 { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
               ].map((item) => (
@@ -1984,7 +1977,9 @@ export default function Portfolio() {
                   { id: "my-projects", label: t.nav.myProjects },
                   { id: "about", label: t.about.title },
                   { id: "skills", label: t.nav.skills },
-                  { id: "resources", label: t.nav.books },
+                  { id: "gallery", label: t.nav.gallery },
+                  { id: "books", label: t.nav.books },
+                  { id: "it-news", label: t.nav.itNews },
                   { id: "contact", label: t.contact.title },
                   { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
                 ].map((item) => (
@@ -2061,183 +2056,146 @@ export default function Portfolio() {
 
       <SkillsSection t={t} />
 
-      {/* Compact proof and resources */}
-      <section id="resources" className="relative isolate overflow-hidden px-4 py-16 sm:px-6 sm:py-20">
+      {/* Gallery Preview */}
+      <section id="gallery" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
         <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(34,211,238,0.1),transparent_34%,rgba(139,92,246,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl">
-          <div className="mb-8 grid gap-5 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200">
-                {t.nav.knowledgeHub}
+              <p className="inline-flex rounded-lg border border-emerald-300/20 bg-emerald-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-100">
+                {t.gallery.title}
               </p>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">
-                {t.gallery.title}, {t.cv.title}, {t.itNews.title}
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
+                {t.gallery.subtitle}
               </h2>
             </div>
-            <p className="max-w-2xl text-base leading-7 text-slate-300 lg:justify-self-end">
-              {t.about.education}
+            <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base lg:justify-self-end">
+              {t.about.certificates}
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="grid gap-4 md:grid-cols-2">
-              <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100">{t.gallery.title}</p>
-                  <a href="/gallery" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-200 transition-colors hover:border-emerald-300/40">
-                    {t.gallery.viewAll}
-                  </a>
-                </div>
-                {featuredCredential && (
-                  <button
-                    type="button"
-                    onClick={() => openGalleryViewer(featuredCredential)}
-                    className="group grid w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 text-left transition-colors hover:border-emerald-300/40"
-                  >
-                    {featuredCredential.images[0] ? (
-                      <img src={featuredCredential.images[0]} alt={featuredCredential.title} className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    ) : (
-                      <div className="grid h-44 place-items-center bg-white/[0.04] text-lg font-black text-slate-400">{t.about.certificates}</div>
-                    )}
-                    <div className="p-4">
-                      <p className="line-clamp-1 text-base font-black text-white">{featuredCredential.title}</p>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">{featuredCredential.description}</p>
-                    </div>
-                  </button>
-                )}
-                <div className="mt-3 grid gap-2">
-                  {credentialPreviewItems.slice(1, 3).map((item) => (
-                    <button key={item.id} type="button" onClick={() => openGalleryViewer(item)} className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/35 p-3 text-left transition-colors hover:border-emerald-300/40">
-                      <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-xs font-black text-emerald-100">
-                        {t.about.certificates.slice(0, 1)}
-                      </span>
-                      <span className="line-clamp-1 text-sm font-bold text-slate-200">{item.title}</span>
-                    </button>
-                  ))}
-                </div>
-                {isAdmin && (
-                  <button onClick={() => openGalleryModal()} className="mt-4 text-xs font-bold text-emerald-200 hover:text-white">
-                    {t.gallery.addNew}
-                  </button>
-                )}
-              </article>
-
-              <article className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.books.title}</p>
-                  <a href="/books" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
-                    {t.books.viewAll}
-                  </a>
-                </div>
-                {bookQuotes.slice(0, 1).map((quote) => (
-                  <button key={quote.id} type="button" onClick={() => setViewingQuote(quote)} className="w-full rounded-xl border border-white/10 bg-slate-950/45 p-4 text-left transition-colors hover:border-cyan-300/40">
-                    <p className="line-clamp-4 text-sm leading-6 text-slate-300">&quot;{quote.quote}&quot;</p>
-                    <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-cyan-100">{quote.bookTitle}</p>
-                  </button>
-                ))}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <a href="/notes" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
-                    {t.nav.notes}
-                  </a>
-                  <a href="/knowledge-hub" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
-                    {t.nav.knowledgeHub}
-                  </a>
-                  {isAdmin && (
-                    <button onClick={() => openBookModal()} className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-bold text-cyan-100">
-                      {t.books.addNew}
-                    </button>
-                  )}
-                </div>
-              </article>
-            </div>
-
-            <div className="grid gap-4">
-              <article className="rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-100">{t.itNews.title}</p>
-                  {isAdmin && (
-                    <button onClick={() => openITNewsModal()} className="text-xs font-bold text-violet-100 hover:text-white">
-                      {t.itNews.addNew}
-                    </button>
-                  )}
-                </div>
-                {technicalNotesPreview.length > 0 ? (
-                  <div className="space-y-3">
-                    {technicalNotesPreview.map((news, index) => (
-                      <button key={news.id} type="button" onClick={() => openNewsViewer(news)} className="group grid w-full grid-cols-[auto_1fr] gap-3 rounded-xl border border-white/10 bg-slate-950/45 p-3 text-left transition-colors hover:border-violet-300/40">
-                        <span className="grid h-10 w-10 place-items-center rounded-lg border border-violet-300/20 bg-violet-300/10 font-mono text-xs font-black text-violet-100">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="line-clamp-1 text-sm font-black text-slate-100 group-hover:text-violet-100">{news.title}</span>
-                          <span className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{news.content}</span>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {credentialPreviewItems.slice(0, 3).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => openGalleryViewer(item)}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] text-left shadow-2xl shadow-slate-950/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-emerald-300/40"
+              >
+                {item.images[0] ? (
+                  <img src={item.images[0]} alt={item.title} className="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                 ) : (
-                  <div className="rounded-xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-400">
-                    {t.itNews.noNews}
-                  </div>
+                  <div className="grid h-40 place-items-center bg-white/[0.04] text-lg font-black text-slate-400">{t.about.certificates}</div>
                 )}
-              </article>
+                <div className="p-4">
+                  <p className="line-clamp-1 text-base font-black text-white">{item.title}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">{item.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="/gallery" className="inline-flex items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-5 py-3 text-sm font-black text-emerald-100 transition-colors hover:border-emerald-200/60 hover:bg-emerald-300/15">
+              {t.gallery.viewAll}
+            </a>
+            {isAdmin && (
+              <button onClick={() => openGalleryModal()} className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-colors hover:bg-white/[0.08]">
+                {t.gallery.addNew}
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
-              <article className="relative overflow-hidden rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.07] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
-                <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" aria-hidden="true" />
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.cv.title}</p>
-                    <p className="mt-3 text-xl font-black text-white">{t.cv.download}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-xs font-black text-slate-300">
-                    {t.cv.title}
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-6 text-slate-300">{t.cv.subtitle}</p>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{t.about.education}</p>
-                    <p className="mt-1 line-clamp-1 text-sm font-bold text-slate-200">{t.about.university}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{t.about.certificates}</p>
-                    <p className="mt-1 line-clamp-1 text-sm font-bold text-slate-200">{t.about.preparingCerts}</p>
-                  </div>
-                </div>
-                <a
-                  href={cvUrl || staticCvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download="Avrangzeb_CV.pdf"
-                  className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-black text-slate-950 transition-colors hover:bg-cyan-100"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.open(cvUrl || staticCvUrl, "_blank");
-                    const link = document.createElement("a");
-                    link.href = cvUrl || staticCvUrl;
-                    link.download = "Avrangzeb_CV.pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                >
-                  {t.cv.download}
-                </a>
-                {isAdmin && (
-                  <label className="mt-3 inline-flex w-full cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-slate-300 transition-colors hover:bg-white/[0.08]">
-                    {isUploadingCv ? t.cv.uploading : t.cv.uploadNew}
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      onChange={handleCVUpload}
-                      className="hidden"
-                      disabled={isUploadingCv}
-                    />
-                  </label>
-                )}
-              </article>
+      {/* Books Preview */}
+      <section id="books" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(34,211,238,0.08),transparent_36%,rgba(16,185,129,0.08)_76%,transparent),linear-gradient(180deg,rgba(2,6,23,0.18),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-100">
+                {t.books.title}
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
+                {t.books.subtitle}
+              </h2>
             </div>
+            <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base lg:justify-self-end">
+              {t.nav.notes}
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {bookQuotes.slice(0, 3).map((quote) => (
+              <button key={quote.id} type="button" onClick={() => setViewingQuote(quote)} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-2xl shadow-slate-950/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-cyan-300/40">
+                <p className="line-clamp-5 text-sm leading-6 text-slate-300">&quot;{quote.quote}&quot;</p>
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <p className="line-clamp-1 text-sm font-black text-white">{quote.bookTitle}</p>
+                  <p className="mt-1 text-xs font-bold text-cyan-100">{quote.author}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="/books" className="inline-flex items-center justify-center rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-5 py-3 text-sm font-black text-cyan-100 transition-colors hover:border-cyan-200/60 hover:bg-cyan-300/15">
+              {t.books.viewAll}
+            </a>
+            {isAdmin && (
+              <button onClick={() => openBookModal()} className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-colors hover:bg-white/[0.08]">
+                {t.books.addNew}
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* IT News Preview */}
+      <section id="it-news" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(125deg,rgba(139,92,246,0.1),transparent_35%,rgba(34,211,238,0.08)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.28),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
+                {t.itNews.title}
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
+                {t.itNews.subtitle}
+              </h2>
+            </div>
+            {isAdmin && (
+              <button onClick={() => openITNewsModal()} className="justify-self-start rounded-lg border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-colors hover:bg-white/[0.08] lg:justify-self-end">
+                {t.itNews.addNew}
+              </button>
+            )}
+          </div>
+
+          {itNews.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {itNews.slice(0, 3).map((news, index) => (
+                <button key={news.id} id={`it-news-${news.id}`} type="button" onClick={() => openNewsViewer(news)} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-left shadow-2xl shadow-slate-950/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-violet-300/40">
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-lg border border-violet-300/20 bg-violet-300/10 font-mono text-xs font-black text-violet-100">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-xs font-bold text-slate-500">{news.views} {t.itNews.views}</span>
+                  </div>
+                  <p className="line-clamp-2 text-base font-black leading-tight text-white group-hover:text-violet-100">{news.title}</p>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-400">{news.content}</p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 text-center text-sm text-slate-400">
+              {t.itNews.noNews}
+            </div>
+          )}
+          <div className="mt-6 flex justify-center">
+            <a href="#it-news" className="inline-flex items-center justify-center rounded-lg border border-violet-300/30 bg-violet-300/10 px-5 py-3 text-sm font-black text-violet-100 transition-colors hover:border-violet-200/60 hover:bg-violet-300/15">
+              {t.books.viewAll} {t.itNews.title}
+            </a>
           </div>
         </div>
       </section>
@@ -3517,53 +3475,24 @@ export default function Portfolio() {
       )}
 
       {/* Contact Section */}
-      <section id="contact" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <section id="contact" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
         <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(34,211,238,0.13),transparent_35%,rgba(139,92,246,0.12)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.22),rgba(2,6,23,0.95))]" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl">
-          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+          <div className="mb-8">
             <div>
               <p className="inline-flex rounded-lg border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-100">
                 {t.contact.title}
               </p>
-              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-white sm:text-5xl">
+              <h2 className="mt-4 max-w-2xl text-3xl font-black leading-tight text-white sm:text-4xl">
                 {t.contact.subtitle}
               </h2>
-            </div>
-            <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg lg:justify-self-end">
-              {t.contact.description}
-            </p>
-          </div>
-
-          <div className="mb-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.07] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
-            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.contact.title}</p>
-                <h3 className="mt-2 text-2xl font-black text-white sm:text-3xl">{t.contact.subtitle}</h3>
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">{t.contact.description}</p>
-              </div>
-              <div className="grid grid-cols-3 gap-2 sm:min-w-96">
-                {t.projects.projectsList.slice(0, 3).map((service, index) => (
-                  <div key={service.title} className="rounded-xl border border-white/10 bg-slate-950/35 p-3 text-center">
-                    <p className="font-mono text-sm font-black text-cyan-100">{String(index + 1).padStart(2, "0")}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{service.title}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             {/* Contact Info */}
-            <div className="space-y-4 sm:space-y-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
-                {t.contact.subtitle}
-              </h3>
-              <p className="mb-6 text-sm text-slate-400 sm:mb-8 sm:text-base">
-                {t.contact.description}
-              </p>
-              
-              <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                 <a
                   href="mailto:avrangzebabdujalilov@gmail.com"
                   className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
@@ -3578,6 +3507,21 @@ export default function Portfolio() {
                 </a>
                 
                 <a
+                  href="https://t.me/Avrangzeb_99"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                    <TelegramIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.telegram}</p>
+                    <p className="truncate text-sm text-slate-200 transition-colors group-hover:text-cyan-200 sm:text-base">@Avrangzeb_99</p>
+                  </div>
+                </a>
+
+                <a
                   href="tel:+821023492777"
                   className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
                 >
@@ -3590,47 +3534,35 @@ export default function Portfolio() {
                   </div>
                 </a>
                 
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl sm:gap-4 sm:p-4">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
-                    <LocationIcon />
-                  </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.location}</p>
-                    <p className="text-slate-200 text-sm sm:text-base">{t.contact.locationValue}</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Social Links */}
-              <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <a
-                  href="https://t.me/Avrangzeb_99"
-            target="_blank"
-            rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
-                  title="Telegram"
-                >
-                  <TelegramIcon />
-          </a>
-          <a
                   href="https://www.linkedin.com/in/avrangzeb-abdujalilov-365b5221a/"
-            target="_blank"
-            rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
-                  title="LinkedIn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
                 >
-                  <LinkedInIcon />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                    <LinkedInIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.linkedin}</p>
+                    <p className="truncate text-sm text-slate-200 transition-colors group-hover:text-cyan-200 sm:text-base">avrangzeb-abdujalilov</p>
+                  </div>
                 </a>
+
                 <a
                   href="https://github.com/UsmanSNT"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-400 transition-colors hover:border-cyan-300/40 hover:text-cyan-200 sm:h-12 sm:w-12"
-                  title="GitHub"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl transition-colors hover:border-cyan-300/40 sm:gap-4 sm:p-4"
                 >
-                  <GitHubIcon />
-          </a>
-        </div>
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                    <GitHubIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.github}</p>
+                    <p className="truncate text-sm text-slate-200 transition-colors group-hover:text-cyan-200 sm:text-base">UsmanSNT</p>
+                  </div>
+                </a>
             </div>
             
             {/* Contact Form */}

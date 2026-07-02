@@ -21,7 +21,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
   );
 
   return (
-    <section id="my-projects" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+    <section id="my-projects" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
       <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
       <div
         className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.25),rgba(2,6,23,0.9)),linear-gradient(115deg,rgba(34,211,238,0.1),transparent_36%,rgba(139,92,246,0.1)_74%,transparent)]"
@@ -33,21 +33,21 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
       />
 
       <div className="relative mx-auto max-w-7xl">
-        <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+        <div className="mb-7 grid gap-4 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="max-w-2xl">
             <span className="inline-flex rounded-lg border border-violet-300/20 bg-violet-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-violet-100">
               {t.myProjects.featured}
             </span>
-            <h2 className="mt-5 text-4xl font-black leading-[0.98] tracking-normal text-white sm:text-5xl">
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
               {t.myProjects.title}
             </h2>
           </div>
-          <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg lg:justify-self-end">
+          <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base lg:justify-self-end">
             {t.myProjects.subtitle}
           </p>
         </div>
 
-        <div className="mb-8 overflow-x-auto pb-1.5">
+        <div className="mb-5 overflow-x-auto pb-1.5">
           <div className="flex w-max min-w-full gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:w-auto sm:flex-wrap">
             {projectFilterOptions.map((filter) => {
               const isActive = activeProjectFilter === filter;
@@ -72,7 +72,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
         </div>
 
         {filteredProjects.length > 0 ? (
-          <div key={activeProjectFilter} className="grid gap-5 transition-all duration-300 sm:gap-6 lg:grid-cols-2 xl:gap-7">
+          <div key={activeProjectFilter} className="mx-auto grid w-full max-w-4xl justify-items-center gap-4 transition-all duration-300 sm:gap-5 md:grid-cols-2">
             {filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
