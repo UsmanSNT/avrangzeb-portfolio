@@ -6,25 +6,25 @@ const skillGroups = [
     title: "Frontend",
     tools: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
     icon: <CodeIcon />,
-    className: "border-cyan-300/20 bg-cyan-300/[0.07]",
+    className: "border-accent-cyan/20 bg-accent-cyan/[0.07]",
   },
   {
     title: "Backend",
     tools: ["API Routes", "Supabase", "Postgres", "Auth"],
     icon: <ServerIcon />,
-    className: "border-violet-300/20 bg-violet-300/[0.07]",
+    className: "border-accent-blue/20 bg-accent-blue/[0.07]",
   },
   {
     title: "AI Workflows",
     tools: ["Automation", "Prompt Systems", "Data Flows", "Internal Tools"],
     icon: <CloudIcon />,
-    className: "border-emerald-300/20 bg-emerald-300/[0.07]",
+    className: "border-accent-green/20 bg-accent-green/[0.07]",
   },
   {
     title: "Security",
     tools: ["Route Protection", "RLS Awareness", "Secure Uploads", "Network Basics"],
     icon: <ShieldIcon />,
-    className: "border-amber-300/20 bg-amber-300/[0.07]",
+    className: "border-accent-blue/20 bg-accent-blue/[0.07]",
   },
 ];
 
@@ -52,39 +52,39 @@ interface SkillsSectionProps {
 export function SkillsSection({ t }: SkillsSectionProps) {
   return (
     <section id="skills" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
-      <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.13),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.9))]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-background" aria-hidden="true" />
+      <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.13),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.9))]" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="inline-flex rounded-lg border border-emerald-300/20 bg-emerald-300/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-100">
+            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
               {t.skills.title}
             </p>
-            <h2 className="mt-5 max-w-xl text-4xl font-black leading-[0.98] text-white sm:text-5xl">
+            <h2 className="mt-5 max-w-xl text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
               {t.skills.headline}
             </h2>
           </div>
-          <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+          <p className="max-w-2xl text-base leading-7 text-secondary sm:text-lg">
             {t.about.passion}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {skillGroups.map((group) => (
-            <article key={group.title} className={`rounded-2xl border p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl ${group.className}`}>
+            <article key={group.title} className={`rounded-2xl border p-5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl ${group.className}`}>
               <div className="mb-8 flex items-center justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-slate-950/45 text-white">
+                <div className="grid h-12 w-12 place-items-center rounded-xl border border-line bg-background/45 text-foreground">
                   {group.icon}
                 </div>
                 <NetworkIcon />
               </div>
-              <h3 className="text-2xl font-black text-white">{group.title}</h3>
+              <h3 className="text-2xl font-black text-foreground">{group.title}</h3>
               <div className="mt-5 grid gap-2">
                 {group.tools.map((tool) => (
-                  <div key={tool} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/35 px-3 py-2">
-                    <span className="text-sm font-semibold text-slate-200">{tool}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" aria-hidden="true" />
+                  <div key={tool} className="flex items-center justify-between rounded-lg border border-line bg-background/35 px-3 py-2">
+                    <span className="text-sm font-semibold text-foreground">{tool}</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent-cyan" aria-hidden="true" />
                   </div>
                 ))}
               </div>
@@ -92,16 +92,16 @@ export function SkillsSection({ t }: SkillsSectionProps) {
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
+        <div className="mt-6 rounded-2xl border border-line bg-hover/[0.04] p-5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:p-6">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-lg font-black text-white">{t.skills.additional}</h3>
-            <p className="text-sm text-slate-400">{t.skills.cybersecurity}</p>
+            <h3 className="text-lg font-black text-foreground">{t.skills.additional}</h3>
+            <p className="text-sm text-muted">{t.skills.cybersecurity}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {platformTools.map((tech) => (
               <span
                 key={tech}
-                className="rounded-lg border border-white/10 bg-slate-950/45 px-3 py-2 text-xs font-bold text-slate-300 transition-colors hover:border-cyan-300/35 hover:text-cyan-100"
+                className="rounded-lg border border-line bg-background/45 px-3 py-2 text-xs font-bold text-secondary transition-colors hover:border-accent-cyan/35 hover:text-cyan-text"
               >
                 {tech}
               </span>
