@@ -18,22 +18,22 @@ export const uz = {
   },
   hero: {
     title: "Abdujalilov Avrangzeb",
-    subtitle: "Dasturiy ta'minot muhandisi",
-    description: "Men xavfsiz, kengayuvchan va aqlli dasturiy tizimlar yarataman.",
-    availability: "Ish uchun ochiq",
-    role: "Dasturiy ta'minot muhandisi",
-    specialties: ["AI muhandisi", "Backend dasturchi", "Tarmoq xavfsizligi", "Kiberxavfsizlik", "Bulut"],
-    viewProjects: "Loyihalarni ko'rish",
+    subtitle: "MVP, API va AI avtomatlashtirish uchun full-stack dasturchi",
+    description: "Men startaplar va kichik bizneslarga landing page, backend API va amaliy AI jarayonlarini ortiqcha murakkabliksiz ishga tushirishda yordam beraman.",
+    availability: "Freelance loyihalar uchun ochiq",
+    role: "Software Engineer & AI/Backend Developer",
+    specialties: ["MVP saytlar", "Backend API", "AI avtomatlashtirish", "Xavfsizlikka e'tibor", "Responsive UI"],
+    viewProjects: "Ish namunalarini ko'rish",
     downloadResume: "Rezyumeni yuklab olish",
     contact: "Bog'lanish",
     github: "GitHub",
     githubAria: "GitHub profilini ochish",
     scrollAria: "Men haqimda bo'limiga o'tish",
     stats: [
-      { value: "5+", label: "Yo'nalishlar" },
-      { value: "5+", label: "Texnologiyalar" },
+      { value: "$500+", label: "Loyiha mosligi" },
+      { value: "Tez", label: "Muloqot" },
       { value: "4", label: "Tillar" },
-      { value: "100%", label: "Moslashuvchan" },
+      { value: "100%", label: "Mobilga tayyor" },
     ],
     visual: {
       file: "secure-system.ts",
@@ -48,19 +48,19 @@ export const uz = {
     },
     terminal: {
       whoami: "avrangzeb@portfolio",
-      skills: "AI, backend, cloud, kiberxavfsizlik, tarmoq xavfsizligi",
-      status: "Yangi imkoniyatlarga ochiqman.",
+      skills: "Next.js, backend API, AI workflow, Supabase, xavfsizlik asoslari",
+      status: "$500-$2,000 client loyihalari uchun ochiqman.",
     },
   },
   about: {
     title: "Men haqimda",
     greeting: "Salom! Men",
     intro:
-      "Janubiy Koreya, Jeonju shahridagi Woosuk Universitetida Axborot xavfsizligi yo'nalishi bitiruvchi kurs talabasiman.",
+      "Amaliy web mahsulotlar, backend tizimlar, AI avtomatlashtirish va xavfsizlikka e'tiborli implementatsiyaga ixtisoslashgan dasturchiman.",
     passion:
-      "Hozirda Network Administrator 2-daraja imtihoniga tayyorlanyapman va CCNA, CompTIA Network+, LPIC-1 sertifikatlari ustida ishlayapman.",
+      "Landing page, portfolio sayt, dashboard, Supabase/Next.js backend, API integratsiya va workflow avtomatlashtirish bo'yicha yordam bera olaman.",
     goal:
-      "Maqsadim - tarmoq muhandisligi, kiberxavfsizlik va AI asosidagi infratuzilma bo'yicha mutaxassis bo'lish.",
+      "Maqsadim mijozlarga tezroq ishga tushirish va online professional ko'rinish beradigan ishonchli, tushunarli va qo'llab-quvvatlanadigan software yetkazish.",
     education: "Ta'lim",
     university: "Woosuk Universiteti",
     faculty: "Axborot xavfsizligi yo'nalishi",
@@ -271,9 +271,9 @@ export const uz = {
   },
   contact: {
     title: "Bog'lanish",
-    subtitle: "Men bilan bog'laning",
+    subtitle: "Nimani ishga tushirmoqchisiz?",
     description:
-      "Yangi loyihalar, hamkorlik, freelance ishlar yoki ish takliflari bo'yicha men bilan bog'lanishingiz mumkin.",
+      "Maqsad, budget oralig'i va deadline haqida qisqa yozing. Men amaliy keyingi qadam va real scope bilan javob beraman.",
     email: "Email",
     phone: "Telefon",
     location: "Manzil",

@@ -18,22 +18,22 @@ export const en = {
   },
   hero: {
     title: "Abdujalilov Avrangzeb",
-    subtitle: "Software Engineer",
-    description: "I build secure, scalable and intelligent software systems.",
-    availability: "Available for work",
-    role: "Software Engineer",
-    specialties: ["AI Engineer", "Backend Developer", "Network Security", "Cybersecurity", "Cloud"],
-    viewProjects: "View Projects",
+    subtitle: "Full-Stack Developer for MVPs, APIs and AI Automations",
+    description: "I help founders and small businesses ship clean landing pages, backend APIs and practical AI workflows without overcomplicating the build.",
+    availability: "Available for freelance projects",
+    role: "Software Engineer & AI/Backend Developer",
+    specialties: ["MVP websites", "Backend APIs", "AI automation", "Security-minded builds", "Responsive UI"],
+    viewProjects: "View Proof of Work",
     downloadResume: "Download Resume",
     contact: "Contact Me",
     github: "GitHub",
     githubAria: "Open GitHub profile",
     scrollAria: "Scroll to about section",
     stats: [
-      { value: "5+", label: "Focus Areas" },
-      { value: "5+", label: "Technologies" },
+      { value: "$500+", label: "Project Fit" },
+      { value: "Fast", label: "Communication" },
       { value: "4", label: "Languages" },
-      { value: "100%", label: "Responsive" },
+      { value: "100%", label: "Mobile Ready" },
     ],
     visual: {
       file: "secure-system.ts",
@@ -48,19 +48,19 @@ export const en = {
     },
     terminal: {
       whoami: "avrangzeb@portfolio",
-      skills: "AI, backend, cloud, cybersecurity, network security",
-      status: "Open to new opportunities.",
+      skills: "Next.js, backend APIs, AI workflows, Supabase, security basics",
+      status: "Open for $500-$2,000 client projects.",
     },
   },
   about: {
     title: "About Me",
     greeting: "Hello! I'm",
     intro:
-      "A senior student at Woosuk University, Jeonju campus, South Korea, majoring in Information Security.",
+      "A software engineer focused on practical web products, backend systems, AI automation and security-aware implementation.",
     passion:
-      "I am preparing for the Network Administrator Level 2 exam and working toward CCNA, CompTIA Network+, and LPIC-1 certifications.",
+      "I can help with landing pages, portfolio sites, dashboards, Supabase/Next.js backends, API integrations and workflow automation.",
     goal:
-      "My goal is to become a specialist in network engineering, cybersecurity, and AI-powered infrastructure.",
+      "My goal is to deliver reliable, clear and maintainable software that helps clients launch faster and look professional online.",
     education: "Education",
     university: "Woosuk University",
     faculty: "Information Security Major",
@@ -271,9 +271,9 @@ export const en = {
   },
   contact: {
     title: "Contact",
-    subtitle: "Get in Touch",
+    subtitle: "Tell me what you want to launch",
     description:
-      "Feel free to contact me for new projects, collaboration, freelance work, or job opportunities.",
+      "Send a short brief with your goal, budget range and deadline. I will reply with a practical next step and a realistic scope.",
     email: "Email",
     phone: "Phone",
     location: "Location",
