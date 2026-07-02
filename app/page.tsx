@@ -1879,13 +1879,13 @@ export default function Portfolio() {
             {/* Desktop Navigation - faqat asosiy bo'limlar */}
             <div className="hidden md:flex items-center gap-6 lg:gap-8">
               {[
-                { id: "books", label: t.nav.books },
-                { id: "gallery", label: t.nav.gallery },
-                { id: "it-news", label: t.nav.itNews },
+                { id: "projects", label: t.nav.projects },
                 { id: "my-projects", label: t.nav.myProjects },
-                { id: "cv", label: t.nav.cv },
+                { id: "about", label: t.about.title },
+                { id: "skills", label: t.nav.skills },
+                { id: "resources", label: t.nav.books },
+                { id: "contact", label: t.contact.title },
                 { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
-                { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
               ].map((item) => (
                 item.isLink ? (
                   <a
@@ -1976,13 +1976,13 @@ export default function Portfolio() {
             <div className="mt-4 border-t border-white/10 pb-4 pt-4 md:hidden">
               <div className="flex flex-col gap-2">
                 {[
-                  { id: "books", label: t.nav.books },
-                  { id: "gallery", label: t.nav.gallery },
-                  { id: "it-news", label: t.nav.itNews },
+                  { id: "projects", label: t.nav.projects },
                   { id: "my-projects", label: t.nav.myProjects },
-                  { id: "cv", label: t.nav.cv },
+                  { id: "about", label: t.about.title },
+                  { id: "skills", label: t.nav.skills },
+                  { id: "resources", label: t.nav.books },
+                  { id: "contact", label: t.contact.title },
                   { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
-                  { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
                 ].map((item) => (
                   item.isLink ? (
                     <a
@@ -2049,14 +2049,157 @@ export default function Portfolio() {
         shouldReduceMotion={shouldReduceMotion}
       />
 
+      <ProjectsGoalsSection t={t} />
+
+      <MyProjectsSection t={t} />
+
       <AboutSection t={t} />
 
       <SkillsSection t={t} />
 
-      <ProjectsGoalsSection t={t} />
+      {/* Compact proof and resources */}
+      <section id="resources" className="relative isolate overflow-hidden px-4 py-16 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(34,211,238,0.1),transparent_34%,rgba(139,92,246,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-8 grid gap-5 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200">
+                {t.nav.knowledgeHub}
+              </p>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">
+                {t.gallery.title}, {t.cv.title}, {t.itNews.title}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base leading-7 text-slate-300 lg:justify-self-end">
+              {t.about.education}
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="grid gap-4 md:grid-cols-2">
+              <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100">{t.gallery.title}</p>
+                  <a href="/gallery" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-200 transition-colors hover:border-emerald-300/40">
+                    {t.gallery.viewAll}
+                  </a>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {galleryItems.slice(0, 2).map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => openGalleryViewer(item)}
+                      className="group overflow-hidden rounded-xl border border-white/10 bg-slate-950/45 text-left transition-colors hover:border-emerald-300/40"
+                    >
+                      {item.images[0] ? (
+                        <img src={item.images[0]} alt={item.title} className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="grid h-28 place-items-center bg-white/[0.04] text-lg font-black text-slate-400">C</div>
+                      )}
+                      <p className="line-clamp-2 px-3 py-2 text-xs font-bold text-slate-200">{item.title}</p>
+                    </button>
+                  ))}
+                </div>
+                {isAdmin && (
+                  <button onClick={() => openGalleryModal()} className="mt-4 text-xs font-bold text-emerald-200 hover:text-white">
+                    {t.gallery.addNew}
+                  </button>
+                )}
+              </article>
+
+              <article className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.books.title}</p>
+                  <a href="/books" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
+                    {t.books.viewAll}
+                  </a>
+                </div>
+                {bookQuotes.slice(0, 1).map((quote) => (
+                  <button key={quote.id} type="button" onClick={() => setViewingQuote(quote)} className="w-full rounded-xl border border-white/10 bg-slate-950/45 p-4 text-left transition-colors hover:border-cyan-300/40">
+                    <p className="line-clamp-4 text-sm leading-6 text-slate-300">&quot;{quote.quote}&quot;</p>
+                    <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-cyan-100">{quote.bookTitle}</p>
+                  </button>
+                ))}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <a href="/notes" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
+                    {t.nav.notes}
+                  </a>
+                  <a href="/knowledge-hub" className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-bold text-slate-200 transition-colors hover:border-cyan-300/40">
+                    {t.nav.knowledgeHub}
+                  </a>
+                  {isAdmin && (
+                    <button onClick={() => openBookModal()} className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-bold text-cyan-100">
+                      {t.books.addNew}
+                    </button>
+                  )}
+                </div>
+              </article>
+            </div>
+
+            <div className="grid gap-4">
+              <article className="rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-100">{t.itNews.title}</p>
+                  {isAdmin && (
+                    <button onClick={() => openITNewsModal()} className="text-xs font-bold text-violet-100 hover:text-white">
+                      {t.itNews.addNew}
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {itNews.slice(0, 2).map((news) => (
+                    <button key={news.id} type="button" onClick={() => openNewsViewer(news)} className="w-full rounded-xl border border-white/10 bg-slate-950/45 p-3 text-left transition-colors hover:border-violet-300/40">
+                      <p className="line-clamp-1 text-sm font-bold text-slate-100">{news.title}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{news.content}</p>
+                    </button>
+                  ))}
+                </div>
+              </article>
+
+              <article className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-300">{t.cv.title}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{t.cv.subtitle}</p>
+                <a
+                  href={cvUrl || staticCvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="Avrangzeb_CV.pdf"
+                  className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-black text-slate-950 transition-colors hover:bg-cyan-100"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(cvUrl || staticCvUrl, "_blank");
+                    const link = document.createElement("a");
+                    link.href = cvUrl || staticCvUrl;
+                    link.download = "Avrangzeb_CV.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                >
+                  {t.cv.download}
+                </a>
+                {isAdmin && (
+                  <label className="mt-3 inline-flex w-full cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-slate-300 transition-colors hover:bg-white/[0.08]">
+                    {isUploadingCv ? t.cv.uploading : t.cv.uploadNew}
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={handleCVUpload}
+                      className="hidden"
+                      disabled={isUploadingCv}
+                    />
+                  </label>
+                )}
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Book Quotes Section */}
-      <section id="books" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <section id="legacy-books" className="hidden">
         <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.9))]" aria-hidden="true" />
         <div className="relative max-w-7xl mx-auto">
@@ -2349,7 +2492,7 @@ export default function Portfolio() {
       )}
 
       {/* Gallery Section */}
-      <section id="gallery" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <section id="legacy-gallery" className="hidden">
         <div className="absolute inset-0 bg-[#080b14]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(139,92,246,0.14),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.88))]" aria-hidden="true" />
         <div className="relative max-w-7xl mx-auto">
@@ -2730,7 +2873,7 @@ export default function Portfolio() {
       )}
 
       {/* CV Section */}
-      <section id="cv" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <section id="legacy-cv" className="hidden">
         <div className="absolute inset-0 bg-[#070a12]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(34,211,238,0.12),transparent_34%,rgba(16,185,129,0.1)_72%,transparent),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.92))]" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl">
@@ -2894,7 +3037,7 @@ export default function Portfolio() {
       </section>
 
       {/* IT News Section */}
-      <section id="it-news" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
+      <section id="legacy-it-news" className="hidden">
         <div className="absolute inset-0 bg-[#060913]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[linear-gradient(125deg,rgba(139,92,246,0.12),transparent_35%,rgba(34,211,238,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl">
@@ -3329,8 +3472,6 @@ export default function Portfolio() {
         </div>
       )}
 
-      <MyProjectsSection t={t} />
-
       {/* Contact Section */}
       <section id="contact" className="relative isolate overflow-hidden px-4 py-20 sm:px-6 sm:py-28">
         <div className="absolute inset-0 bg-[#05070d]" aria-hidden="true" />
@@ -3349,6 +3490,25 @@ export default function Portfolio() {
               {t.contact.description}
             </p>
           </div>
+
+          <div className="mb-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.07] p-5 shadow-2xl shadow-slate-950/25 backdrop-blur-2xl sm:p-6">
+            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100">{t.hero.availability}</p>
+                <h3 className="mt-2 text-2xl font-black text-white sm:text-3xl">{t.contact.subtitle}</h3>
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">{t.contact.description}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:min-w-96">
+                {t.hero.stats.slice(0, 3).map((stat) => (
+                  <div key={stat.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-3 text-center">
+                    <p className="text-lg font-black text-white">{stat.value}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             {/* Contact Info */}
             <div className="space-y-4 sm:space-y-6">
