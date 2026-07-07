@@ -515,6 +515,165 @@ iptables -A INPUT -p tcp --dport 443 -j ACCEPT
   },
 ];
 
+// Renders a fenced code block as a clearly distinct, monospace block with a copy button.
+function NoteCodeBlock({ language, code }: { language: string; code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context) - fail silently.
+    }
+  };
+
+  return (
+    <div className="my-4 rounded-xl border border-slate-700 bg-slate-950/70 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700">
+        <span className="text-xs font-mono text-slate-400 uppercase tracking-wide">{language || "code"}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="text-xs text-slate-400 hover:text-cyan-400 transition-colors"
+        >
+          {copied ? "Nusxalandi!" : "Nusxalash"}
+        </button>
+      </div>
+      <pre className="p-4 overflow-x-auto text-sm">
+        <code className="font-mono text-cyan-100 whitespace-pre">{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+// Parses a note's markdown-ish content into React nodes, with real support for
+// fenced code blocks (```lang ... ```) and inline images (![alt](url)), which
+// the previous line-by-line renderer silently dropped or rendered as plain text.
+function renderNoteContent(content: string): React.ReactNode[] {
+  const lines = content.split("\n");
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+
+  const formatText = (text: string) => {
+    let formatted = text;
+    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-cyan-300">$1</strong>');
+    formatted = formatted.replace(/\*(.+?)\*/g, '<em class="italic text-violet-300">$1</em>');
+    formatted = formatted.replace(/`(.+?)`/g, '<code class="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded font-mono text-sm">$1</code>');
+    formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:text-cyan-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+    return formatted;
+  };
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Fenced code block: collect every line until the closing ``` and render
+    // as a single, visually distinct block instead of dropping it.
+    if (line.startsWith("```")) {
+      const language = line.slice(3).trim();
+      const codeLines: string[] = [];
+      i += 1;
+      while (i < lines.length && !lines[i].startsWith("```")) {
+        codeLines.push(lines[i]);
+        i += 1;
+      }
+      i += 1; // skip closing fence
+      nodes.push(<NoteCodeBlock key={`code-${i}`} language={language} code={codeLines.join("\n")} />);
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      nodes.push(
+        <h2 key={i} className="text-2xl font-bold text-cyan-400 mt-6 mb-3 first:mt-0">
+          {line.replace(/^##\s+/, "")}
+        </h2>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      nodes.push(
+        <h3 key={i} className="text-xl font-semibold text-violet-400 mt-4 mb-2">
+          {line.replace(/^###\s+/, "")}
+        </h3>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.startsWith("#### ")) {
+      nodes.push(
+        <h4 key={i} className="text-lg font-semibold text-cyan-300 mt-3 mb-2">
+          {line.replace(/^####\s+/, "")}
+        </h4>
+      );
+      i += 1;
+      continue;
+    }
+
+    // Standalone image line: ![alt](url)
+    const imageMatch = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imageMatch) {
+      const [, alt, src] = imageMatch;
+      // eslint-disable-next-line @next/next/no-img-element
+      nodes.push(
+        <img
+          key={i}
+          src={src}
+          alt={alt || "Note image"}
+          loading="lazy"
+          className="my-4 max-w-full rounded-xl border border-slate-700"
+        />
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.match(/^\d+\.\s/)) {
+      nodes.push(
+        <p key={i} className="ml-4 my-1">
+          {line}
+        </p>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      nodes.push(
+        <p key={i} className="ml-4 my-1">
+          {line}
+        </p>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.startsWith("|")) {
+      nodes.push(
+        <p key={i} className="font-mono text-sm bg-slate-700/30 px-2 py-1 my-1 overflow-x-auto">
+          {line}
+        </p>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (line.trim() === "") {
+      nodes.push(<br key={i} />);
+      i += 1;
+      continue;
+    }
+
+    nodes.push(<p key={i} className="my-2" dangerouslySetInnerHTML={{ __html: formatText(line) }} />);
+    i += 1;
+  }
+
+  return nodes;
+}
+
 export default function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedCategoryKey, setSelectedCategoryKey] = useState("all");
@@ -1268,79 +1427,7 @@ export default function NotesPage() {
                         fontFamily: 'inherit',
                       }}
                     >
-                      {selectedNote.content.split('\n').map((line, index, array) => {
-                        // Markdown formatting
-                        if (line.startsWith('## ')) {
-                          return (
-                            <h2 key={index} className="text-2xl font-bold text-cyan-400 mt-6 mb-3 first:mt-0">
-                              {line.replace(/^##\s+/, '')}
-                            </h2>
-                          );
-                        }
-                        if (line.startsWith('### ')) {
-                          return (
-                            <h3 key={index} className="text-xl font-semibold text-violet-400 mt-4 mb-2">
-                              {line.replace(/^###\s+/, '')}
-                            </h3>
-                          );
-                        }
-                        if (line.startsWith('#### ')) {
-                          return (
-                            <h4 key={index} className="text-lg font-semibold text-cyan-300 mt-3 mb-2">
-                              {line.replace(/^####\s+/, '')}
-                            </h4>
-                          );
-                        }
-                        if (line.startsWith('```')) {
-                          return null; // Code block start/end
-                        }
-                        if (line.match(/^\d+\.\s/)) {
-                          return (
-                            <p key={index} className="ml-4 my-1">
-                              {line}
-                            </p>
-                          );
-                        }
-                        if (line.startsWith('- ') || line.startsWith('* ')) {
-                          return (
-                            <p key={index} className="ml-4 my-1">
-                              {line}
-                            </p>
-                          );
-                        }
-                        if (line.startsWith('|')) {
-                          return (
-                            <p key={index} className="font-mono text-sm bg-slate-700/30 px-2 py-1 my-1 overflow-x-auto">
-                              {line}
-                            </p>
-                          );
-                        }
-                        // Format inline markdown
-                        const formatText = (text: string) => {
-                          let formatted = text;
-                          // Bold **text**
-                          formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-cyan-300">$1</strong>');
-                          // Italic *text*
-                          formatted = formatted.replace(/\*(.+?)\*/g, '<em class="italic text-violet-300">$1</em>');
-                          // Code `text`
-                          formatted = formatted.replace(/`(.+?)`/g, '<code class="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded font-mono text-sm">$1</code>');
-                          // Links [text](url)
-                          formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:text-cyan-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
-                          return formatted;
-                        };
-                        
-                        if (line.trim() === '') {
-                          return <br key={index} />;
-                        }
-                        
-                        return (
-                          <p 
-                            key={index} 
-                            className="my-2"
-                            dangerouslySetInnerHTML={{ __html: formatText(line) }}
-                          />
-                        );
-                      })}
+                      {renderNoteContent(selectedNote.content)}
                     </div>
                   </div>
 

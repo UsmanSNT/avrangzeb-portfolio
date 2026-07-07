@@ -1,5 +1,7 @@
 // Rasm yuklash yordamchi funksiyasi
 
+import { supabase } from './supabase';
+
 export interface UploadResult {
   success: boolean;
   url?: string;
@@ -15,12 +17,19 @@ export interface UploadResult {
  */
 export async function uploadImage(file: File, folder: string = 'general'): Promise<UploadResult> {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      return { success: false, error: 'Iltimos, tizimga kiring' };
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);
 
     const response = await fetch('/api/upload', {
       method: 'POST',
+      headers: { Authorization: `Bearer ${session.access_token}` },
       body: formData,
     });
 
