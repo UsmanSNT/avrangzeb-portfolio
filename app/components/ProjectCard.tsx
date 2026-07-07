@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo } from "react";
+import { memo, useState } from "react";
 import type { ShowcaseProject } from "@/lib/i18n/types";
 
 type ProjectCardProps = {
@@ -14,108 +14,110 @@ type ProjectCardProps = {
 };
 
 function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLabel, featuredLabel }: ProjectCardProps) {
-  const cardSizeClass = project.featured ? "md:col-span-2 xl:grid xl:grid-cols-[1.08fr_0.92fr]" : "";
-  const imageHeightClass = project.featured ? "h-60 sm:h-72 xl:h-full" : "h-52 sm:h-60";
-  const contentPaddingClass = project.featured ? "p-5 sm:p-6 lg:p-7" : "p-4 sm:p-5";
-  const titleSizeClass = project.featured ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl";
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-900/80 shadow-2xl shadow-slate-950/30 ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-2 hover:border-cyan-300/40 hover:shadow-cyan-500/20 focus-within:border-cyan-300/50 ${cardSizeClass}`}
+      onClick={() => setIsOverlayOpen((value) => !value)}
+      onMouseLeave={() => setIsOverlayOpen(false)}
+      className="group relative aspect-[4/5] w-full max-w-sm cursor-pointer overflow-hidden rounded-2xl border border-line bg-background shadow-2xl shadow-elevation/30 ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-accent-cyan/40 hover:shadow-accent-cyan/20 focus-within:border-accent-cyan/50"
     >
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 transition-opacity duration-500 group-hover:opacity-15`}
-        aria-hidden="true"
+      <Image
+        src={project.image}
+        alt={`${project.title} project preview`}
+        fill
+        sizes="(min-width: 1024px) 384px, 100vw"
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
+        loading="lazy"
       />
-      <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-20 mix-blend-screen`} aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/25 to-transparent" aria-hidden="true" />
 
-      <div className={`relative overflow-hidden bg-slate-900 ${imageHeightClass}`}>
-        <Image
-          src={project.image}
-          alt={`${project.title} project preview`}
-          fill
-          sizes={project.featured ? "(min-width: 1024px) 560px, 100vw" : "(min-width: 768px) 50vw, 100vw"}
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/15 to-transparent" aria-hidden="true" />
-        <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-10 mix-blend-screen`} aria-hidden="true" />
-        {project.featured && (
-          <span className="absolute left-4 top-4 rounded-full border border-cyan-300/40 bg-slate-950/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-100 shadow-lg shadow-cyan-500/15 backdrop-blur-md">
-            {featuredLabel}
+      <div className="absolute inset-x-0 bottom-0 p-4 transition-opacity duration-300 group-hover:opacity-0">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          {project.featured && (
+            <span className="rounded-lg border border-accent-cyan/40 bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-text backdrop-blur-md">
+              {featuredLabel}
+            </span>
+          )}
+          <span className="rounded-lg border border-line bg-background/70 px-2.5 py-1 text-[10px] font-bold text-foreground backdrop-blur-md">
+            {project.year}
           </span>
-        )}
+        </div>
+        <h3 className="text-2xl font-black leading-tight text-foreground">{project.title}</h3>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-secondary">{project.shortDescription}</p>
       </div>
 
-      <div className={`relative flex h-full flex-col ${contentPaddingClass}`}>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-200 shadow-sm shadow-cyan-500/10">
+      <div
+        className={`absolute inset-0 flex flex-col justify-end bg-background/88 p-4 backdrop-blur-md transition-all duration-300 sm:p-5 ${
+          isOverlayOpen ? "opacity-100" : "opacity-0 pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100"
+        }`}
+      >
+        <div className="mb-auto flex items-center justify-between gap-3">
+          <span className="rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-text">
             {project.category}
           </span>
-          <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
+          <span className="rounded-lg border border-accent-green/25 bg-accent-green/10 px-2.5 py-1 text-[10px] font-bold text-green-text">
             {project.status}
           </span>
-          <span className="ml-auto rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">{project.year}</span>
         </div>
 
-        <h3 className={`mb-3 font-bold tracking-normal text-white transition-colors group-hover:text-cyan-200 ${titleSizeClass}`}>
-          {project.title}
-        </h3>
+        <h3 className="text-2xl font-black leading-tight text-foreground">{project.title}</h3>
+        <p className="mt-3 line-clamp-4 text-sm leading-6 text-secondary">{project.shortDescription}</p>
 
-        <p className="mb-5 text-sm leading-6 text-slate-400">
-          {project.shortDescription}
-        </p>
-
-        <div className="mb-6 flex flex-wrap gap-1.5">
+        <div className="mt-4 flex flex-wrap gap-1.5">
           {project.technologies.map((tech) => (
-            <span key={tech} className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-slate-200">
+            <span key={tech} className="rounded-lg border border-line bg-hover/[0.06] px-2.5 py-1 text-[11px] font-semibold text-foreground">
               {tech}
             </span>
           ))}
         </div>
 
-        <div className="mt-auto grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-5 grid gap-2">
           <Link
             href={`/projects/${project.slug}`}
+            onClick={(event) => event.stopPropagation()}
             aria-label={`View case study for ${project.title}`}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-3.5 py-2 text-xs font-bold text-cyan-100 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-400/20 hover:shadow-lg hover:shadow-cyan-500/15 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-accent-cyan/40 bg-accent-cyan/10 px-3.5 py-2 text-xs font-bold text-cyan-text transition-all duration-300 hover:border-accent-cyan/70 hover:bg-accent-cyan/20 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-surface"
           >
             {caseStudyLabel}
           </Link>
 
-          <a
-            href={project.demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Open live demo for ${project.title}`}
-            className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${project.color} px-3.5 py-2 text-xs font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
-          >
-            {liveDemoLabel}
-            <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-
-          {project.githubUrl ? (
+          <div className="grid gap-2 sm:grid-cols-2">
             <a
-              href={project.githubUrl}
+              href={project.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`Open GitHub repository for ${project.title}`}
-              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900 sm:col-span-2 xl:col-span-1"
+              onClick={(event) => event.stopPropagation()}
+              aria-label={`Open live demo for ${project.title}`}
+              className={`inline-flex min-h-10 items-center justify-center rounded-lg bg-gradient-to-r ${project.color} px-3.5 py-2 text-xs font-bold text-white transition-all duration-300 hover:shadow-xl hover:shadow-accent-cyan/20 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-surface`}
             >
-              {githubLabel}
+              {liveDemoLabel}
             </a>
-          ) : (
-            <button
-              type="button"
-              disabled
-              aria-label={`GitHub repository for ${project.title} is not available yet`}
-              className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-3.5 py-2 text-xs font-bold text-slate-500 sm:col-span-2 xl:col-span-1"
-            >
-              {githubLabel}
-            </button>
-          )}
+
+            {project.githubUrl ? (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(event) => event.stopPropagation()}
+                aria-label={`Open GitHub repository for ${project.title}`}
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-hover/[0.05] px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-300 hover:border-secondary/60 hover:bg-hover/10 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-surface"
+              >
+                {githubLabel}
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                onClick={(event) => event.stopPropagation()}
+                aria-label={`GitHub repository for ${project.title} is not available yet`}
+                className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-lg border border-line bg-hover/[0.02] px-3.5 py-2 text-xs font-bold text-subtle"
+              >
+                {githubLabel}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </article>

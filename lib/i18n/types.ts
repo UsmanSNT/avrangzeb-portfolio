@@ -89,6 +89,12 @@ export interface HomeDictionary {
     university: string;
     faculty: string;
     years: string;
+    degree: string;
+    degreeValue: string;
+    graduated: string;
+    graduatedValue: string;
+    currentPosition: string;
+    currentPositionValue: string;
     certificates: string;
     preparingCerts: string;
     stats: {
@@ -99,6 +105,7 @@ export interface HomeDictionary {
   };
   skills: {
     title: string;
+    headline: string;
     additional: string;
     cybersecurity: string;
   };
@@ -236,6 +243,9 @@ export interface HomeDictionary {
     description: string;
     email: string;
     phone: string;
+    telegram: string;
+    linkedin: string;
+    github: string;
     location: string;
     locationValue: string;
     sendMessage: string;

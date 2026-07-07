@@ -1,20 +1,117 @@
 @import "tailwindcss";
 
+/*
+ * Theme system: `data-theme` is set on <html> by an inline script in
+ * layout.tsx before paint (localStorage, falling back to OS preference),
+ * so there is no flash of the wrong theme. ThemeToggle flips the attribute
+ * at runtime; every color below is a CSS variable so components never need
+ * their own light/dark branches.
+ */
 :root {
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --primary: #06b6d4;
-  --secondary: #8b5cf6;
-  --accent: #22d3ee;
+  color-scheme: dark;
+
+  /* Layered surfaces - dark (never pure black, each layer a step lighter) */
+  --background: #081018;
+  --surface: #0f1724;
+  --card: #131d2e;
+  --surface-2: #1b2740;
+  --line: #22334d;
+
+  /* Text */
+  --foreground: #e7ecf3;
+  --secondary: #b7c3d6;
+  --muted: #8593ad;
+  --subtle: #5e6c87;
+  --inverse: #06121a;
+
+  /* Shadows (independent of background so they stay dark in light mode too) */
+  --elevation: #01050a;
+  /* Hover/press tint: brightens on dark surfaces, darkens on light ones */
+  --hover: #ffffff;
+
+  /* Brand: green = AI / automation / success / active */
+  --accent-green: #2fe28a;
+  --green-text: #34e6a0;
+
+  /* Brand: cyan = backend / network / security / infrastructure */
+  --accent-cyan: #22d3ee;
+  --cyan-text: #22d3ee;
+
+  /* Brand: blue = backend / network / security / infrastructure */
+  --accent-blue: #38bdf8;
+  --blue-text: #7dd3fc;
+  --accent-blue-deep: #2563eb;
+
   --app-font-sans: "Segoe UI", system-ui, sans-serif;
   --app-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Layered surfaces - light (never plain white, each layer a step deeper) */
+  --background: #eef2f8;
+  --surface: #e4eaf3;
+  --card: #ffffff;
+  --surface-2: #eef2f8;
+  --line: #dbe2ed;
+
+  /* Text */
+  --foreground: #101826;
+  --secondary: #3b4759;
+  --muted: #5b6b82;
+  --subtle: #7c8ca3;
+  --inverse: #ffffff;
+
+  --elevation: #1e293b;
+  --hover: #0f1729;
+
+  /* Brand accents darkened where needed to hold WCAG AA on light surfaces */
+  --accent-green: #0da968;
+  --green-text: #078257;
+
+  --accent-cyan: #0891b2;
+  --cyan-text: #0e7490;
+
+  --accent-blue: #2563eb;
+  --blue-text: #1d4ed8;
+  --accent-blue-deep: #1e40af;
+}
+
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+
   --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-inverse: var(--inverse);
+
+  --color-elevation: var(--elevation);
+  --color-hover: var(--hover);
+
+  --color-accent-green: var(--accent-green);
+  --color-green-text: var(--green-text);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-cyan-text: var(--cyan-text);
+  --color-accent-blue: var(--accent-blue);
+  --color-blue-text: var(--blue-text);
+  --color-accent-blue-deep: var(--accent-blue-deep);
+
   --font-sans: var(--app-font-sans);
   --font-mono: var(--app-font-mono);
+}
+
+/* Tailwind v4 class-based dark variant, keyed to our data-theme attribute
+   instead of prefers-color-scheme, so ThemeToggle has full control. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+html {
+  color-scheme: light dark;
 }
 
 body {
@@ -23,17 +120,26 @@ body {
   font-family: var(--app-font-sans);
 }
 
+/* Smooth theme switching: colors cross-fade, layout-affecting properties don't animate */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 320ms ease, border-color 320ms ease, color 320ms ease,
+    box-shadow 320ms ease, fill 320ms ease, stroke 320ms ease, opacity 320ms ease !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: var(--surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #06b6d4;
+  background: var(--accent-cyan);
   border-radius: 4px;
 }
 
@@ -54,11 +160,11 @@ body {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--accent-green) 35%, transparent);
   }
 
   50% {
-    box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
+    box-shadow: 0 0 40px color-mix(in srgb, var(--accent-green) 65%, transparent);
   }
 }
 
@@ -85,7 +191,7 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #06b6d4, #8b5cf6, #06b6d4);
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan), var(--accent-blue));
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -96,9 +202,9 @@ body {
 /* Network grid background */
 .network-bg {
   background-image:
-    radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)),
-    repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(6, 182, 212, 0.03) 50px, rgba(6, 182, 212, 0.03) 51px),
-    repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(6, 182, 212, 0.03) 50px, rgba(6, 182, 212, 0.03) 51px);
+    radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--accent-cyan) 10%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--accent-green) 10%, transparent) 0%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--background) 90%, transparent), color-mix(in srgb, var(--background) 95%, transparent)),
+    repeating-linear-gradient(0deg, transparent, transparent 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 51px),
+    repeating-linear-gradient(90deg, transparent, transparent 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 51px);
 }

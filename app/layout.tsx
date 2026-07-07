@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { themeInitScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://avrangzebabdujalilov.com"),
@@ -130,11 +131,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uz">
+    <html lang="uz" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/images/profile.png" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0f172a" />
+        <meta name="theme-color" content="#081018" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#eef2f8" media="(prefers-color-scheme: light)" />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -142,6 +145,7 @@ export default function RootLayout({
       </head>
       <body
         className="antialiased"
+        suppressHydrationWarning
       >
         {children}
       </body>

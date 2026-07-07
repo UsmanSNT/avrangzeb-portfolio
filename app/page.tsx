@@ -13,6 +13,7 @@ import { SkillsSection } from "@/components/sections/home/SkillsSection";
 import { ProjectsGoalsSection } from "@/components/sections/home/ProjectsGoalsSection";
 import { MyProjectsSection } from "@/components/sections/home/MyProjectsSection";
 import { FooterSection } from "@/components/sections/home/FooterSection";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const MailIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,13 +24,6 @@ const MailIcon = () => (
 const PhoneIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-  </svg>
-);
-
-const LocationIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
   </svg>
 );
 
@@ -1847,23 +1841,25 @@ export default function Portfolio() {
     document.body.style.overflow = '';
   };
 
+  const credentialPreviewItems = galleryItems.filter((item) => item.category === "certificate").slice(0, 3);
+
   return (
-    <div className="min-h-screen network-bg text-slate-200">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Migration Loading Overlay */}
       {isMigrating && (
-        <div className="fixed inset-0 z-[100] bg-slate-900/95 flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] bg-surface/95 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-cyan-500 mx-auto mb-4"></div>
-            <h2 className="text-xl font-bold text-cyan-400 mb-2">Ma&apos;lumotlar ko&apos;chirilmoqda...</h2>
-            <p className="text-slate-400">Eski rasmlar Supabase ga yuklanmoqda</p>
-            <p className="text-slate-500 text-sm mt-2">Iltimos, kutib turing...</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-accent-cyan mx-auto mb-4"></div>
+            <h2 className="text-xl font-bold text-cyan-text mb-2">Ma&apos;lumotlar ko&apos;chirilmoqda...</h2>
+            <p className="text-muted">Eski rasmlar Supabase ga yuklanmoqda</p>
+            <p className="text-subtle text-sm mt-2">Iltimos, kutib turing...</p>
           </div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-line bg-background/78 shadow-2xl shadow-elevation/20 backdrop-blur-2xl">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Logo - bosh sahifaga havola */}
             <button 
@@ -1879,19 +1875,21 @@ export default function Portfolio() {
             {/* Desktop Navigation - faqat asosiy bo'limlar */}
             <div className="hidden md:flex items-center gap-6 lg:gap-8">
               {[
-                { id: "books", label: t.nav.books },
-                { id: "gallery", label: t.nav.gallery },
-                { id: "it-news", label: t.nav.itNews },
+                { id: "projects", label: t.nav.projects },
                 { id: "my-projects", label: t.nav.myProjects },
-                { id: "cv", label: t.nav.cv },
+                { id: "about", label: t.about.title },
+                { id: "skills", label: t.nav.skills },
+                { id: "gallery", label: t.nav.gallery },
+                { id: "books", label: t.nav.books },
+                { id: "it-news", label: t.nav.itNews },
+                { id: "contact", label: t.contact.title },
                 { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
-                { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
               ].map((item) => (
                 item.isLink ? (
                   <a
                     key={item.id}
                     href={item.href}
-                    className="text-sm font-medium transition-colors hover:text-cyan-400 text-slate-400"
+                    className="rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition-colors hover:bg-hover/[0.05] hover:text-cyan-text"
                   >
                     {item.label}
                   </a>
@@ -1899,8 +1897,8 @@ export default function Portfolio() {
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`text-sm font-medium transition-colors hover:text-cyan-400 ${
-                      activeSection === item.id ? "text-cyan-400" : "text-slate-400"
+                    className={`rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors hover:bg-hover/[0.05] hover:text-cyan-text ${
+                      activeSection === item.id ? "bg-accent-cyan/10 text-cyan-text" : "text-muted"
                     }`}
                   >
                     {item.label}
@@ -1910,24 +1908,27 @@ export default function Portfolio() {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {/* Language Switcher */}
               <div className="relative">
                 <button
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500/50 transition-colors"
+                  className="flex items-center gap-1 rounded-lg border border-line bg-hover/[0.05] px-2 py-2 transition-colors hover:border-accent-cyan/40 sm:gap-2 sm:px-3"
                 >
                   <GlobeIcon />
                   <span className="text-lg">{languageLabels[language].flag}</span>
                 </button>
                 
                 {isLangMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
+                  <div className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-xl border border-line bg-background/95 shadow-2xl shadow-elevation/40 backdrop-blur-2xl">
                     {supportedLocales.map((lang) => (
                       <button
                         key={lang}
                         onClick={() => changeLanguage(lang)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-700/50 transition-colors ${
-                          language === lang ? "bg-cyan-500/20 text-cyan-400" : "text-slate-300"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-2/50 transition-colors ${
+                          language === lang ? "bg-accent-cyan/20 text-cyan-text" : "text-secondary"
                         }`}
                       >
                         <span className="text-xl">{languageLabels[lang].flag}</span>
@@ -1942,9 +1943,9 @@ export default function Portfolio() {
               {isLoggedIn ? (
                 <a
                   href={isAdmin ? "/admin" : "/dashboard"}
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="hidden items-center gap-2 rounded-lg bg-accent-green px-3 py-2 text-sm font-bold text-inverse transition-colors hover:bg-accent-cyan sm:flex"
                 >
-                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                  <div className="w-6 h-6 rounded-full bg-hover/20 flex items-center justify-center text-xs font-bold">
                     {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
                   </div>
                   {isAdmin ? t.auth.admin : t.auth.profile}
@@ -1952,7 +1953,7 @@ export default function Portfolio() {
               ) : (
                 <a
                   href="/auth/login"
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="hidden items-center gap-2 rounded-lg bg-accent-green px-3 py-2 text-sm font-bold text-inverse transition-colors hover:bg-accent-cyan sm:flex"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -1964,7 +1965,7 @@ export default function Portfolio() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                className="rounded-lg border border-line bg-hover/[0.04] p-2 text-muted transition-colors hover:text-cyan-text md:hidden"
               >
                 {isMobileMenuOpen ? <CloseMenuIcon /> : <MenuIcon />}
               </button>
@@ -1973,22 +1974,24 @@ export default function Portfolio() {
           
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-slate-700 pt-4">
+            <div className="mt-4 border-t border-line pb-4 pt-4 md:hidden">
               <div className="flex flex-col gap-2">
                 {[
-                  { id: "books", label: t.nav.books },
-                  { id: "gallery", label: t.nav.gallery },
-                  { id: "it-news", label: t.nav.itNews },
+                  { id: "projects", label: t.nav.projects },
                   { id: "my-projects", label: t.nav.myProjects },
-                  { id: "cv", label: t.nav.cv },
+                  { id: "about", label: t.about.title },
+                  { id: "skills", label: t.nav.skills },
+                  { id: "gallery", label: t.nav.gallery },
+                  { id: "books", label: t.nav.books },
+                  { id: "it-news", label: t.nav.itNews },
+                  { id: "contact", label: t.contact.title },
                   { id: "notes", label: t.nav.notes, isLink: true, href: "/notes" },
-                  { id: "knowledge-hub", label: t.nav.knowledgeHub, isLink: true, href: "/knowledge-hub" },
                 ].map((item) => (
                   item.isLink ? (
                     <a
                       key={item.id}
                       href={item.href}
-                      className="px-4 py-3 text-base font-medium text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-colors"
+                      className="px-4 py-3 text-base font-medium text-secondary hover:text-cyan-text hover:bg-card/50 rounded-lg transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.label}
@@ -2002,8 +2005,8 @@ export default function Portfolio() {
                       }}
                       className={`px-4 py-3 text-left text-base font-medium rounded-lg transition-colors ${
                         activeSection === item.id 
-                          ? "text-cyan-400 bg-cyan-500/10" 
-                          : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
+                          ? "text-cyan-text bg-accent-cyan/10" 
+                          : "text-secondary hover:text-cyan-text hover:bg-card/50"
                       }`}
                     >
                       {item.label}
@@ -2015,10 +2018,10 @@ export default function Portfolio() {
                 {isLoggedIn ? (
                   <a
                     href={isAdmin ? "/admin" : "/dashboard"}
-                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-accent-cyan to-accent-green text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+                    <div className="w-6 h-6 rounded-full bg-hover/20 flex items-center justify-center text-sm font-bold">
                       {currentUser?.full_name?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || '?'}
                     </div>
                     {isAdmin ? t.auth.adminPanel : t.auth.myProfile}
@@ -2026,7 +2029,7 @@ export default function Portfolio() {
                 ) : (
                   <a
                     href="/auth/login"
-                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                    className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-accent-cyan to-accent-green text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2049,26 +2052,180 @@ export default function Portfolio() {
         shouldReduceMotion={shouldReduceMotion}
       />
 
+      <ProjectsGoalsSection t={t} />
+
+      <MyProjectsSection t={t} />
+
       <AboutSection t={t} />
 
       <SkillsSection t={t} />
 
-      <ProjectsGoalsSection t={t} />
+      {/* Gallery Preview */}
+      <section id="gallery" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(120deg,rgba(34,211,238,0.1),transparent_34%,rgba(47,226,138,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+                {t.gallery.title}
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
+                {t.gallery.subtitle}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 text-secondary sm:text-base lg:justify-self-end">
+              {t.about.certificates}
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {credentialPreviewItems.slice(0, 3).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => openGalleryViewer(item)}
+                className="group overflow-hidden rounded-2xl border border-line bg-hover/[0.045] text-left shadow-2xl shadow-elevation/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-accent-green/40"
+              >
+                {item.images[0] ? (
+                  <img src={item.images[0]} alt={item.title} className="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                ) : (
+                  <div className="grid h-40 place-items-center bg-hover/[0.04] text-lg font-black text-muted">{t.about.certificates}</div>
+                )}
+                <div className="p-4">
+                  <p className="line-clamp-1 text-base font-black text-foreground">{item.title}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">{item.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="/gallery" className="inline-flex items-center justify-center rounded-lg border border-accent-green/30 bg-accent-green/10 px-5 py-3 text-sm font-black text-green-text transition-colors hover:border-accent-green/60 hover:bg-accent-green/15">
+              {t.gallery.viewAll}
+            </a>
+            {isAdmin && (
+              <button onClick={() => openGalleryModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08]">
+                {t.gallery.addNew}
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Books Preview */}
+      <section id="books" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-background" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(120deg,rgba(34,211,238,0.08),transparent_36%,rgba(16,185,129,0.08)_76%,transparent),linear-gradient(180deg,rgba(2,6,23,0.18),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+                {t.books.title}
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
+                {t.books.subtitle}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-6 text-secondary sm:text-base lg:justify-self-end">
+              {t.nav.notes}
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {bookQuotes.slice(0, 3).map((quote) => (
+              <button key={quote.id} type="button" onClick={() => setViewingQuote(quote)} className="rounded-2xl border border-line bg-hover/[0.045] p-4 text-left shadow-2xl shadow-elevation/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-accent-cyan/40">
+                <p className="line-clamp-5 text-sm leading-6 text-secondary">&quot;{quote.quote}&quot;</p>
+                <div className="mt-4 border-t border-line pt-4">
+                  <p className="line-clamp-1 text-sm font-black text-foreground">{quote.bookTitle}</p>
+                  <p className="mt-1 text-xs font-bold text-cyan-text">{quote.author}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="/books" className="inline-flex items-center justify-center rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-5 py-3 text-sm font-black text-cyan-text transition-colors hover:border-accent-cyan/60 hover:bg-accent-cyan/15">
+              {t.books.viewAll}
+            </a>
+            {isAdmin && (
+              <button onClick={() => openBookModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08]">
+                {t.books.addNew}
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* IT News Preview */}
+      <section id="it-news" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(125deg,rgba(47,226,138,0.1),transparent_35%,rgba(34,211,238,0.08)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.28),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+                {t.itNews.title}
+              </p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
+                {t.itNews.subtitle}
+              </h2>
+            </div>
+            {isAdmin && (
+              <button onClick={() => openITNewsModal()} className="justify-self-start rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08] lg:justify-self-end">
+                {t.itNews.addNew}
+              </button>
+            )}
+          </div>
+
+          {itNews.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {itNews.slice(0, 3).map((news, index) => (
+                <button key={news.id} id={`it-news-${news.id}`} type="button" onClick={() => openNewsViewer(news)} className="group rounded-2xl border border-line bg-hover/[0.045] p-4 text-left shadow-2xl shadow-elevation/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-accent-green/40">
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-lg border border-accent-green/20 bg-accent-green/10 font-mono text-xs font-black text-green-text">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-xs font-bold text-subtle">{news.views} {t.itNews.views}</span>
+                  </div>
+                  <p className="line-clamp-2 text-base font-black leading-tight text-foreground group-hover:text-green-text">{news.title}</p>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">{news.content}</p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-line bg-hover/[0.045] p-6 text-center text-sm text-muted">
+              {t.itNews.noNews}
+            </div>
+          )}
+          <div className="mt-6 flex justify-center">
+            <a href="#it-news" className="inline-flex items-center justify-center rounded-lg border border-accent-green/30 bg-accent-green/10 px-5 py-3 text-sm font-black text-green-text transition-colors hover:border-accent-green/60 hover:bg-accent-green/15">
+              {t.books.viewAll} {t.itNews.title}
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Book Quotes Section */}
-      <section id="books" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📚 {t.books.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="legacy-books" className="hidden">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_12%_20%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.9))]" aria-hidden="true" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+                {t.books.title}
+              </p>
+              <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-foreground">
+                {t.books.subtitle}
+              </h2>
+            </div>
+            <div className="lg:justify-self-end">
+              <p className="text-secondary text-base sm:text-lg max-w-2xl mb-5 leading-7">
               {t.books.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openBookModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-accent-green text-inverse rounded-lg font-black hover:bg-accent-cyan transition-all text-sm sm:text-base shadow-xl shadow-accent-cyan/15"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2076,18 +2233,19 @@ export default function Portfolio() {
                 {t.books.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {bookQuotes.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">📚</span>
+            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.04] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-cyan/[0.08] border border-accent-cyan/20 flex items-center justify-center">
+                <span className="text-4xl" aria-hidden="true">B</span>
               </div>
-              <p className="text-slate-500 mb-4">{t.books.noQuotes}</p>
+              <p className="text-subtle mb-4">{t.books.noQuotes}</p>
               {isAdmin && (
                 <button
                   onClick={() => openBookModal()}
-                  className="text-cyan-400 hover:underline"
+                  className="text-cyan-text hover:underline"
                 >
                   {t.books.addFirst}
                 </button>
@@ -2095,7 +2253,7 @@ export default function Portfolio() {
             </div>
           ) : (
             <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {/* TOP 5 - sorted by likes */}
               {[...bookQuotes].sort((a, b) => b.likes - a.likes).slice(0, 5).map((quote) => {
                 const isExpanded = expandedQuotes.has(quote.id);
@@ -2104,12 +2262,12 @@ export default function Portfolio() {
                 return (
                 <div
                   key={quote.id}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
+                  className="group bg-hover/[0.045] rounded-2xl border border-line overflow-hidden hover:-translate-y-1 hover:border-accent-cyan/35 transition-all duration-300 shadow-2xl shadow-elevation/25 backdrop-blur-2xl"
                 >
                   {/* Image - kattaroq va bosiladigan */}
                   {quote.image && (
                     <div 
-                      className="relative h-52 sm:h-64 overflow-hidden cursor-pointer"
+                      className="relative h-52 sm:h-64 overflow-hidden cursor-pointer bg-background"
                       onClick={() => setViewingQuote(quote)}
                     >
                       <img
@@ -2117,17 +2275,17 @@ export default function Portfolio() {
                         alt={quote.bookTitle}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent"></div>
                       {/* Zoom icon */}
                       <div className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                         </svg>
                       </div>
                       {/* Book title overlay */}
                       <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="font-bold text-white text-base sm:text-lg drop-shadow-lg">{quote.bookTitle}</h3>
-                        <p className="text-cyan-300 text-sm">{quote.author}</p>
+                        <h3 className="font-bold text-foreground text-base sm:text-lg drop-shadow-lg">{quote.bookTitle}</h3>
+                        <p className="text-cyan-text text-sm">{quote.author}</p>
                       </div>
                     </div>
                   )}
@@ -2137,20 +2295,20 @@ export default function Portfolio() {
                     {/* Book info - agar rasm bo'lmasa */}
                     {!quote.image && (
                       <div className="mb-3">
-                        <h3 className="font-semibold text-slate-200 text-sm sm:text-base">{quote.bookTitle}</h3>
-                        <p className="text-xs sm:text-sm text-cyan-400">{t.books.from} {quote.author}</p>
+                        <h3 className="font-semibold text-foreground text-sm sm:text-base">{quote.bookTitle}</h3>
+                        <p className="text-xs sm:text-sm text-cyan-text">{t.books.from} {quote.author}</p>
                       </div>
                     )}
                     
                     {/* Quote - kengaytiriladigan */}
                     <div className="mb-4">
-                      <p className={`text-slate-300 text-sm leading-relaxed ${!isExpanded && isLongQuote ? 'line-clamp-4' : ''}`}>
+                      <p className={`text-secondary text-sm leading-relaxed ${!isExpanded && isLongQuote ? 'line-clamp-4' : ''}`}>
                         &ldquo;{quote.quote}&rdquo;
                       </p>
                       {isLongQuote && (
                         <button
                           onClick={() => toggleQuoteExpand(quote.id)}
-                          className="mt-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium flex items-center gap-1 transition-colors"
+                          className="mt-2 text-cyan-text hover:text-cyan-text text-sm font-medium flex items-center gap-1 transition-colors"
                         >
                           {isExpanded ? (
                             <>
@@ -2172,15 +2330,15 @@ export default function Portfolio() {
                     </div>
                     
                     {/* Actions */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+                    <div className="flex items-center justify-between pt-3 border-t border-line">
                       {/* Reactions */}
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleReaction(quote.id, 'like')}
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${
                             quote.userReaction === 'like'
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'text-slate-400 hover:text-green-400 hover:bg-slate-700/50'
+                              ? 'bg-accent-green/20 text-green-text'
+                              : 'text-muted hover:text-green-text hover:bg-surface-2/50'
                           }`}
                         >
                           <svg className="w-4 h-4" fill={quote.userReaction === 'like' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -2193,7 +2351,7 @@ export default function Portfolio() {
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${
                             quote.userReaction === 'dislike'
                               ? 'bg-red-500/20 text-red-400'
-                              : 'text-slate-400 hover:text-red-400 hover:bg-slate-700/50'
+                              : 'text-muted hover:text-red-400 hover:bg-surface-2/50'
                           }`}
                         >
                           <svg className="w-4 h-4" fill={quote.userReaction === 'dislike' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -2208,7 +2366,7 @@ export default function Portfolio() {
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openBookModal(quote)}
-                            className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                            className="p-1.5 text-muted hover:text-cyan-text transition-colors"
                             title="Edit"
                             aria-label="Edit quote"
                           >
@@ -2218,7 +2376,7 @@ export default function Portfolio() {
                           </button>
                           <button
                             onClick={() => deleteBookQuote(quote.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                            className="p-1.5 text-muted hover:text-red-400 transition-colors"
                             title="Delete"
                             aria-label="Delete quote"
                           >
@@ -2239,7 +2397,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/books"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.05] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-cyan/40 transition-all backdrop-blur-xl"
                 >
                   {t.books.viewAll} ({bookQuotes.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2256,14 +2414,14 @@ export default function Portfolio() {
       {/* Book Quote Modal */}
       {isBookModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-100">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-card rounded-2xl border border-line shadow-2xl">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-line">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">
                 {editingQuote ? t.books.editTitle : t.books.addTitle}
               </h3>
               <button
                 onClick={closeBookModal}
-                className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 text-muted hover:text-foreground transition-colors"
                 aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2275,7 +2433,7 @@ export default function Portfolio() {
             <form onSubmit={handleBookSubmit} className="p-4 sm:p-6 space-y-4">
               {/* Book Title */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.books.bookTitle} *
                 </label>
                 <input
@@ -2284,13 +2442,13 @@ export default function Portfolio() {
                   onChange={(e) => setBookFormTitle(e.target.value)}
                   required
                   placeholder={t.books.bookTitlePlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors text-sm sm:text-base"
                 />
               </div>
 
               {/* Author */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.books.author} *
                 </label>
                 <input
@@ -2299,13 +2457,13 @@ export default function Portfolio() {
                   onChange={(e) => setBookFormAuthor(e.target.value)}
                   required
                   placeholder={t.books.authorPlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors text-sm sm:text-base"
                 />
               </div>
 
               {/* Quote */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.books.quote} *
                 </label>
                 <textarea
@@ -2314,7 +2472,7 @@ export default function Portfolio() {
                   required
                   rows={4}
                   placeholder={t.books.quotePlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors resize-none text-sm sm:text-base"
                 />
               </div>
 
@@ -2323,13 +2481,13 @@ export default function Portfolio() {
                 <button
                   type="button"
                   onClick={closeBookModal}
-                  className="flex-1 py-2.5 sm:py-3 px-4 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-colors text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 border border-line rounded-xl text-secondary hover:bg-surface-2/50 transition-colors text-sm sm:text-base"
                 >
                   {t.books.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-accent-cyan to-accent-green rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-accent-cyan/30 transition-all text-sm sm:text-base"
                 >
                   {editingQuote ? t.books.save : t.books.add}
                 </button>
@@ -2340,19 +2498,27 @@ export default function Portfolio() {
       )}
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">🖼️ {t.gallery.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="legacy-gallery" className="hidden">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_85%_15%,rgba(47,226,138,0.14),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.88))]" aria-hidden="true" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+                {t.gallery.title}
+              </p>
+              <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-foreground">
+                {t.gallery.subtitle}
+              </h2>
+            </div>
+            <div className="lg:justify-self-end">
+              <p className="text-secondary text-base sm:text-lg max-w-2xl mb-5 leading-7">
               {t.gallery.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openGalleryModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-accent-green text-inverse rounded-lg font-black hover:bg-accent-green transition-all text-sm sm:text-base shadow-xl shadow-accent-green/15"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2360,18 +2526,19 @@ export default function Portfolio() {
                 {t.gallery.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {galleryItems.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">*</span>
+            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.04] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-green/[0.08] border border-accent-green/20 flex items-center justify-center">
+                <span className="text-4xl" aria-hidden="true">G</span>
               </div>
-              <p className="text-slate-500 mb-4">{t.gallery.noItems}</p>
+              <p className="text-subtle mb-4">{t.gallery.noItems}</p>
               {isAdmin && (
                 <button
                   onClick={() => openGalleryModal()}
-                  className="text-cyan-400 hover:underline"
+                  className="text-cyan-text hover:underline"
                 >
                   {t.gallery.addFirst}
                 </button>
@@ -2379,17 +2546,17 @@ export default function Portfolio() {
             </div>
           ) : (
             <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {/* TOP 5 gallery items */}
               {galleryItems.slice(0, 5).map((item) => (
                 <div
                   key={item.id}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all"
+                  className="group bg-hover/[0.045] rounded-2xl border border-line overflow-hidden hover:-translate-y-1 hover:border-accent-green/35 transition-all duration-300 shadow-2xl shadow-elevation/25 backdrop-blur-2xl"
                 >
                   {/* Images Preview */}
                   {item.images.length > 0 ? (
                     <div 
-                      className="relative h-48 sm:h-56 cursor-pointer overflow-hidden"
+                      className="relative h-48 sm:h-56 cursor-pointer overflow-hidden bg-background"
                       onClick={() => openGalleryViewer(item, 0)}
                     >
                       <img
@@ -2398,20 +2565,20 @@ export default function Portfolio() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {item.images.length > 1 && (
-                        <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 rounded-lg text-xs text-white flex items-center gap-1">
+                        <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 rounded-lg text-xs text-foreground flex items-center gap-1">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           +{item.images.length - 1}
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent"></div>
                       <div className="absolute bottom-3 left-3">
                         <span className="text-2xl">{getCategoryIcon(item.category)}</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="h-48 sm:h-56 bg-slate-700/30 flex items-center justify-center">
+                    <div className="h-48 sm:h-56 bg-background/60 flex items-center justify-center">
                       <span className="text-6xl opacity-30">{getCategoryIcon(item.category)}</span>
                     </div>
                   )}
@@ -2419,25 +2586,25 @@ export default function Portfolio() {
                   {/* Content */}
                   <div className="p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-semibold text-slate-200 text-sm sm:text-base line-clamp-1">{item.title}</h3>
-                      <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded text-xs whitespace-nowrap">
+                      <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{item.title}</h3>
+                      <span className="px-2 py-0.5 bg-accent-cyan/20 text-cyan-text rounded text-xs whitespace-nowrap">
                         {t.gallery.categories[item.category]}
                       </span>
                     </div>
                     
-                    <p className="text-slate-400 text-xs sm:text-sm line-clamp-2 mb-3">
+                    <p className="text-muted text-xs sm:text-sm line-clamp-2 mb-3">
                       {item.description}
                     </p>
                     
                     {/* Date and Actions */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
-                      <span className="text-xs text-slate-500">{item.date}</span>
+                    <div className="flex items-center justify-between pt-3 border-t border-line">
+                      <span className="text-xs text-subtle">{item.date}</span>
                       
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         {item.images.length > 0 && (
                           <button
                             onClick={() => openGalleryViewer(item, 0)}
-                            className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                            className="p-1.5 text-muted hover:text-cyan-text transition-colors"
                             title="View"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2451,7 +2618,7 @@ export default function Portfolio() {
                           <>
                             <button
                               onClick={() => openGalleryModal(item)}
-                              className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                              className="p-1.5 text-muted hover:text-cyan-text transition-colors"
                               title="Edit"
                               aria-label="Edit gallery item"
                             >
@@ -2461,7 +2628,7 @@ export default function Portfolio() {
                             </button>
                             <button
                               onClick={() => deleteGalleryItem(item.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                              className="p-1.5 text-muted hover:text-red-400 transition-colors"
                               title="Delete"
                               aria-label="Delete gallery item"
                             >
@@ -2483,7 +2650,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/gallery"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white hover:border-cyan-500/50 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.05] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-green/40 transition-all backdrop-blur-xl"
                 >
                   {t.gallery.viewAll} ({galleryItems.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2500,14 +2667,14 @@ export default function Portfolio() {
       {/* Gallery Modal */}
       {isGalleryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-100">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-card rounded-2xl border border-line shadow-2xl">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-line">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">
                 {editingGallery ? t.gallery.editTitle : t.gallery.addTitle}
               </h3>
               <button
                 onClick={closeGalleryModal}
-                className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 text-muted hover:text-foreground transition-colors"
                 aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2519,7 +2686,7 @@ export default function Portfolio() {
             <form onSubmit={handleGallerySubmit} className="p-4 sm:p-6 space-y-4">
               {/* Images Upload */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.gallery.images}
                 </label>
                 
@@ -2532,7 +2699,7 @@ export default function Portfolio() {
                         <button
                           type="button"
                           onClick={() => removeGalleryImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                          className="absolute top-1 right-1 p-1 bg-red-500 rounded-full text-foreground hover:bg-red-600 transition-colors"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2545,19 +2712,19 @@ export default function Portfolio() {
                 
                 {galleryFormImages.length < 5 && (
                   isUploading ? (
-                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500 mb-1"></div>
-                      <span className="text-xs text-cyan-400">Yuklanmoqda...</span>
+                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-accent-cyan/50 rounded-xl bg-surface-2/30">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-cyan mb-1"></div>
+                      <span className="text-xs text-cyan-text">Yuklanmoqda...</span>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
-                      <svg className="w-6 h-6 text-slate-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-accent-cyan/50 transition-colors">
+                      <svg className="w-6 h-6 text-subtle mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-subtle">
                         {galleryFormImages.length > 0 ? t.gallery.addMore : t.gallery.uploadImages}
                       </span>
-                      <span className="text-xs text-slate-600 mt-1">
+                      <span className="text-xs text-subtle mt-1">
                         ({galleryFormImages.length}/5)
                       </span>
                       <input
@@ -2574,7 +2741,7 @@ export default function Portfolio() {
 
               {/* Title */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.gallery.itemTitle} *
                 </label>
                 <input
@@ -2583,19 +2750,19 @@ export default function Portfolio() {
                   onChange={(e) => setGalleryFormTitle(e.target.value)}
                   required
                   placeholder={t.gallery.itemTitlePlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors text-sm sm:text-base"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.gallery.itemCategory}
                 </label>
                 <select
                   value={galleryFormCategory}
                   onChange={(e) => setGalleryFormCategory(e.target.value as GalleryItem['category'])}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground focus:outline-none focus:border-accent-cyan transition-colors text-sm sm:text-base"
                 >
                   <option value="certificate">{getCategoryIcon('certificate')} {t.gallery.categories.certificate}</option>
                   <option value="event">{getCategoryIcon('event')} {t.gallery.categories.event}</option>
@@ -2607,7 +2774,7 @@ export default function Portfolio() {
 
               {/* Description */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.gallery.itemDescription} *
                 </label>
                 <textarea
@@ -2616,7 +2783,7 @@ export default function Portfolio() {
                   required
                   rows={3}
                   placeholder={t.gallery.itemDescriptionPlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors resize-none text-sm sm:text-base"
                 />
               </div>
 
@@ -2625,13 +2792,13 @@ export default function Portfolio() {
                 <button
                   type="button"
                   onClick={closeGalleryModal}
-                  className="flex-1 py-2.5 sm:py-3 px-4 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-colors text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 border border-line rounded-xl text-secondary hover:bg-surface-2/50 transition-colors text-sm sm:text-base"
                 >
                   {t.gallery.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-accent-cyan to-accent-green rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-accent-cyan/30 transition-all text-sm sm:text-base"
                 >
                   {editingGallery ? t.gallery.save : t.gallery.add}
                 </button>
@@ -2647,7 +2814,7 @@ export default function Portfolio() {
           {/* Close button */}
           <button
             onClick={closeGalleryViewer}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-foreground transition-colors z-10"
             aria-label="Close image viewer"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2660,7 +2827,7 @@ export default function Portfolio() {
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 p-2 text-white/70 hover:text-white transition-colors"
+                className="absolute left-4 p-2 text-white/70 hover:text-foreground transition-colors"
                 aria-label="Previous image"
               >
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2669,7 +2836,7 @@ export default function Portfolio() {
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 p-2 text-white/70 hover:text-white transition-colors"
+                className="absolute right-4 p-2 text-white/70 hover:text-foreground transition-colors"
                 aria-label="Next image"
               >
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2689,8 +2856,8 @@ export default function Portfolio() {
             
             {/* Info */}
             <div className="mt-4 text-center">
-              <h3 className="text-xl font-semibold text-white mb-2">{viewingGallery.title}</h3>
-              <p className="text-slate-400 text-sm max-w-xl mx-auto">{viewingGallery.description}</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{viewingGallery.title}</h3>
+              <p className="text-muted text-sm max-w-xl mx-auto">{viewingGallery.description}</p>
               
               {/* Image counter */}
               {viewingGallery.images.length > 1 && (
@@ -2700,7 +2867,7 @@ export default function Portfolio() {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentImageIndex ? 'bg-cyan-400' : 'bg-slate-600 hover:bg-slate-500'
+                        index === currentImageIndex ? 'bg-accent-cyan' : 'bg-surface-2 hover:bg-surface-2'
                       }`}
                     />
                   ))}
@@ -2712,35 +2879,42 @@ export default function Portfolio() {
       )}
 
       {/* CV Section */}
-      <section id="cv" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📄 {t.cv.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="legacy-cv" className="hidden">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(130deg,rgba(34,211,238,0.12),transparent_34%,rgba(16,185,129,0.1)_72%,transparent),linear-gradient(180deg,rgba(2,6,23,0.2),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+                {t.cv.title}
+              </p>
+              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
+                {t.cv.title}
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base leading-7 text-secondary sm:text-lg lg:justify-self-end">
               {t.cv.subtitle}
             </p>
           </div>
 
           {isLoadingCv ? (
             <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-cyan mx-auto"></div>
             </div>
           ) : cvUrl ? (
-            <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 sm:p-8">
+            <div className="rounded-2xl border border-line bg-hover/[0.045] p-6 shadow-2xl shadow-elevation/30 backdrop-blur-2xl sm:p-8">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-accent-cyan/25 bg-accent-cyan/[0.12] text-cyan-text">
+                    <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-1">
+                    <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1">
                       CV mavjud
                     </h3>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted">
                       CV'ni yuklab olish uchun tugmani bosing
                     </p>
                   </div>
@@ -2751,7 +2925,7 @@ export default function Portfolio() {
                     target="_blank"
                     rel="noopener noreferrer"
                     download="Avrangzeb_CV.pdf"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 font-bold text-inverse transition-colors hover:bg-accent-cyan"
                     onClick={(e) => {
                       // Yangi tab'da ochilishini ta'minlash
                       e.preventDefault();
@@ -2772,7 +2946,7 @@ export default function Portfolio() {
                   </a>
                   {isAdmin && (
                     <>
-                      <label className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-slate-600 rounded-xl font-semibold text-slate-300 hover:bg-slate-700/50 transition-all cursor-pointer">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.04] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.08]">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
@@ -2787,7 +2961,7 @@ export default function Portfolio() {
                       </label>
                       <button
                         onClick={handleCVDelete}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-red-500/50 rounded-xl font-semibold text-red-400 hover:bg-red-500/10 transition-all"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/50 px-6 py-3 font-semibold text-red-300 transition-all hover:bg-red-500/10"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2801,24 +2975,24 @@ export default function Portfolio() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <svg className="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.04]">
+                <svg className="w-10 h-10 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               {/* Static CV mavjud bo'lsa, uni ko'rsatish */}
-              <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 sm:p-8 max-w-md mx-auto">
+              <div className="mx-auto max-w-md rounded-2xl border border-line bg-hover/[0.045] p-6 shadow-2xl shadow-elevation/30 backdrop-blur-2xl sm:p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-accent-cyan/25 bg-accent-cyan/[0.12] text-cyan-text">
+                    <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div className="text-left">
-                    <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-1">
+                    <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1">
                       CV mavjud
                     </h3>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted">
                       CV'ni yuklab olish uchun tugmani bosing
                     </p>
                   </div>
@@ -2828,7 +3002,7 @@ export default function Portfolio() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download="Avrangzeb_CV.pdf"
-                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 font-bold text-inverse transition-colors hover:bg-accent-cyan"
                   onClick={(e) => {
                     // Yangi tab'da ochilishini ta'minlash
                     e.preventDefault();
@@ -2848,7 +3022,7 @@ export default function Portfolio() {
                   {t.cv.download}
                 </a>
                 {isAdmin && (
-                  <label className="mt-4 inline-flex items-center justify-center gap-2 w-full px-6 py-3 border border-slate-600 rounded-xl font-semibold text-slate-300 hover:bg-slate-700/50 transition-all cursor-pointer">
+                  <label className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.04] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.08]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
@@ -2869,19 +3043,27 @@ export default function Portfolio() {
       </section>
 
       {/* IT News Section */}
-      <section id="it-news" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="gradient-text">📰 {t.itNews.title}</span>
-            </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+      <section id="legacy-it-news" className="hidden">
+        <div className="absolute inset-0 bg-surface" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(125deg,rgba(47,226,138,0.12),transparent_35%,rgba(34,211,238,0.1)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.35),rgba(2,6,23,0.92))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+                {t.itNews.title}
+              </p>
+              <h2 className="mt-5 text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
+                {t.itNews.title}
+              </h2>
+            </div>
+            <div className="max-w-2xl lg:justify-self-end">
+              <p className="text-base leading-7 text-secondary sm:text-lg">
               {t.itNews.subtitle}
             </p>
             {isAdmin && (
               <button
                 onClick={() => openITNewsModal()}
-                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green px-4 py-2 text-sm font-bold text-inverse transition-colors hover:bg-accent-cyan sm:px-6 sm:py-3 sm:text-base"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2889,34 +3071,35 @@ export default function Portfolio() {
                 {t.itNews.addNew}
               </button>
             )}
+            </div>
           </div>
 
           {isLoadingITNews ? (
             <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-cyan mx-auto"></div>
             </div>
           ) : itNews.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <span className="text-4xl">📰</span>
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.04]">
+                <span className="text-2xl font-black text-secondary">N</span>
               </div>
-              <p className="text-slate-500 mb-4">{t.itNews.noNews}</p>
+              <p className="text-subtle mb-4">{t.itNews.noNews}</p>
               {isAdmin && (
                 <button
                   onClick={() => openITNewsModal()}
-                  className="text-cyan-400 hover:underline"
+                  className="text-cyan-text hover:underline"
                 >
                   {t.itNews.addFirst}
                 </button>
               )}
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {itNews.map((news) => (
                 <div
                   key={news.id}
                   id={`it-news-${news.id}`}
-                  className="group bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer"
+                  className="group cursor-pointer overflow-hidden rounded-2xl border border-line bg-hover/[0.045] shadow-2xl shadow-elevation/25 backdrop-blur-2xl transition-all hover:-translate-y-1 hover:border-accent-cyan/40"
                   onClick={() => {
                     openNewsViewer(news);
                   }}
@@ -2929,23 +3112,23 @@ export default function Portfolio() {
                         alt={news.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/85 to-transparent"></div>
                     </div>
                   )}
                   
                   {/* Content */}
                   <div className="p-4 sm:p-5">
-                    <h3 className="font-semibold text-slate-200 text-base sm:text-lg mb-2 line-clamp-2">
+                    <h3 className="font-semibold text-foreground text-base sm:text-lg mb-2 line-clamp-2">
                       {news.title}
                     </h3>
                     
-                    <p className="text-slate-400 text-sm line-clamp-3 mb-4">
+                    <p className="text-muted text-sm line-clamp-3 mb-4">
                       {news.content}
                     </p>
                     
                     {/* Meta info */}
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-700">
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <div className="flex items-center justify-between border-t border-line pt-3">
+                      <div className="flex items-center gap-2 text-xs text-subtle">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -2959,7 +3142,7 @@ export default function Portfolio() {
                             e.stopPropagation();
                             shareITNews(news);
                           }}
-                          className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                          className="rounded-lg border border-line bg-hover/[0.04] p-2 text-secondary transition-all hover:bg-accent-cyan/10 hover:text-cyan-text"
                           title={t.itNews.share}
                           aria-label={t.itNews.share}
                         >
@@ -2976,7 +3159,7 @@ export default function Portfolio() {
                                 e.stopPropagation();
                                 openITNewsModal(news);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors"
+                              className="p-1.5 text-muted hover:text-cyan-text transition-colors"
                               title="Edit"
                               aria-label="Edit news"
                             >
@@ -2989,7 +3172,7 @@ export default function Portfolio() {
                                 e.stopPropagation();
                                 deleteITNews(news.id);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-red-400 transition-colors"
+                              className="p-1.5 text-muted hover:text-red-400 transition-colors"
                               title="Delete"
                               aria-label="Delete news"
                             >
@@ -3012,14 +3195,14 @@ export default function Portfolio() {
       {/* IT News Modal */}
       {isITNewsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-100">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-card rounded-2xl border border-line shadow-2xl">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-line">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">
                 {editingITNews ? t.itNews.editTitle : t.itNews.addTitle}
               </h3>
               <button
                 onClick={closeITNewsModal}
-                className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 text-muted hover:text-foreground transition-colors"
                 aria-label="Close dialog"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3036,7 +3219,7 @@ export default function Portfolio() {
                   <button
                     type="button"
                     onClick={() => setItNewsFormImage(null)}
-                    className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                    className="absolute top-2 right-2 p-2 bg-red-500 rounded-full text-foreground hover:bg-red-600 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3047,20 +3230,20 @@ export default function Portfolio() {
               
               {!itNewsFormImage && (
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                     {t.itNews.imageLabel}
                   </label>
                   {isUploading ? (
-                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-cyan-500/50 rounded-xl bg-slate-700/30">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500 mb-1"></div>
-                      <span className="text-xs text-cyan-400">Yuklanmoqda...</span>
+                    <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-accent-cyan/50 rounded-xl bg-surface-2/30">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-cyan mb-1"></div>
+                      <span className="text-xs text-cyan-text">Yuklanmoqda...</span>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-cyan-500/50 transition-colors">
-                      <svg className="w-6 h-6 text-slate-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-line rounded-xl cursor-pointer hover:border-accent-cyan/50 transition-colors">
+                      <svg className="w-6 h-6 text-subtle mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      <span className="text-xs text-slate-500">{t.itNews.uploadImage}</span>
+                      <span className="text-xs text-subtle">{t.itNews.uploadImage}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -3074,7 +3257,7 @@ export default function Portfolio() {
 
               {/* Title */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.itNews.newsTitle} *
                 </label>
                 <input
@@ -3083,13 +3266,13 @@ export default function Portfolio() {
                   onChange={(e) => setItNewsFormTitle(e.target.value)}
                   required
                   placeholder={t.itNews.newsTitlePlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors text-sm sm:text-base"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-secondary mb-2">
                   {t.itNews.newsContent} *
                 </label>
                 <textarea
@@ -3098,7 +3281,7 @@ export default function Portfolio() {
                   required
                   rows={6}
                   placeholder={t.itNews.newsContentPlaceholder}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors resize-none text-sm sm:text-base"
                 />
               </div>
 
@@ -3107,13 +3290,13 @@ export default function Portfolio() {
                 <button
                   type="button"
                   onClick={closeITNewsModal}
-                  className="flex-1 py-2.5 sm:py-3 px-4 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-colors text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 border border-line rounded-xl text-secondary hover:bg-surface-2/50 transition-colors text-sm sm:text-base"
                 >
                   {t.itNews.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base"
+                  className="flex-1 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-accent-cyan to-accent-green rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-accent-cyan/30 transition-all text-sm sm:text-base"
                 >
                   {editingITNews ? t.itNews.save : t.itNews.add}
                 </button>
@@ -3126,17 +3309,17 @@ export default function Portfolio() {
       {/* IT News Viewer Modal - O'qish uchun */}
       {viewingNews && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-4xl bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl my-8">
+          <div className="w-full max-w-4xl bg-card rounded-2xl border border-line shadow-2xl my-8">
             {/* Header */}
-            <div className="sticky top-0 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 p-4 sm:p-6 flex items-center justify-between z-10">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-100 pr-4">
+            <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-line p-4 sm:p-6 flex items-center justify-between z-10">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground pr-4">
                 {viewingNews.title}
               </h2>
               <div className="flex items-center gap-2">
                 {/* Share button */}
                 <button
                   onClick={() => shareITNews(viewingNews)}
-                  className="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                  className="p-2 rounded-lg bg-surface-2/50 text-secondary hover:text-cyan-text hover:bg-accent-cyan/10 transition-all"
                   title={t.itNews.share}
                   aria-label={t.itNews.share}
                 >
@@ -3151,7 +3334,7 @@ export default function Portfolio() {
                       closeNewsViewer();
                       setTimeout(() => openITNewsModal(viewingNews), 100);
                     }}
-                    className="p-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                    className="p-2 text-muted hover:text-cyan-text transition-colors"
                     title="Edit"
                     aria-label="Edit news"
                   >
@@ -3163,7 +3346,7 @@ export default function Portfolio() {
                 {/* Close button */}
                 <button
                   onClick={closeNewsViewer}
-                  className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                  className="p-2 text-muted hover:text-foreground transition-colors"
                   title="Close"
                   aria-label="Close article"
                 >
@@ -3190,7 +3373,7 @@ export default function Portfolio() {
               {/* News Content */}
               <div className="p-4 sm:p-6 lg:p-8">
                 {/* Meta info */}
-                <div className="flex items-center gap-4 mb-6 text-sm text-slate-400">
+                <div className="flex items-center gap-4 mb-6 text-sm text-muted">
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -3210,7 +3393,7 @@ export default function Portfolio() {
 
                 {/* Content text */}
                 <div className="prose prose-invert max-w-none">
-                  <div className="text-slate-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
+                  <div className="text-secondary text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
                     {viewingNews.content}
                   </div>
                 </div>
@@ -3226,7 +3409,7 @@ export default function Portfolio() {
           {/* Close button */}
           <button
             onClick={() => setViewingQuote(null)}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-foreground transition-colors z-10"
             aria-label="Close quote viewer"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3234,7 +3417,7 @@ export default function Portfolio() {
             </svg>
           </button>
           
-          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-slate-900 rounded-2xl">
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-surface rounded-2xl">
             {/* Full Image */}
             <div className="relative">
               <img
@@ -3247,12 +3430,12 @@ export default function Portfolio() {
             {/* Content */}
             <div className="p-6">
               <div className="mb-4">
-                <h3 className="text-2xl font-bold text-white mb-1">{viewingQuote.bookTitle}</h3>
-                <p className="text-cyan-400">{viewingQuote.author}</p>
+                <h3 className="text-2xl font-bold text-foreground mb-1">{viewingQuote.bookTitle}</h3>
+                <p className="text-cyan-text">{viewingQuote.author}</p>
               </div>
               
-              <div className="bg-slate-800/50 rounded-xl p-4 border-l-4 border-cyan-500">
-                <p className="text-slate-200 text-lg leading-relaxed italic">
+              <div className="bg-card/50 rounded-xl p-4 border-l-4 border-accent-cyan">
+                <p className="text-foreground text-lg leading-relaxed italic">
                   &ldquo;{viewingQuote.quote}&rdquo;
                 </p>
               </div>
@@ -3265,8 +3448,8 @@ export default function Portfolio() {
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
                     viewingQuote.userReaction === 'like'
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-slate-800 text-slate-400 hover:text-green-400'
+                      ? 'bg-accent-green/20 text-green-text'
+                      : 'bg-card text-muted hover:text-green-text'
                   }`}
                 >
                   <svg className="w-5 h-5" fill={viewingQuote.userReaction === 'like' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -3281,7 +3464,7 @@ export default function Portfolio() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
                     viewingQuote.userReaction === 'dislike'
                       ? 'bg-red-500/20 text-red-400'
-                      : 'bg-slate-800 text-slate-400 hover:text-red-400'
+                      : 'bg-card text-muted hover:text-red-400'
                   }`}
                 >
                   <svg className="w-5 h-5" fill={viewingQuote.userReaction === 'dislike' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -3295,102 +3478,105 @@ export default function Portfolio() {
         </div>
       )}
 
-      <MyProjectsSection t={t} />
-
-{/* Contact Section */}
-      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-900/50">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-            <span className="gradient-text">{t.contact.title}</span>
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-            {/* Contact Info */}
-            <div className="space-y-4 sm:space-y-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
-                {t.contact.subtitle}
-              </h3>
-              <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-base">
-                {t.contact.description}
+      {/* Contact Section */}
+      <section id="contact" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+        <div className="absolute inset-0 bg-background" aria-hidden="true" />
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-500 bg-[linear-gradient(120deg,rgba(34,211,238,0.13),transparent_35%,rgba(47,226,138,0.12)_78%,transparent),linear-gradient(180deg,rgba(2,6,23,0.22),rgba(2,6,23,0.95))]" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="mb-8">
+            <div>
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+                {t.contact.title}
               </p>
-              
-              <div className="space-y-3 sm:space-y-4">
+              <h2 className="mt-4 max-w-2xl text-3xl font-black leading-tight text-foreground sm:text-4xl">
+                {t.contact.subtitle}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+            {/* Contact Info */}
+            <div className="space-y-3 sm:space-y-4">
                 <a
                   href="mailto:avrangzebabdujalilov@gmail.com"
-                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
+                  className="group flex items-center gap-3 rounded-2xl border border-line bg-hover/[0.045] p-3 shadow-2xl shadow-elevation/20 backdrop-blur-2xl transition-colors hover:border-accent-cyan/40 sm:gap-4 sm:p-4"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
                     <MailIcon />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.email}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base truncate">avrangzebabdujalilov@gmail.com</p>
+                    <p className="text-xs sm:text-sm text-subtle">{t.contact.email}</p>
+                    <p className="truncate text-sm text-foreground transition-colors group-hover:text-cyan-text sm:text-base">avrangzebabdujalilov@gmail.com</p>
                   </div>
                 </a>
                 
                 <a
-                  href="tel:+821023492777"
-                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group"
+                  href="https://t.me/Avrangzeb_99"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-2xl border border-line bg-hover/[0.045] p-3 shadow-2xl shadow-elevation/20 backdrop-blur-2xl transition-colors hover:border-accent-cyan/40 sm:gap-4 sm:p-4"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
+                    <TelegramIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-subtle">{t.contact.telegram}</p>
+                    <p className="truncate text-sm text-foreground transition-colors group-hover:text-cyan-text sm:text-base">@Avrangzeb_99</p>
+                  </div>
+                </a>
+
+                <a
+                  href="tel:+821023492777"
+                  className="group flex items-center gap-3 rounded-2xl border border-line bg-hover/[0.045] p-3 shadow-2xl shadow-elevation/20 backdrop-blur-2xl transition-colors hover:border-accent-cyan/40 sm:gap-4 sm:p-4"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
                     <PhoneIcon />
         </div>
                   <div>
-                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.phone}</p>
-                    <p className="text-slate-200 group-hover:text-cyan-400 transition-colors text-sm sm:text-base">+82 10-2349-2777</p>
+                    <p className="text-xs sm:text-sm text-subtle">{t.contact.phone}</p>
+                    <p className="text-sm text-foreground transition-colors group-hover:text-cyan-text sm:text-base">+82 10-2349-2777</p>
                   </div>
                 </a>
                 
-                <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
-                    <LocationIcon />
-                  </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-500">{t.contact.location}</p>
-                    <p className="text-slate-200 text-sm sm:text-base">{t.contact.locationValue}</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Social Links */}
-              <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <a
-                  href="https://t.me/Avrangzeb_Abdujalilov"
-            target="_blank"
-            rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
-                  title="Telegram"
-                >
-                  <TelegramIcon />
-          </a>
-          <a
                   href="https://www.linkedin.com/in/avrangzeb-abdujalilov-365b5221a/"
-            target="_blank"
-            rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
-                  title="LinkedIn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-2xl border border-line bg-hover/[0.045] p-3 shadow-2xl shadow-elevation/20 backdrop-blur-2xl transition-colors hover:border-accent-cyan/40 sm:gap-4 sm:p-4"
                 >
-                  <LinkedInIcon />
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
+                    <LinkedInIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-subtle">{t.contact.linkedin}</p>
+                    <p className="truncate text-sm text-foreground transition-colors group-hover:text-cyan-text sm:text-base">avrangzeb-abdujalilov</p>
+                  </div>
                 </a>
+
                 <a
                   href="https://github.com/UsmanSNT"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
-                  title="GitHub"
+                  className="group flex items-center gap-3 rounded-2xl border border-line bg-hover/[0.045] p-3 shadow-2xl shadow-elevation/20 backdrop-blur-2xl transition-colors hover:border-accent-cyan/40 sm:gap-4 sm:p-4"
                 >
-                  <GitHubIcon />
-          </a>
-        </div>
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
+                    <GitHubIcon />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-subtle">{t.contact.github}</p>
+                    <p className="truncate text-sm text-foreground transition-colors group-hover:text-cyan-text sm:text-base">UsmanSNT</p>
+                  </div>
+                </a>
             </div>
             
             {/* Contact Form */}
-            <div className="p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-              <h3 className="text-lg sm:text-xl font-semibold text-slate-200 mb-4 sm:mb-6">
+            <div className="rounded-2xl border border-line bg-hover/[0.045] p-4 shadow-2xl shadow-elevation/30 backdrop-blur-2xl sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 sm:mb-6">
                 {t.contact.sendMessage}
               </h3>
               
               {contactSuccess && (
-                <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm">
+                <div className="mb-4 p-3 bg-accent-green/20 border border-accent-green/50 rounded-lg text-green-text text-sm">
                   {t.contact.successMessage}
                 </div>
               )}
@@ -3403,20 +3589,20 @@ export default function Portfolio() {
               
               <form onSubmit={handleContactSubmit} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-xs sm:text-sm text-slate-400 mb-2">{t.contact.form.name}</label>
+                  <label className="block text-xs sm:text-sm text-muted mb-2">{t.contact.form.name}</label>
                   <input
                     type="text"
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                    className="w-full rounded-lg border border-line bg-background/55 px-3 py-2.5 text-sm text-foreground placeholder-subtle transition-colors focus:border-accent-cyan focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.namePlaceholder}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm text-slate-400 mb-2">
+                  <label className="block text-xs sm:text-sm text-muted mb-2">
                     <span className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-cyan-text" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                       </svg>
                       {t.contact.form.telegram}
@@ -3426,25 +3612,25 @@ export default function Portfolio() {
                     type="text"
                     value={contactTelegram}
                     onChange={(e) => setContactTelegram(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm sm:text-base"
+                    className="w-full rounded-lg border border-line bg-background/55 px-3 py-2.5 text-sm text-foreground placeholder-subtle transition-colors focus:border-accent-cyan focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.telegramPlaceholder}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm text-slate-400 mb-2">{t.contact.form.message}</label>
+                  <label className="block text-xs sm:text-sm text-muted mb-2">{t.contact.form.message}</label>
                   <textarea
                     rows={4}
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none text-sm sm:text-base"
+                    className="w-full resize-none rounded-lg border border-line bg-background/55 px-3 py-2.5 text-sm text-foreground placeholder-subtle transition-colors focus:border-accent-cyan focus:outline-none sm:px-4 sm:py-3 sm:text-base"
                     placeholder={t.contact.form.messagePlaceholder}
                   ></textarea>
                 </div>
                 <button
                   type="submit"
                   disabled={isContactSending}
-                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-lg bg-accent-green py-2.5 text-sm font-bold text-inverse transition-colors hover:bg-accent-cyan disabled:cursor-not-allowed disabled:opacity-50 sm:py-3 sm:text-base"
                 >
                   {isContactSending ? (
                     <span className="flex items-center justify-center gap-2">

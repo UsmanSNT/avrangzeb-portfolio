@@ -1,87 +1,68 @@
 import type { HomeDictionary } from "@/lib/i18n/types";
-import { ShieldIcon } from "./icons";
+import { CodeIcon, ServerIcon, ShieldIcon } from "./icons";
 
-const certifications = [
-  { name: "네트워크관리사 2급 (Network Administrator Level 2)", status: "preparing" },
-  { name: "CCNA - Cisco Certified Network Associate", status: "preparing" },
-  { name: "CompTIA Network+", status: "preparing" },
-  { name: "Linux Professional Institute (LPIC-1)", status: "preparing" },
-];
+const profileIcons = [<ShieldIcon key="degree" />, <ServerIcon key="graduated" />, <CodeIcon key="position" />];
 
 interface AboutSectionProps {
   t: HomeDictionary;
 }
 
 export function AboutSection({ t }: AboutSectionProps) {
-  return (
-    <section id="about" className="py-16 sm:py-24 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-10 sm:mb-16">
-          <span className="gradient-text">{t.about.title}</span>
-        </h2>
-        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-start">
-          <div className="space-y-4 sm:space-y-6">
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.greeting} <span className="text-cyan-400 font-semibold">Abdujalilov Avrangzeb</span>,
-              {t.about.intro}
-            </p>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.passion}
-            </p>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              {t.about.goal}
-            </p>
+  const profileItems = [
+    {
+      label: t.about.university,
+      value: t.about.university,
+      detail: t.about.education,
+    },
+    {
+      label: t.about.degree,
+      value: t.about.degreeValue,
+      detail: t.about.faculty,
+    },
+    {
+      label: t.about.graduated,
+      value: t.about.graduatedValue,
+      detail: t.about.currentPositionValue,
+    },
+    {
+      label: t.about.currentPosition,
+      value: t.about.currentPositionValue,
+      detail: t.skills.additional,
+    },
+  ];
 
-            {/* Education */}
-            <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-              <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-3 sm:mb-4">🎓 {t.about.education}</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="font-medium text-slate-200 text-sm sm:text-base">{t.about.university}</p>
-                  <p className="text-slate-400 text-sm sm:text-base">{t.about.faculty}</p>
-                  <p className="text-xs sm:text-sm text-slate-500">{t.about.years}</p>
-                </div>
-              </div>
-            </div>
+  return (
+    <section id="about" className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-20">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--surface)_0%,var(--card)_58%,var(--surface)_100%)]" aria-hidden="true" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-green/50 to-transparent" aria-hidden="true" />
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+          <div>
+            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              {t.about.title}
+            </p>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal text-foreground sm:text-4xl">
+              {t.about.education}
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-secondary sm:text-base">
+              {t.about.preparingCerts}
+            </p>
           </div>
 
-          {/* Certifications */}
-          <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-cyan-400 mb-4 sm:mb-6">🏅 {t.about.certificates}</h3>
-            {certifications.map((cert, index) => (
-              <div
-                key={index}
-                className="p-3 sm:p-5 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-slate-200 text-sm sm:text-base break-words">{cert.name}</h4>
-                    <p className="text-xs sm:text-sm text-yellow-400 mt-1 flex items-center gap-1">
-                      <span aria-hidden="true">*</span> {t.about.preparingCerts || "Preparing"}
-                    </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {profileItems.map((item, index) => (
+              <article key={`${item.label}-${item.value}`} className="rounded-2xl border border-line bg-hover/[0.045] p-4 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:p-5">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-background/55 text-cyan-text">
+                    {profileIcons[index % profileIcons.length]}
                   </div>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                    <ShieldIcon />
-                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-subtle">{item.label}</p>
                 </div>
-              </div>
+                <h3 className="text-xl font-black text-foreground">{item.value}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted">{item.detail}</p>
+              </article>
             ))}
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 sm:mt-8">
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-cyan-400">4</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.projects}</p>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-400">4</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.certificates}</p>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <p className="text-2xl sm:text-3xl font-bold text-green-400">🚀</p>
-                <p className="text-xs sm:text-sm text-slate-500">{t.about.stats.experience}</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
