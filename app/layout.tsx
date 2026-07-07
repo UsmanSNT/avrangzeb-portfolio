@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://avrangzebabdujalilov.com"),
   title: "Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer",
   description: "Abdujalilov Avrangzeb - Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea. Portfolio, projects, and contact.",
   keywords: [
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'uz_UZ',
     alternateLocale: ['en_US', 'ko_KR'],
-    url: 'https://avrangzeb-portfolio.vercel.app',
+    url: 'https://avrangzebabdujalilov.com',
     siteName: 'Avrangzeb Abdujalilov Portfolio',
     title: 'Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer',
     description: 'Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea.',
@@ -67,11 +68,11 @@ export const metadata: Metadata = {
     google: 'hkkXR8HTrCqInv8nhznuiC0MdS2AqZqSsmD9S-7wKU4',
   },
   alternates: {
-    canonical: 'https://avrangzeb-portfolio.vercel.app',
+    canonical: 'https://avrangzebabdujalilov.com',
     languages: {
-      'uz-UZ': 'https://avrangzeb-portfolio.vercel.app',
-      'en-US': 'https://avrangzeb-portfolio.vercel.app',
-      'ko-KR': 'https://avrangzeb-portfolio.vercel.app',
+      'uz-UZ': 'https://avrangzebabdujalilov.com',
+      'en-US': 'https://avrangzebabdujalilov.com',
+      'ko-KR': 'https://avrangzebabdujalilov.com',
     },
   },
   category: 'technology',
@@ -84,8 +85,8 @@ const jsonLd = {
   name: 'Avrangzeb Abdujalilov',
   alternateName: ['Abdujalilov Avrangzeb', '압둘잘릴로프 아브랑젭'],
   description: 'Software Engineer specializing in AI, backend development, network security, and cybersecurity, based in South Korea',
-  url: 'https://avrangzeb-portfolio.vercel.app',
-  image: 'https://avrangzeb-portfolio.vercel.app/images/profile.png',
+  url: 'https://avrangzebabdujalilov.com',
+  image: 'https://avrangzebabdujalilov.com/images/profile.png',
   email: 'avrangzebabdujalilov@gmail.com',
   telephone: '+82-10-2349-2777',
   jobTitle: 'Software Engineer',
@@ -131,7 +132,6 @@ export default function RootLayout({
   return (
     <html lang="uz">
       <head>
-        <link rel="icon" href="/images/profile.png" sizes="any" />
         <link rel="apple-touch-icon" href="/images/profile.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0f172a" />

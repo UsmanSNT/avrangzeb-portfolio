@@ -13,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: 'https://avrangzeb-portfolio.vercel.app/sitemap.xml',
+    sitemap: 'https://avrangzebabdujalilov.com/sitemap.xml',
   }
 }
 
