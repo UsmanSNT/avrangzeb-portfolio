@@ -56,7 +56,7 @@ export function ProjectsGoalsSection({ t }: ProjectsGoalsSectionProps) {
       <div className="relative mx-auto max-w-7xl">
         <div className="grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div>
-            <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text shadow-lg shadow-accent-cyan/20 backdrop-blur-xl">
+            <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text shadow-lg shadow-accent-cyan/20 backdrop-blur-xl">
               {t.projects.inProgress}
             </p>
             <h2 className="mt-4 max-w-xl text-3xl font-black leading-tight tracking-normal text-foreground sm:text-4xl">

@@ -67,7 +67,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
 
         <div className="mt-4 flex flex-wrap gap-1.5">
           {project.technologies.map((tech) => (
-            <span key={tech} className="rounded-lg border border-line bg-hover/[0.06] px-2.5 py-1 text-[11px] font-semibold text-foreground">
+            <span key={tech} className="rounded-lg border border-line bg-hover/[0.10] px-2.5 py-1 text-[11px] font-semibold text-foreground">
               {tech}
             </span>
           ))}
@@ -102,7 +102,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
                 rel="noopener noreferrer"
                 onClick={(event) => event.stopPropagation()}
                 aria-label={`Open GitHub repository for ${project.title}`}
-                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-hover/[0.05] px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-300 hover:border-secondary/60 hover:bg-hover/10 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-surface"
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-hover/[0.09] px-3.5 py-2 text-xs font-bold text-foreground transition-all duration-300 hover:border-secondary/60 hover:bg-hover/10 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-surface"
               >
                 {githubLabel}
               </a>
@@ -112,7 +112,7 @@ function ProjectCardComponent({ project, liveDemoLabel, githubLabel, caseStudyLa
                 disabled
                 onClick={(event) => event.stopPropagation()}
                 aria-label={`GitHub repository for ${project.title} is not available yet`}
-                className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-lg border border-line bg-hover/[0.02] px-3.5 py-2 text-xs font-bold text-subtle"
+                className="inline-flex min-h-10 cursor-not-allowed items-center justify-center rounded-lg border border-line bg-hover/[0.05] px-3.5 py-2 text-xs font-bold text-subtle"
               >
                 {githubLabel}
               </button>

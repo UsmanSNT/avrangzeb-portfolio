@@ -66,14 +66,16 @@
   --elevation: #1e293b;
   --hover: #0f1729;
 
-  /* Brand accents darkened where needed to hold WCAG AA on light surfaces */
-  --accent-green: #0da968;
-  --green-text: #078257;
+  /* Brand accents: more saturated than a naive "just darken it" pass, chosen
+     so they clear WCAG AA (4.5:1) against --background as both text and as a
+     solid fill with white text on top, without reading as muted/washed out. */
+  --accent-green: #087d52;
+  --green-text: #06623f;
 
-  --accent-cyan: #0891b2;
-  --cyan-text: #0e7490;
+  --accent-cyan: #047695;
+  --cyan-text: #045b73;
 
-  --accent-blue: #2563eb;
+  --accent-blue: #1254e2;
   --blue-text: #1d4ed8;
   --accent-blue-deep: #1e40af;
 }

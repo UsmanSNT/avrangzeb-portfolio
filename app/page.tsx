@@ -1889,7 +1889,7 @@ export default function Portfolio() {
                   <a
                     key={item.id}
                     href={item.href}
-                    className="rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition-colors hover:bg-hover/[0.05] hover:text-cyan-text"
+                    className="rounded-lg px-2 py-1.5 text-sm font-semibold text-muted transition-colors hover:bg-hover/[0.09] hover:text-cyan-text"
                   >
                     {item.label}
                   </a>
@@ -1897,7 +1897,7 @@ export default function Portfolio() {
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors hover:bg-hover/[0.05] hover:text-cyan-text ${
+                    className={`rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors hover:bg-hover/[0.09] hover:text-cyan-text ${
                       activeSection === item.id ? "bg-accent-cyan/10 text-cyan-text" : "text-muted"
                     }`}
                   >
@@ -1915,7 +1915,7 @@ export default function Portfolio() {
               <div className="relative">
                 <button
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-1 rounded-lg border border-line bg-hover/[0.05] px-2 py-2 transition-colors hover:border-accent-cyan/40 sm:gap-2 sm:px-3"
+                  className="flex items-center gap-1 rounded-lg border border-line bg-hover/[0.09] px-2 py-2 transition-colors hover:border-accent-cyan/40 sm:gap-2 sm:px-3"
                 >
                   <GlobeIcon />
                   <span className="text-lg">{languageLabels[language].flag}</span>
@@ -1965,7 +1965,7 @@ export default function Portfolio() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="rounded-lg border border-line bg-hover/[0.04] p-2 text-muted transition-colors hover:text-cyan-text md:hidden"
+                className="rounded-lg border border-line bg-hover/[0.08] p-2 text-muted transition-colors hover:text-cyan-text md:hidden"
               >
                 {isMobileMenuOpen ? <CloseMenuIcon /> : <MenuIcon />}
               </button>
@@ -2067,7 +2067,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
                 {t.gallery.title}
               </p>
               <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
@@ -2090,7 +2090,7 @@ export default function Portfolio() {
                 {item.images[0] ? (
                   <img src={item.images[0]} alt={item.title} className="h-40 w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                 ) : (
-                  <div className="grid h-40 place-items-center bg-hover/[0.04] text-lg font-black text-muted">{t.about.certificates}</div>
+                  <div className="grid h-40 place-items-center bg-hover/[0.08] text-lg font-black text-muted">{t.about.certificates}</div>
                 )}
                 <div className="p-4">
                   <p className="line-clamp-1 text-base font-black text-foreground">{item.title}</p>
@@ -2104,7 +2104,7 @@ export default function Portfolio() {
               {t.gallery.viewAll}
             </a>
             {isAdmin && (
-              <button onClick={() => openGalleryModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08]">
+              <button onClick={() => openGalleryModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.08] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.12]">
                 {t.gallery.addNew}
               </button>
             )}
@@ -2119,7 +2119,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
                 {t.books.title}
               </p>
               <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
@@ -2147,7 +2147,7 @@ export default function Portfolio() {
               {t.books.viewAll}
             </a>
             {isAdmin && (
-              <button onClick={() => openBookModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08]">
+              <button onClick={() => openBookModal()} className="inline-flex items-center justify-center rounded-lg border border-line bg-hover/[0.08] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.12]">
                 {t.books.addNew}
               </button>
             )}
@@ -2162,7 +2162,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-7 grid gap-4 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
                 {t.itNews.title}
               </p>
               <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-4xl">
@@ -2170,7 +2170,7 @@ export default function Portfolio() {
               </h2>
             </div>
             {isAdmin && (
-              <button onClick={() => openITNewsModal()} className="justify-self-start rounded-lg border border-line bg-hover/[0.04] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.08] lg:justify-self-end">
+              <button onClick={() => openITNewsModal()} className="justify-self-start rounded-lg border border-line bg-hover/[0.08] px-5 py-3 text-sm font-bold text-foreground transition-colors hover:bg-hover/[0.12] lg:justify-self-end">
                 {t.itNews.addNew}
               </button>
             )}
@@ -2211,7 +2211,7 @@ export default function Portfolio() {
         <div className="relative max-w-7xl mx-auto">
           <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
                 {t.books.title}
               </p>
               <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-foreground">
@@ -2237,8 +2237,8 @@ export default function Portfolio() {
           </div>
 
           {bookQuotes.length === 0 ? (
-            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.04] backdrop-blur-2xl">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-cyan/[0.08] border border-accent-cyan/20 flex items-center justify-center">
+            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.08] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-cyan/[0.14] border border-accent-cyan/20 flex items-center justify-center">
                 <span className="text-4xl" aria-hidden="true">B</span>
               </div>
               <p className="text-subtle mb-4">{t.books.noQuotes}</p>
@@ -2397,7 +2397,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/books"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.05] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-cyan/40 transition-all backdrop-blur-xl"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.09] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-cyan/40 transition-all backdrop-blur-xl"
                 >
                   {t.books.viewAll} ({bookQuotes.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2504,7 +2504,7 @@ export default function Portfolio() {
         <div className="relative max-w-7xl mx-auto">
           <div className="mb-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
                 {t.gallery.title}
               </p>
               <h2 className="mt-5 text-4xl sm:text-5xl font-black leading-[0.98] tracking-normal text-foreground">
@@ -2530,8 +2530,8 @@ export default function Portfolio() {
           </div>
 
           {galleryItems.length === 0 ? (
-            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.04] backdrop-blur-2xl">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-green/[0.08] border border-accent-green/20 flex items-center justify-center">
+            <div className="text-center py-16 rounded-2xl border border-line bg-hover/[0.08] backdrop-blur-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-accent-green/[0.14] border border-accent-green/20 flex items-center justify-center">
                 <span className="text-4xl" aria-hidden="true">G</span>
               </div>
               <p className="text-subtle mb-4">{t.gallery.noItems}</p>
@@ -2650,7 +2650,7 @@ export default function Portfolio() {
               <div className="text-center mt-8">
                 <a
                   href="/gallery"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.05] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-green/40 transition-all backdrop-blur-xl"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-hover/[0.09] border border-line rounded-lg text-foreground hover:text-foreground hover:border-accent-green/40 transition-all backdrop-blur-xl"
                 >
                   {t.gallery.viewAll} ({galleryItems.length})
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2885,7 +2885,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
                 {t.cv.title}
               </p>
               <h2 className="mt-5 text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
@@ -2946,7 +2946,7 @@ export default function Portfolio() {
                   </a>
                   {isAdmin && (
                     <>
-                      <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.04] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.08]">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.08] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.12]">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
@@ -2975,7 +2975,7 @@ export default function Portfolio() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.04]">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.08]">
                 <svg className="w-10 h-10 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -3022,7 +3022,7 @@ export default function Portfolio() {
                   {t.cv.download}
                 </a>
                 {isAdmin && (
-                  <label className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.04] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.08]">
+                  <label className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-hover/[0.08] px-6 py-3 font-semibold text-secondary transition-all hover:bg-hover/[0.12]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
@@ -3049,7 +3049,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-10 grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+              <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
                 {t.itNews.title}
               </p>
               <h2 className="mt-5 text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
@@ -3080,7 +3080,7 @@ export default function Portfolio() {
             </div>
           ) : itNews.length === 0 ? (
             <div className="text-center py-16">
-              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.04]">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-xl border border-line bg-hover/[0.08]">
                 <span className="text-2xl font-black text-secondary">N</span>
               </div>
               <p className="text-subtle mb-4">{t.itNews.noNews}</p>
@@ -3142,7 +3142,7 @@ export default function Portfolio() {
                             e.stopPropagation();
                             shareITNews(news);
                           }}
-                          className="rounded-lg border border-line bg-hover/[0.04] p-2 text-secondary transition-all hover:bg-accent-cyan/10 hover:text-cyan-text"
+                          className="rounded-lg border border-line bg-hover/[0.08] p-2 text-secondary transition-all hover:bg-accent-cyan/10 hover:text-cyan-text"
                           title={t.itNews.share}
                           aria-label={t.itNews.share}
                         >
@@ -3485,7 +3485,7 @@ export default function Portfolio() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-8">
             <div>
-              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
+              <p className="inline-flex rounded-lg border border-accent-cyan/20 bg-accent-cyan/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-text">
                 {t.contact.title}
               </p>
               <h2 className="mt-4 max-w-2xl text-3xl font-black leading-tight text-foreground sm:text-4xl">

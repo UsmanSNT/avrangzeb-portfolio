@@ -13,11 +13,11 @@ interface HeroSectionProps {
 }
 
 const heroTechClasses = [
-  "border-accent-cyan/30 bg-accent-cyan/[0.08] text-cyan-text",
-  "border-accent-green/30 bg-accent-green/[0.08] text-green-text",
-  "border-accent-green/30 bg-accent-green/[0.08] text-green-text",
-  "border-accent-blue/30 bg-accent-blue/[0.08] text-blue-text",
-  "border-accent-blue/30 bg-accent-blue/[0.08] text-blue-text",
+  "border-accent-cyan/30 bg-accent-cyan/[0.14] text-cyan-text",
+  "border-accent-green/30 bg-accent-green/[0.14] text-green-text",
+  "border-accent-green/30 bg-accent-green/[0.14] text-green-text",
+  "border-accent-blue/30 bg-accent-blue/[0.14] text-blue-text",
+  "border-accent-blue/30 bg-accent-blue/[0.14] text-blue-text",
 ];
 
 export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldReduceMotion }: HeroSectionProps) {
@@ -77,7 +77,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.06, duration: 0.45 }}
-              className="inline-flex items-center gap-2 rounded-lg border border-accent-green/25 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-green-text shadow-lg shadow-accent-green/20 backdrop-blur-xl"
+              className="inline-flex items-center gap-2 rounded-lg border border-accent-green/25 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-green-text shadow-lg shadow-accent-green/20 backdrop-blur-xl"
             >
               <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
@@ -153,7 +153,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
             <button
               type="button"
               onClick={() => scrollToSection("my-projects")}
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-accent-cyan/30 bg-accent-cyan/[0.08] px-6 py-3.5 text-sm font-bold text-cyan-text backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-cyan/60 hover:bg-accent-cyan/[0.14] focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-accent-cyan/30 bg-accent-cyan/[0.14] px-6 py-3.5 text-sm font-bold text-cyan-text backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-cyan/60 hover:bg-accent-cyan/[0.14] focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
             >
               <ArrowRightIcon />
               {t.hero.viewProjects}
@@ -161,7 +161,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
             <a
               href={cvUrl || staticCvUrl}
               download="Avrangzeb_CV.pdf"
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-line px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:border-line hover:bg-hover/[0.05] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-line px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:border-line hover:bg-hover/[0.09] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
             >
               <DownloadIcon />
               {t.hero.downloadResume}
@@ -171,7 +171,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t.hero.githubAria}
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-line px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:border-line hover:bg-hover/[0.05] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-lg border border-line px-5 py-3.5 text-sm font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:border-line hover:bg-hover/[0.09] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background"
             >
               <GitHubIcon />
               {t.hero.github}
@@ -182,7 +182,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.52, duration: 0.55 }}
-            className="mt-8 grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-hover/[0.04] shadow-2xl shadow-elevation/20 backdrop-blur-2xl sm:grid-cols-4"
+            className="mt-8 grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-hover/[0.08] shadow-2xl shadow-elevation/20 backdrop-blur-2xl sm:grid-cols-4"
           >
             {t.hero.stats.map((stat) => (
               <div key={stat.label} className="border-line p-4 odd:border-r sm:border-r sm:last:border-r-0">
@@ -227,7 +227,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
                           </p>
                           <p className="mt-2 max-w-xs text-sm leading-6 text-muted">{t.hero.terminal.skills}</p>
                         </div>
-                        <div className="rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-right">
+                        <div className="rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-right">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-green-text">{t.hero.visual.latency}</p>
                           <p className="mt-1 text-sm font-black text-foreground">{t.hero.visual.edgeReady}</p>
                         </div>
@@ -333,7 +333,7 @@ export function HeroSection({ t, scrollToSection, cvUrl, staticCvUrl, shouldRedu
         type="button"
         onClick={() => scrollToSection("about")}
         aria-label={t.hero.scrollAria}
-        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 rounded-lg border border-line bg-hover/[0.04] px-2 py-3 backdrop-blur-xl transition-colors hover:border-accent-cyan/40 lg:block"
+        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 rounded-lg border border-line bg-hover/[0.08] px-2 py-3 backdrop-blur-xl transition-colors hover:border-accent-cyan/40 lg:block"
         animate={shouldReduceMotion ? undefined : { y: [0, 6, 0] }}
         transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
       >
