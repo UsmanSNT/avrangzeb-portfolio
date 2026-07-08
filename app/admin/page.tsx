@@ -6,6 +6,121 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/lib/auth";
 
+function getRoleLabel(role: string) {
+  switch (role) {
+    case 'super_admin':
+      return 'Asosiy Admin';
+    case 'admin':
+      return 'Admin';
+    default:
+      return 'Foydalanuvchi';
+  }
+}
+
+function getRoleColor(role: string) {
+  switch (role) {
+    case 'super_admin':
+      return 'bg-yellow-500/20 text-yellow-400';
+    case 'admin':
+      return 'bg-muted/20 text-secondary';
+    default:
+      return 'bg-accent-green/20 text-green-text';
+  }
+}
+
+function UserAvatar({ profile }: { profile: UserProfile }) {
+  return (
+    <div className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-bold text-foreground ${
+      profile.role === 'super_admin'
+        ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
+        : profile.role === 'admin'
+        ? 'bg-gradient-to-br from-muted via-line to-line shadow-lg shadow-muted/50'
+        : 'bg-gradient-to-br from-accent-cyan to-accent-green'
+    }`}>
+      {profile.role === 'super_admin' && (
+        <>
+          <span className="text-xl animate-pulse">👑</span>
+          <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 animate-ping" />
+        </>
+      )}
+      {profile.role === 'admin' && (
+        <>
+          <span className="text-xl animate-pulse text-foreground">👑</span>
+          <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-secondary animate-ping" />
+        </>
+      )}
+      {profile.role !== 'super_admin' && profile.role !== 'admin' &&
+        (profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || '?')}
+    </div>
+  );
+}
+
+function RolePill({ role }: { role: string }) {
+  return (
+    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 w-fit ${getRoleColor(role)} ${
+      role === 'super_admin' ? 'shadow-lg shadow-yellow-500/30' :
+      role === 'admin' ? 'shadow-lg shadow-muted/30' : ''
+    }`}>
+      {role === 'super_admin' && <span className="text-base animate-pulse">👑</span>}
+      {role === 'admin' && <span className="text-base animate-pulse text-foreground">👑</span>}
+      {getRoleLabel(role)}
+    </span>
+  );
+}
+
+function RoleAction({
+  profile,
+  currentUserId,
+  roleChangeLoading,
+  onRoleChange,
+}: {
+  profile: UserProfile;
+  currentUserId?: string;
+  roleChangeLoading: string | null;
+  onRoleChange: (userId: string, newRole: 'admin' | 'user') => void;
+}) {
+  if (profile.id === currentUserId) {
+    return (
+      <span className="text-yellow-400 text-sm font-medium flex items-center gap-1">
+        <span className="text-base">👑</span>
+        Siz (Super Admin)
+      </span>
+    );
+  }
+
+  if (profile.role === 'super_admin') {
+    return (
+      <span className="text-yellow-500 text-sm font-medium flex items-center gap-1">
+        <span className="text-base">👑</span>
+        Asosiy Admin
+      </span>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <select
+        value={profile.role}
+        onChange={(e) => onRoleChange(profile.id, e.target.value as 'admin' | 'user')}
+        disabled={roleChangeLoading === profile.id}
+        className={`bg-surface-2 text-foreground text-sm rounded-lg px-3 py-1.5 border border-line focus:outline-none focus:border-yellow-500 transition-colors ${
+          roleChangeLoading === profile.id ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-500/50'
+        }`}
+        title="Adminlik berish"
+      >
+        <option value="user">Foydalanuvchi</option>
+        <option value="admin">Admin</option>
+      </select>
+      {roleChangeLoading === profile.id && (
+        <svg className="animate-spin h-4 w-4 text-yellow-400" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -150,116 +265,98 @@ export default function AdminDashboard() {
     router.push('/');
   };
 
-  // Rol ko'rsatish funksiyasi
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'super_admin':
-        return 'Asosiy Admin';
-      case 'admin':
-        return 'Admin';
-      default:
-        return 'Foydalanuvchi';
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'super_admin':
-        return 'bg-yellow-500/20 text-yellow-400';
-      case 'admin':
-        return 'bg-slate-400/20 text-slate-300';
-      default:
-        return 'bg-green-500/20 text-green-400';
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-surface via-card to-surface flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent-cyan"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-surface via-card to-surface">
       {/* Header */}
-      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center relative ${
-                isSuperAdmin 
-                  ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50' 
+      <header className="bg-card/50 backdrop-blur-sm border-b border-line/50 sticky top-0 z-50">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className={`relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${
+                isSuperAdmin
+                  ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
                   : 'bg-gradient-to-br from-red-500 to-orange-600'
               }`}>
                 {isSuperAdmin && (
                   <>
-                    <span className="text-xl">👑</span>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                    <span className="text-lg sm:text-xl">👑</span>
+                    <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 animate-ping"></div>
                   </>
                 )}
                 {!isSuperAdmin && (
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 )}
               </div>
-              <div>
-                <h1 className={`text-xl font-bold flex items-center gap-2 ${
-                  isSuperAdmin ? 'text-yellow-300' : 'text-white'
+              <div className="min-w-0">
+                <h1 className={`flex items-center gap-1.5 truncate text-base font-bold sm:text-xl ${
+                  isSuperAdmin ? 'text-yellow-300' : 'text-foreground'
                 }`}>
-                  {isSuperAdmin && <span className="text-2xl animate-pulse">👑</span>}
+                  {isSuperAdmin && <span className="hidden text-2xl animate-pulse sm:inline">👑</span>}
                   Admin Panel
                 </h1>
-                <p className={`text-xs ${
-                  isSuperAdmin ? 'text-yellow-400/80' : 'text-slate-400'
+                <p className={`hidden truncate text-xs sm:block ${
+                  isSuperAdmin ? 'text-yellow-400/80' : 'text-muted'
                 }`}>
                   {isSuperAdmin ? '👑 Asosiy boshqaruv paneli (Super Admin)' : 'Boshqaruv paneli'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1">
+            <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-3">
+              <Link
+                href="/dashboard"
+                className="hidden items-center gap-1 rounded-lg p-2 text-sm text-muted transition-colors hover:text-foreground md:flex"
+                title="Shaxsiy kabinet"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Shaxsiy kabinet
+                <span className="hidden lg:inline">Shaxsiy kabinet</span>
               </Link>
-              <Link href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
+              <Link
+                href="/"
+                className="hidden text-sm text-muted transition-colors hover:text-foreground lg:inline"
+              >
                 Saytga qaytish
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className={`text-sm font-medium flex items-center gap-1 ${
-                    isSuperAdmin ? 'text-yellow-300' : 'text-white'
-                  }`}>
-                    {isSuperAdmin && <span className="text-base animate-pulse">👑</span>}
-                    {user?.full_name || 'Admin'}
-                  </p>
-                  <p className={`text-xs font-medium flex items-center gap-1 ${
-                    isSuperAdmin ? 'text-yellow-400' : 'text-red-400'
-                  }`}>
-                    {isSuperAdmin ? (
-                      <>
-                        <span className="text-sm">👑</span>
-                        <span>Super Admin</span>
-                      </>
-                    ) : (
-                      'Administrator'
-                    )}
-                  </p>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="p-2 text-slate-400 hover:text-red-400 transition-colors"
-                  title="Chiqish"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
+              <div className="hidden text-right sm:block">
+                <p className={`flex items-center gap-1 text-sm font-medium ${
+                  isSuperAdmin ? 'text-yellow-300' : 'text-foreground'
+                }`}>
+                  {isSuperAdmin && <span className="text-base animate-pulse">👑</span>}
+                  {user?.full_name || 'Admin'}
+                </p>
+                <p className={`flex items-center gap-1 text-xs font-medium ${
+                  isSuperAdmin ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  {isSuperAdmin ? (
+                    <>
+                      <span className="text-sm">👑</span>
+                      <span>Super Admin</span>
+                    </>
+                  ) : (
+                    'Administrator'
+                  )}
+                </p>
               </div>
+              <button
+                onClick={handleSignOut}
+                className="rounded-lg p-2 text-muted transition-colors hover:text-red-400"
+                title="Chiqish"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -279,271 +376,273 @@ export default function AdminDashboard() {
 
         {/* Admin Notice (not super) */}
         {!isSuperAdmin && (
-          <div className="mb-6 bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 flex items-center gap-3">
+          <div className="mb-6 bg-accent-cyan/10 border border-accent-cyan/30 rounded-xl p-4 flex items-center gap-3">
             <span className="text-2xl">🔧</span>
             <div>
-              <p className="text-cyan-400 font-medium">Admin sifatida kirgansiz</p>
-              <p className="text-cyan-400/70 text-sm">Siz sayt ma&apos;lumotlarini o&apos;zgartirishingiz mumkin, lekin boshqalarga admin bera olmaysiz</p>
+              <p className="text-cyan-text font-medium">Admin sifatida kirgansiz</p>
+              <p className="text-cyan-text/70 text-sm">Siz sayt ma&apos;lumotlarini o&apos;zgartirishingiz mumkin, lekin boshqalarga admin bera olmaysiz</p>
             </div>
           </div>
         )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-blue/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
-                <p className="text-sm text-slate-400">Foydalanuvchilar</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalUsers}</p>
+                <p className="text-sm text-muted">Foydalanuvchilar</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-cyan/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-cyan-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.totalQuotes}</p>
-                <p className="text-sm text-slate-400">Iqtiboslar</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalQuotes}</p>
+                <p className="text-sm text-muted">Iqtiboslar</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-green/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.totalGallery}</p>
-                <p className="text-sm text-slate-400">Galereya</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalGallery}</p>
+                <p className="text-sm text-muted">Galereya</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-blue/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.totalNotes}</p>
-                <p className="text-sm text-slate-400">Qaydlar</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalNotes}</p>
+                <p className="text-sm text-muted">Qaydlar</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-cyan/20 flex items-center justify-center">
+                <svg className="w-6 h-6 text-cyan-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.totalITNews}</p>
-                <p className="text-sm text-slate-400">IT News</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalITNews}</p>
+                <p className="text-sm text-muted">IT News</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {[
-            { id: 'users', label: 'Foydalanuvchilar', icon: '👥' },
-            { id: 'quotes', label: 'Iqtiboslar', icon: '📚' },
-            { id: 'gallery', label: 'Galereya', icon: '🖼️' },
-            { id: 'it-news', label: 'IT News', icon: '📰' },
-            { id: 'notes', label: 'Qaydlar', icon: '📝' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white'
-                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
-              }`}
-            >
-              <span className="mr-2">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+        <div className="mb-6 overflow-x-auto pb-1">
+          <div className="flex w-max min-w-full gap-2 sm:w-auto sm:flex-wrap">
+            {[
+              { id: 'users', label: 'Foydalanuvchilar', icon: '👥' },
+              { id: 'quotes', label: 'Iqtiboslar', icon: '📚' },
+              { id: 'gallery', label: 'Galereya', icon: '🖼️' },
+              { id: 'it-news', label: 'IT News', icon: '📰' },
+              { id: 'notes', label: 'Qaydlar', icon: '📝' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all sm:text-base ${
+                  activeTab === tab.id
+                    ? 'bg-accent-green text-inverse'
+                    : 'bg-card/50 text-muted hover:text-foreground'
+                }`}
+              >
+                <span className="mr-2">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 overflow-hidden">
+        <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-line/50 overflow-hidden">
           {activeTab === 'users' && (
-            <div className="overflow-x-auto">
+            <div>
               {/* Role change message */}
               {roleChangeMessage && (
-                <div className={`mx-6 mt-4 p-3 rounded-lg text-sm ${
-                  roleChangeMessage.type === 'success' 
-                    ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
+                <div className={`mx-4 mt-4 p-3 rounded-lg text-sm sm:mx-6 ${
+                  roleChangeMessage.type === 'success'
+                    ? 'bg-accent-green/20 border border-accent-green/50 text-green-text'
                     : 'bg-red-500/20 border border-red-500/50 text-red-400'
                 }`}>
                   {roleChangeMessage.type === 'success' ? '✅' : '❌'} {roleChangeMessage.text}
                 </div>
               )}
-              <table className="w-full">
-                <thead className="bg-slate-900/50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Foydalanuvchi</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Email</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Rol</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Sana</th>
-                    {isSuperAdmin && (
-                      <th className="px-6 py-4 text-left text-sm font-medium text-slate-400">Amallar</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-700/50">
-                  {users.map((u) => (
-                    <tr 
-                      key={u.id} 
-                      className={`hover:bg-slate-700/20 transition-colors ${
-                        u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : 
-                        u.role === 'admin' ? 'bg-slate-400/5 border-l-2 border-slate-400' : ''
-                      }`}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold relative ${
-                            u.role === 'super_admin' 
-                              ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
-                              : u.role === 'admin'
-                              ? 'bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600 shadow-lg shadow-slate-400/50'
-                              : 'bg-gradient-to-br from-cyan-500 to-violet-600'
-                          }`}>
-                            {u.role === 'super_admin' && (
-                              <>
-                                <span className="text-xl animate-pulse">👑</span>
-                                {/* Toj animatsiyasi */}
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
-                              </>
-                            )}
-                            {u.role === 'admin' && (
-                              <>
-                                <span className="text-xl animate-pulse text-slate-200">👑</span>
-                                {/* Kumush toj animatsiyasi */}
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-slate-300 rounded-full animate-ping"></div>
-                              </>
-                            )}
-                            {u.role !== 'super_admin' && u.role !== 'admin' && (u.full_name?.[0]?.toUpperCase() || u.email?.[0]?.toUpperCase() || '?')}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className={`text-white font-medium flex items-center gap-2 ${
-                              u.role === 'super_admin' ? 'text-yellow-300' : 
-                              u.role === 'admin' ? 'text-slate-300' : ''
-                            }`}>
-                              {u.full_name || 'Nomsiz'}
-                              {u.role === 'super_admin' && (
-                                <span className="text-xs px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">
-                                  SUPER ADMIN
-                                </span>
-                              )}
-                              {u.role === 'admin' && (
-                                <span className="text-xs px-1.5 py-0.5 bg-slate-400/20 text-slate-300 rounded border border-slate-400/30">
-                                  ADMIN
-                                </span>
-                              )}
-                            </span>
-                            {u.role === 'super_admin' && (
-                              <span className="text-xs text-yellow-400/70">Asosiy boshqaruvchi</span>
-                            )}
-                            {u.role === 'admin' && (
-                              <span className="text-xs text-slate-300/70">Ikkinchi darajali admin</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={
-                          u.role === 'super_admin' ? 'text-yellow-300/90' : 
-                          u.role === 'admin' ? 'text-slate-300/90' : 
-                          'text-slate-400'
-                        }>
-                          {u.email}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${getRoleColor(u.role)} ${
-                          u.role === 'super_admin' ? 'shadow-lg shadow-yellow-500/30' : 
-                          u.role === 'admin' ? 'shadow-lg shadow-slate-400/30' : ''
+
+              {/* Mobile: stacked cards */}
+              <div className="divide-y divide-line/50 md:hidden">
+                {users.map((u) => (
+                  <div
+                    key={u.id}
+                    className={`p-4 ${
+                      u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' :
+                      u.role === 'admin' ? 'bg-muted/5 border-l-2 border-muted' : ''
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <UserAvatar profile={u} />
+                      <div className="min-w-0 flex-1">
+                        <div className={`flex flex-wrap items-center gap-1.5 font-medium text-foreground ${
+                          u.role === 'super_admin' ? 'text-yellow-300' :
+                          u.role === 'admin' ? 'text-secondary' : ''
                         }`}>
+                          <span className="truncate">{u.full_name || 'Nomsiz'}</span>
                           {u.role === 'super_admin' && (
-                            <span className="text-base animate-pulse">👑</span>
+                            <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">
+                              SUPER ADMIN
+                            </span>
                           )}
                           {u.role === 'admin' && (
-                            <span className="text-base animate-pulse text-slate-200">👑</span>
-                          )}
-                          {getRoleLabel(u.role)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-400 text-sm">
-                        {new Date(u.created_at).toLocaleDateString('uz-UZ')}
-                      </td>
-                      {isSuperAdmin && (
-                        <td className="px-6 py-4">
-                          {/* Super admin o'zini va boshqa super_adminlarni o'zgartira olmaydi */}
-                          {u.id !== user?.id && u.role !== 'super_admin' && (
-                            <div className="flex items-center gap-2">
-                              <select
-                                value={u.role}
-                                onChange={(e) => handleRoleChange(u.id, e.target.value as 'admin' | 'user')}
-                                disabled={roleChangeLoading === u.id}
-                                className={`bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-yellow-500 transition-colors ${
-                                  roleChangeLoading === u.id ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-500/50'
-                                }`}
-                                title="Adminlik berish"
-                              >
-                                <option value="user">Foydalanuvchi</option>
-                                <option value="admin">Admin</option>
-                              </select>
-                              {roleChangeLoading === u.id && (
-                                <svg className="animate-spin h-4 w-4 text-yellow-400" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                              )}
-                            </div>
-                          )}
-                          {u.id === user?.id && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-yellow-400 text-sm font-medium flex items-center gap-1">
-                                <span className="text-base">👑</span>
-                                Siz (Super Admin)
-                              </span>
-                            </div>
-                          )}
-                          {u.role === 'super_admin' && u.id !== user?.id && (
-                            <span className="text-yellow-500 text-sm font-medium flex items-center gap-1">
-                              <span className="text-base">👑</span>
-                              Asosiy Admin
+                            <span className="text-[10px] px-1.5 py-0.5 bg-muted/20 text-secondary rounded border border-muted/30">
+                              ADMIN
                             </span>
                           )}
-                        </td>
+                        </div>
+                        <p className={`truncate text-sm ${
+                          u.role === 'super_admin' ? 'text-yellow-300/90' :
+                          u.role === 'admin' ? 'text-secondary/90' : 'text-muted'
+                        }`}>
+                          {u.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                      <RolePill role={u.role} />
+                      <span className="text-xs text-muted">
+                        {new Date(u.created_at).toLocaleDateString('uz-UZ')}
+                      </span>
+                    </div>
+
+                    {isSuperAdmin && (
+                      <div className="mt-3 border-t border-line/50 pt-3">
+                        <RoleAction
+                          profile={u}
+                          currentUserId={user?.id}
+                          roleChangeLoading={roleChangeLoading}
+                          onRoleChange={handleRoleChange}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full">
+                  <thead className="bg-surface/50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-muted">Foydalanuvchi</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-muted">Email</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-muted">Rol</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-muted">Sana</th>
+                      {isSuperAdmin && (
+                        <th className="px-6 py-4 text-left text-sm font-medium text-muted">Amallar</th>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-line/50">
+                    {users.map((u) => (
+                      <tr
+                        key={u.id}
+                        className={`hover:bg-surface-2/20 transition-colors ${
+                          u.role === 'super_admin' ? 'bg-yellow-500/5 border-l-2 border-yellow-500' :
+                          u.role === 'admin' ? 'bg-muted/5 border-l-2 border-muted' : ''
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <UserAvatar profile={u} />
+                            <div className="flex flex-col">
+                              <span className={`text-foreground font-medium flex items-center gap-2 ${
+                                u.role === 'super_admin' ? 'text-yellow-300' :
+                                u.role === 'admin' ? 'text-secondary' : ''
+                              }`}>
+                                {u.full_name || 'Nomsiz'}
+                                {u.role === 'super_admin' && (
+                                  <span className="text-xs px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">
+                                    SUPER ADMIN
+                                  </span>
+                                )}
+                                {u.role === 'admin' && (
+                                  <span className="text-xs px-1.5 py-0.5 bg-muted/20 text-secondary rounded border border-muted/30">
+                                    ADMIN
+                                  </span>
+                                )}
+                              </span>
+                              {u.role === 'super_admin' && (
+                                <span className="text-xs text-yellow-400/70">Asosiy boshqaruvchi</span>
+                              )}
+                              {u.role === 'admin' && (
+                                <span className="text-xs text-secondary/70">Ikkinchi darajali admin</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={
+                            u.role === 'super_admin' ? 'text-yellow-300/90' :
+                            u.role === 'admin' ? 'text-secondary/90' :
+                            'text-muted'
+                          }>
+                            {u.email}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <RolePill role={u.role} />
+                        </td>
+                        <td className="px-6 py-4 text-muted text-sm">
+                          {new Date(u.created_at).toLocaleDateString('uz-UZ')}
+                        </td>
+                        {isSuperAdmin && (
+                          <td className="px-6 py-4">
+                            <RoleAction
+                              profile={u}
+                              currentUserId={user?.id}
+                              roleChangeLoading={roleChangeLoading}
+                              onRoleChange={handleRoleChange}
+                            />
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
               {users.length === 0 && (
-                <div className="text-center py-12 text-slate-400">
+                <div className="text-center py-12 text-muted">
                   Hozircha foydalanuvchilar yo&apos;q
                 </div>
               )}
@@ -553,62 +652,62 @@ export default function AdminDashboard() {
           {activeTab === 'quotes' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Kitob iqtiboslari</h3>
-                <Link href="/#books" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                <h3 className="text-lg font-semibold text-foreground">Kitob iqtiboslari</h3>
+                <Link href="/#books" className="text-cyan-text hover:text-cyan-text text-sm">
                   Barchasini ko&apos;rish →
                 </Link>
               </div>
-              <p className="text-slate-400">Jami {stats.totalQuotes} ta iqtibos mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
+              <p className="text-muted">Jami {stats.totalQuotes} ta iqtibos mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
             </div>
           )}
 
           {activeTab === 'gallery' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Galereya</h3>
-                <Link href="/#gallery" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                <h3 className="text-lg font-semibold text-foreground">Galereya</h3>
+                <Link href="/#gallery" className="text-cyan-text hover:text-cyan-text text-sm">
                   Barchasini ko&apos;rish →
                 </Link>
               </div>
-              <p className="text-slate-400">Jami {stats.totalGallery} ta galereya elementi mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
+              <p className="text-muted">Jami {stats.totalGallery} ta galereya elementi mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
             </div>
           )}
 
           {activeTab === 'it-news' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">IT News</h3>
-                <Link href="/#it-news" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                <h3 className="text-lg font-semibold text-foreground">IT News</h3>
+                <Link href="/#it-news" className="text-cyan-text hover:text-cyan-text text-sm">
                   Barchasini ko&apos;rish →
                 </Link>
               </div>
-              <p className="text-slate-400">Jami {stats.totalITNews} ta IT News mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
+              <p className="text-muted">Jami {stats.totalITNews} ta IT News mavjud. Bosh sahifadan boshqarishingiz mumkin.</p>
             </div>
           )}
 
           {activeTab === 'notes' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Qaydlar</h3>
-                <Link href="/notes" className="text-cyan-400 hover:text-cyan-300 text-sm">
+                <h3 className="text-lg font-semibold text-foreground">Qaydlar</h3>
+                <Link href="/notes" className="text-cyan-text hover:text-cyan-text text-sm">
                   Barchasini ko&apos;rish →
                 </Link>
               </div>
-              <p className="text-slate-400">Jami {stats.totalNotes} ta qayd mavjud. Qaydlar sahifasidan boshqarishingiz mumkin.</p>
+              <p className="text-muted">Jami {stats.totalNotes} ta qayd mavjud. Qaydlar sahifasidan boshqarishingiz mumkin.</p>
             </div>
           )}
         </div>
 
         {/* Role Permissions Info */}
-        <div className="mt-8 bg-slate-800/30 rounded-2xl border border-slate-700/30 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">📋 Rol huquqlari</h3>
+        <div className="mt-8 bg-card/30 rounded-2xl border border-line/30 p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">📋 Rol huquqlari</h3>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="bg-yellow-500/10 rounded-xl p-4 border border-yellow-500/20">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">👑</span>
                 <span className="font-medium text-yellow-400">Asosiy Admin (Super Admin)</span>
               </div>
-              <ul className="text-sm text-slate-400 space-y-1">
+              <ul className="text-sm text-muted space-y-1">
                 <li>✅ Barcha ma&apos;lumotlarni o&apos;zgartirish</li>
                 <li>✅ Boshqalarga admin berish</li>
                 <li>✅ Adminlikni olib tashlash</li>
@@ -620,19 +719,19 @@ export default function AdminDashboard() {
                 <span className="text-xl">🔧</span>
                 <span className="font-medium text-red-400">Admin</span>
               </div>
-              <ul className="text-sm text-slate-400 space-y-1">
+              <ul className="text-sm text-muted space-y-1">
                 <li>✅ Barcha ma&apos;lumotlarni o&apos;zgartirish</li>
                 <li>✅ Kitob fikrlari, galereya, qaydlar</li>
                 <li>❌ Boshqalarga admin bera olmaydi</li>
                 <li>❌ Rollarni o&apos;zgartira olmaydi</li>
               </ul>
             </div>
-            <div className="bg-green-500/10 rounded-xl p-4 border border-green-500/20">
+            <div className="bg-accent-green/10 rounded-xl p-4 border border-accent-green/20">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">👤</span>
-                <span className="font-medium text-green-400">Oddiy Foydalanuvchi</span>
+                <span className="font-medium text-green-text">Oddiy Foydalanuvchi</span>
               </div>
-              <ul className="text-sm text-slate-400 space-y-1">
+              <ul className="text-sm text-muted space-y-1">
                 <li>✅ Ma&apos;lumotlarni ko&apos;rish</li>
                 <li>✅ Reaksiya bildirish (like/dislike)</li>
                 <li>❌ Ma&apos;lumot qo&apos;sha olmaydi</li>
