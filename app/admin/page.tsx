@@ -279,7 +279,7 @@ export default function AdminDashboard() {
       <header className="bg-card/50 backdrop-blur-sm border-b border-line/50 sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
+            <Link href="/" className="flex min-w-0 items-center gap-3 hover:opacity-80 transition-opacity" title="Bosh sahifaga qaytish">
               <div className={`relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${
                 isSuperAdmin
                   ? 'bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-600 shadow-lg shadow-yellow-500/50'
@@ -310,23 +310,17 @@ export default function AdminDashboard() {
                   {isSuperAdmin ? '👑 Asosiy boshqaruv paneli (Super Admin)' : 'Boshqaruv paneli'}
                 </p>
               </div>
-            </div>
+            </Link>
             <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-3">
               <Link
                 href="/dashboard"
-                className="hidden items-center gap-1 rounded-lg p-2 text-sm text-muted transition-colors hover:text-foreground md:flex"
+                className="flex items-center gap-1 rounded-lg p-2 text-sm text-muted transition-colors hover:text-foreground"
                 title="Shaxsiy kabinet"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <span className="hidden lg:inline">Shaxsiy kabinet</span>
-              </Link>
-              <Link
-                href="/"
-                className="hidden text-sm text-muted transition-colors hover:text-foreground lg:inline"
-              >
-                Saytga qaytish
               </Link>
               <div className="hidden text-right sm:block">
                 <p className={`flex items-center gap-1 text-sm font-medium ${

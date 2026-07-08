@@ -193,32 +193,65 @@ export default function UserDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-surface via-card to-surface flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent-cyan"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-surface via-card to-surface">
       {/* Header */}
-      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Logo size={40} className="w-10 h-10" priority />
-              <div>
-                <h1 className="text-xl font-bold text-white">Mening Profilim</h1>
-                <p className="text-xs text-slate-400">Shaxsiy kabinet</p>
+      <header className="bg-card/50 backdrop-blur-sm border-b border-line/50 sticky top-0 z-50">
+        <div className="mx-auto max-w-4xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <div className="flex items-center justify-between gap-3">
+            <Link href="/" className="flex min-w-0 items-center gap-3 hover:opacity-80 transition-opacity">
+              <Logo size={36} className="h-9 w-9 flex-shrink-0 sm:h-10 sm:w-10" priority />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="truncate text-base font-bold text-foreground sm:text-xl">Mening Profilim</h1>
+                  {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                    <span className={`hidden flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold sm:inline-flex ${
+                      user.role === 'super_admin' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-muted/20 text-secondary'
+                    }`}>
+                      👑 {user.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                    </span>
+                  )}
+                </div>
+                <p className="hidden truncate text-xs text-muted sm:block">Shaxsiy kabinet</p>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
+            </Link>
+            <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  document.getElementById('profile-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="flex items-center gap-1.5 rounded-lg border border-line bg-hover/[0.05] p-2 text-muted transition-colors hover:border-accent-cyan/40 hover:text-cyan-text"
+                title="Profilni tahrirlash"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-1.5 rounded-lg bg-accent-blue/20 px-2.5 py-2 text-sm font-semibold text-blue-text transition-colors hover:bg-accent-blue/30"
+                  title="Admin Panel"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span className="hidden sm:inline">Admin Panel</span>
+                </Link>
+              )}
+              <Link href="/" className="hidden text-sm text-muted transition-colors hover:text-foreground sm:inline">
                 Bosh sahifa
               </Link>
               <button
                 onClick={handleSignOut}
-                className="p-2 text-slate-400 hover:text-red-400 transition-colors"
+                className="p-2 text-muted hover:text-red-400 transition-colors"
                 title="Chiqish"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,8 +269,8 @@ export default function UserDashboard() {
           user?.role === 'super_admin' 
             ? 'bg-gradient-to-r from-yellow-500/20 to-orange-600/20 border-yellow-500/30' 
             : user?.role === 'admin'
-            ? 'bg-gradient-to-r from-slate-400/20 to-slate-600/20 border-slate-400/30'
-            : 'bg-gradient-to-r from-cyan-500/20 to-violet-600/20 border-cyan-500/30'
+            ? 'bg-gradient-to-r from-muted/20 to-line/20 border-muted/30'
+            : 'bg-gradient-to-r from-accent-cyan/20 to-accent-green/20 border-accent-cyan/30'
         }`}>
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative">
@@ -249,24 +282,24 @@ export default function UserDashboard() {
                     user?.role === 'super_admin' 
                       ? 'border-yellow-500' 
                       : user?.role === 'admin'
-                      ? 'border-slate-400'
-                      : 'border-cyan-500'
+                      ? 'border-muted'
+                      : 'border-accent-cyan'
                   }`}
                 />
               ) : (
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-white border-2 ${
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-foreground border-2 ${
                   user?.role === 'super_admin' 
                     ? 'bg-gradient-to-br from-yellow-500 to-orange-600 border-yellow-500' 
                     : user?.role === 'admin'
-                    ? 'bg-gradient-to-br from-slate-400 to-slate-600 border-slate-400'
-                    : 'bg-gradient-to-br from-cyan-500 to-violet-600 border-cyan-500'
+                    ? 'bg-gradient-to-br from-muted to-line border-muted'
+                    : 'bg-gradient-to-br from-accent-cyan to-accent-green border-accent-cyan'
                 }`}>
                   {user?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
                 </div>
               )}
               {/* Admin uchun kumush toj */}
               {user?.role === 'admin' && (
-                <div className="absolute -top-2 -right-2 text-2xl animate-pulse text-slate-300">👑</div>
+                <div className="absolute -top-2 -right-2 text-2xl animate-pulse text-secondary">👑</div>
               )}
               {/* Super Admin uchun sariq toj */}
               {user?.role === 'super_admin' && (
@@ -277,8 +310,8 @@ export default function UserDashboard() {
                   user?.role === 'super_admin' 
                     ? 'bg-yellow-500 hover:bg-yellow-600' 
                     : user?.role === 'admin'
-                    ? 'bg-slate-400 hover:bg-slate-500'
-                    : 'bg-cyan-500 hover:bg-cyan-600'
+                    ? 'bg-muted hover:bg-surface-2'
+                    : 'bg-accent-cyan hover:bg-accent-green'
                 }`}>
                   <input
                     type="file"
@@ -288,12 +321,12 @@ export default function UserDashboard() {
                     disabled={isUploadingAvatar}
                   />
                   {isUploadingAvatar ? (
-                    <svg className="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-4 h-4 text-foreground" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -302,19 +335,19 @@ export default function UserDashboard() {
               )}
             </div>
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2 justify-center sm:justify-start">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 justify-center sm:justify-start">
                 Xush kelibsiz, {user?.full_name || 'Foydalanuvchi'}!
                 {user?.role === 'admin' && (
-                  <span className="text-slate-300 text-xl" title="Admin">👑</span>
+                  <span className="text-secondary text-xl" title="Admin">👑</span>
                 )}
               </h2>
-              <p className="text-slate-400 mt-1">{user?.email}</p>
+              <p className="text-muted mt-1">{user?.email}</p>
               <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${
                 user?.role === 'super_admin' 
                   ? 'bg-yellow-500/20 text-yellow-400' 
                   : user?.role === 'admin'
-                  ? 'bg-slate-400/20 text-slate-300'
-                  : 'bg-green-500/20 text-green-400'
+                  ? 'bg-muted/20 text-secondary'
+                  : 'bg-accent-green/20 text-green-text'
               }`}>
                 {user?.role === 'super_admin' ? '👑 Super Admin' : 
                  user?.role === 'admin' ? '👑 Admin' : 
@@ -325,14 +358,14 @@ export default function UserDashboard() {
         </div>
 
         {/* Profile Card */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 overflow-hidden">
-          <div className="p-6 border-b border-slate-700/50">
+        <div id="profile-card" className="bg-card/50 backdrop-blur-sm rounded-2xl border border-line/50 overflow-hidden scroll-mt-24">
+          <div className="p-6 border-b border-line/50">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Profil ma&apos;lumotlari</h3>
+              <h3 className="text-lg font-semibold text-foreground">Profil ma&apos;lumotlari</h3>
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+                  className="px-4 py-2 bg-surface-2 hover:bg-line text-foreground rounded-lg transition-colors text-sm"
                 >
                   Tahrirlash
                 </button>
@@ -343,14 +376,14 @@ export default function UserDashboard() {
                       setIsEditing(false);
                       setFullName(user?.full_name || '');
                     }}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+                    className="px-4 py-2 bg-surface-2 hover:bg-line text-foreground rounded-lg transition-colors text-sm"
                   >
                     Bekor qilish
                   </button>
                   <button
                     onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 text-white rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 text-sm"
+                    className="px-4 py-2 bg-accent-green text-inverse rounded-lg transition-colors hover:bg-accent-cyan disabled:opacity-50 text-sm"
                   >
                     {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
                   </button>
@@ -361,27 +394,27 @@ export default function UserDashboard() {
 
           <div className="p-6 space-y-6">
             <div>
-              <label className="block text-sm text-slate-400 mb-2">To&apos;liq ism</label>
+              <label className="block text-sm text-muted mb-2">To&apos;liq ism</label>
               {isEditing ? (
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full px-4 py-3 bg-surface/50 border border-line rounded-xl text-foreground focus:outline-none focus:border-accent-cyan transition-colors"
                 />
               ) : (
-                <p className="text-white text-lg">{user?.full_name || 'Kiritilmagan'}</p>
+                <p className="text-foreground text-lg">{user?.full_name || 'Kiritilmagan'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Email</label>
-              <p className="text-white text-lg">{user?.email}</p>
+              <label className="block text-sm text-muted mb-2">Email</label>
+              <p className="text-foreground text-lg">{user?.email}</p>
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Hisob turi</label>
-              <p className="text-white text-lg flex items-center gap-2">
+              <label className="block text-sm text-muted mb-2">Hisob turi</label>
+              <p className="text-foreground text-lg flex items-center gap-2">
                 {user?.role === 'super_admin' ? (
                   <>
                     <span className="text-yellow-400 animate-pulse">👑</span>
@@ -389,8 +422,8 @@ export default function UserDashboard() {
                   </>
                 ) : user?.role === 'admin' ? (
                   <>
-                    <span className="text-slate-300">👑</span>
-                    <span className="text-slate-300">Admin</span>
+                    <span className="text-secondary">👑</span>
+                    <span className="text-secondary">Admin</span>
                   </>
                 ) : (
                   <>
@@ -402,8 +435,8 @@ export default function UserDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">Ro&apos;yxatdan o&apos;tgan sana</label>
-              <p className="text-white text-lg">
+              <label className="block text-sm text-muted mb-2">Ro&apos;yxatdan o&apos;tgan sana</label>
+              <p className="text-foreground text-lg">
                 {user?.created_at ? new Date(user.created_at).toLocaleDateString('uz-UZ', {
                   year: 'numeric',
                   month: 'long',
@@ -416,17 +449,17 @@ export default function UserDashboard() {
 
         {/* Stats */}
         <div className="mt-8 grid grid-cols-3 gap-4">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
-            <div className="text-3xl font-bold text-cyan-400 mb-1">{stats.quotes}</div>
-            <p className="text-sm text-slate-400">Kitob fikrlari</p>
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 text-center">
+            <div className="text-3xl font-bold text-cyan-text mb-1">{stats.quotes}</div>
+            <p className="text-sm text-muted">Kitob fikrlari</p>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
-            <div className="text-3xl font-bold text-violet-400 mb-1">{stats.gallery}</div>
-            <p className="text-sm text-slate-400">Galereya</p>
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 text-center">
+            <div className="text-3xl font-bold text-green-text mb-1">{stats.gallery}</div>
+            <p className="text-sm text-muted">Galereya</p>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 text-center">
-            <div className="text-3xl font-bold text-green-400 mb-1">{stats.notes}</div>
-            <p className="text-sm text-slate-400">Qaydlar</p>
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 text-center">
+            <div className="text-3xl font-bold text-green-text mb-1">{stats.notes}</div>
+            <p className="text-sm text-muted">Qaydlar</p>
           </div>
         </div>
 
@@ -435,67 +468,67 @@ export default function UserDashboard() {
           {(user?.role === 'admin' || user?.role === 'super_admin') && (
             <Link
               href="/admin"
-              className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-purple-500/50 transition-colors group"
+              className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 hover:border-accent-blue/50 transition-colors group"
             >
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-xl bg-accent-blue/20 flex items-center justify-center mb-4 group-hover:bg-accent-blue/30 transition-colors">
+                <svg className="w-6 h-6 text-blue-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h4 className="font-semibold text-white mb-1">Admin Panel</h4>
-              <p className="text-sm text-slate-400">Boshqaruv paneli</p>
+              <h4 className="font-semibold text-foreground mb-1">Admin Panel</h4>
+              <p className="text-sm text-muted">Boshqaruv paneli</p>
             </Link>
           )}
           <Link
             href="/"
-            className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-cyan-500/50 transition-colors group"
+            className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 hover:border-accent-cyan/50 transition-colors group"
           >
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center mb-4 group-hover:bg-cyan-500/30 transition-colors">
-              <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-xl bg-accent-cyan/20 flex items-center justify-center mb-4 group-hover:bg-accent-cyan/30 transition-colors">
+              <svg className="w-6 h-6 text-cyan-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
             </div>
-            <h4 className="font-semibold text-white mb-1">Portfolio</h4>
-            <p className="text-sm text-slate-400">Bosh sahifani ko&apos;ring</p>
+            <h4 className="font-semibold text-foreground mb-1">Portfolio</h4>
+            <p className="text-sm text-muted">Bosh sahifani ko&apos;ring</p>
           </Link>
 
           <Link
             href="/notes"
-            className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-violet-500/50 transition-colors group"
+            className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 hover:border-accent-green/50 transition-colors group"
           >
-            <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center mb-4 group-hover:bg-violet-500/30 transition-colors">
-              <svg className="w-6 h-6 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-xl bg-accent-green/20 flex items-center justify-center mb-4 group-hover:bg-accent-green/30 transition-colors">
+              <svg className="w-6 h-6 text-green-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h4 className="font-semibold text-white mb-1">Qaydlar</h4>
-            <p className="text-sm text-slate-400">Qaydlaringizni ko&apos;ring</p>
+            <h4 className="font-semibold text-foreground mb-1">Qaydlar</h4>
+            <p className="text-sm text-muted">Qaydlaringizni ko&apos;ring</p>
           </Link>
 
           <Link
             href="/#gallery"
-            className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-green-500/50 transition-colors group"
+            className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 hover:border-accent-green/50 transition-colors group"
           >
-            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4 group-hover:bg-green-500/30 transition-colors">
-              <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-xl bg-accent-green/20 flex items-center justify-center mb-4 group-hover:bg-accent-green/30 transition-colors">
+              <svg className="w-6 h-6 text-green-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <h4 className="font-semibold text-white mb-1">Galereya</h4>
-            <p className="text-sm text-slate-400">Rasmlarni ko&apos;ring</p>
+            <h4 className="font-semibold text-foreground mb-1">Galereya</h4>
+            <p className="text-sm text-muted">Rasmlarni ko&apos;ring</p>
           </Link>
 
           <Link
             href="/auth/change-password"
-            className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-orange-500/50 transition-colors group"
+            className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-line/50 hover:border-accent-blue/50 transition-colors group"
           >
-            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
-              <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-xl bg-accent-blue/20 flex items-center justify-center mb-4 group-hover:bg-accent-blue/30 transition-colors">
+              <svg className="w-6 h-6 text-blue-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
-            <h4 className="font-semibold text-white mb-1">Parolni o&apos;zgartirish</h4>
-            <p className="text-sm text-slate-400">Yangi parol o&apos;rnating</p>
+            <h4 className="font-semibold text-foreground mb-1">Parolni o&apos;zgartirish</h4>
+            <p className="text-sm text-muted">Yangi parol o&apos;rnating</p>
           </Link>
         </div>
       </div>

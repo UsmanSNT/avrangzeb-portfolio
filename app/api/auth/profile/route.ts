@@ -174,12 +174,34 @@ export async function PUT(request: Request) {
 
     console.log('PUT profile - updateData:', updateData);
 
-    const { data, error } = await supabase
+    // Ro'yxatdan o'tgan foydalanuvchi uchun user_profiles qatori avtomatik
+    // yaratilmaydi (trigger yo'q), shuning uchun birinchi marta profilni
+    // saqlaganda qator hali mavjud bo'lmasligi mumkin - shunday holatda
+    // UPDATE hech narsani o'zgartirmay, "topilmadi" xatosini qaytaradi.
+    const { data: existingProfile } = await supabase
       .from('user_profiles')
-      .update(updateData)
+      .select('id')
       .eq('id', userId)
-      .select()
-      .single();
+      .maybeSingle();
+
+    const { data, error } = existingProfile
+      ? await supabase
+          .from('user_profiles')
+          .update(updateData)
+          .eq('id', userId)
+          .select()
+          .single()
+      : await supabase
+          .from('user_profiles')
+          .insert({
+            id: userId,
+            email: isOwner ? user.email : undefined,
+            role: 'user',
+            created_at: new Date().toISOString(),
+            ...updateData,
+          })
+          .select()
+          .single();
 
     if (error) {
       console.error('PUT profile error:', error);
