@@ -192,6 +192,19 @@ html.theme-transition *::after {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
+/* Realistic double-beat (lub-dub) rhythm for the /moments heart mark. */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.15); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.15); }
+  70% { transform: scale(1); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.6s ease-in-out infinite;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan), var(--accent-blue));
   background-size: 200% 200%;

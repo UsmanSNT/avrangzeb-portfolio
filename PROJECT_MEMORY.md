@@ -91,6 +91,16 @@ Protected pages (client-side guard only, see Security Status): `/dashboard`, `/a
 No `middleware.ts` exists anywhere in the repo — there is no server-level route protection. Every "protected" page checks `supabase.auth.getUser()` in a `useEffect` and redirects; the page can flash before redirecting.
 No locale-based URL routing (no `/en`, `/ko`, `/ru` paths) — language is a client-side `localStorage` preference only.
 
+### `/moments` — private, deliberately undocumented-elsewhere feature
+
+A password-gated personal page, unrelated to the portfolio/Upwork purpose of this repo. **Do not link it from any nav, sitemap, or metadata, and do not remove its `robots.ts` disallow entry.** It has zero connection to the site's Supabase-Auth/`user_profiles` system by design — it uses its own signed-cookie session (`lib/moments-auth.ts`, cookie name `moments_session`, scoped to path `/moments`) gated by a password stored only in the `MEMORIES_ACCESS_PASSWORD` env var (never in code or the DB). A separate one-time-use share-token flow (`moments_access_tokens` table) lets the owner grant a single guest a read-only viewing session without revealing the real password.
+
+Required env vars (owner sets these directly in Vercel/`.env.local` — never commit them): `MEMORIES_ACCESS_PASSWORD` (owner's unlock password), `MEMORIES_SESSION_SECRET` (HMAC key for signing session cookies), `MEMORIES_START_DATE` (`YYYY-MM-DD`, read server-side in `app/moments/page.tsx` and passed as a prop — never exposed as `NEXT_PUBLIC_`). Without all three set, the feature 500s or the password check always fails closed; it does not silently expose content.
+
+DB: `supabase/migrations/create_moments_tables.sql` (not auto-applied — same manual-apply convention as every other migration in this repo) creates `moments_entries` and `moments_access_tokens`, both RLS-enabled with **zero policies granted to `anon`/`authenticated`** — only the service-role key (used server-side in `app/api/moments/**`) can touch them. Never add an RLS policy granting the anon/authenticated role access to these two tables.
+
+If asked to touch this feature, treat the same discretion rules as the rest of this document but with a higher bar — this is the one part of the codebase that isn't a professional-portfolio concern, and its entire value is that it stays unlinked and inaccessible to anyone without the password/token.
+
 ## API routes (`app/api/**/route.ts`)
 
 | Route | Methods | Auth model (as of this snapshot) |
