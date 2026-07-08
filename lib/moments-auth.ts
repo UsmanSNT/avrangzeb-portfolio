@@ -78,16 +78,24 @@ export async function getMomentsRole(): Promise<MomentsRole | null> {
 }
 
 /**
- * Constant-time comparison of the submitted password against the configured
- * one. Both sides are trimmed first - env var UIs (Vercel included) commonly
- * introduce an accidental trailing newline/space on paste, which would
- * otherwise make a correct password fail purely on length mismatch.
+ * Confirmed via a one-time diagnostic against production: the value stored
+ * in Vercel came out one character longer than the real password, with the
+ * first and last characters intact - i.e. a stray whitespace character
+ * landed *inside* the string during copy/paste (likely from a soft-wrapped
+ * display), not at the edges. A plain .trim() doesn't touch that. Password
+ * values have no legitimate reason to contain whitespace, so stripping all
+ * of it (not just the edges) from both sides is a safe, robust fix.
  */
+function normalizePassword(value: string): string {
+  return value.replace(/\s+/g, "");
+}
+
+/** Constant-time comparison of the submitted password against the configured one. */
 export function checkOwnerPassword(candidate: string): boolean {
-  const expected = process.env.MEMORIES_ACCESS_PASSWORD?.trim();
+  const expected = process.env.MEMORIES_ACCESS_PASSWORD;
   if (!expected) return false;
-  const a = Buffer.from(candidate.trim());
-  const b = Buffer.from(expected);
+  const a = Buffer.from(normalizePassword(candidate));
+  const b = Buffer.from(normalizePassword(expected));
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
 }
