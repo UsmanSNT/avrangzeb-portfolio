@@ -205,6 +205,85 @@ html.theme-transition *::after {
   animation: heartbeat 1.6s ease-in-out infinite;
 }
 
+/* /moments decorative background: falling petals, floating phrases, and a
+   slowly-turning music-box couple. Pure CSS, no animation library - kept
+   isolated to this feature and disabled under prefers-reduced-motion. */
+@keyframes petal-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  92% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate3d(calc(var(--drift) * 60px), 108vh, 0) rotate(calc(var(--drift) * 220deg));
+    opacity: 0;
+  }
+}
+
+.moments-petal {
+  display: block;
+  border-radius: 0% 70% 0% 70%;
+  background: linear-gradient(
+    135deg,
+    hsl(calc(var(--hue) * 1deg) 85% 72%),
+    hsl(calc(var(--hue) * 1deg) 70% 55%)
+  );
+  animation-name: petal-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes phrase-drift {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15%, 85% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+.moments-phrase {
+  animation-name: phrase-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes music-box-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes music-box-counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.moments-music-box {
+  animation: music-box-spin 9s linear infinite;
+}
+
+.moments-music-box > * {
+  animation: music-box-counter-spin 9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moments-petal,
+  .moments-phrase,
+  .moments-music-box,
+  .moments-music-box > * {
+    animation: none !important;
+  }
+}
+
 .gradient-text {
   background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan), var(--accent-blue));
   background-size: 200% 200%;

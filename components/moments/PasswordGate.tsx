@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { RomanticBackground } from "./RomanticBackground";
+import { MusicBoxCouple } from "./MusicBoxCouple";
 
 export function PasswordGate() {
   const [password, setPassword] = useState("");
@@ -51,13 +53,15 @@ export function PasswordGate() {
         }}
         aria-hidden="true"
       />
+      <RomanticBackground />
 
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-sm rounded-3xl border border-rose-400/15 bg-[#1f0f16]/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+        className="relative z-10 w-full max-w-sm rounded-3xl border border-rose-400/15 bg-[#1f0f16]/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-2xl"
       >
         <div className="flex flex-col items-center text-center">
-          <span className="animate-heartbeat text-5xl" aria-hidden="true">
+          <MusicBoxCouple />
+          <span className="animate-heartbeat mt-2 text-5xl" aria-hidden="true">
             ❤️‍🔥
           </span>
           <p className="mt-5 text-sm font-medium tracking-wide text-rose-200/70">

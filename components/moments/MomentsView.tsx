@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { compressImage } from "@/lib/upload";
 import type { MomentsRole } from "@/lib/moments-auth";
+import { RomanticBackground } from "./RomanticBackground";
+import { MusicBoxCouple } from "./MusicBoxCouple";
 
 interface MomentEntry {
   entry_date: string;
@@ -221,8 +223,9 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(244,63,94,0.14),transparent_45%),radial-gradient(circle_at_10%_90%,rgba(251,191,36,0.06),transparent_40%)]"
         aria-hidden="true"
       />
+      <RomanticBackground />
 
-      <header className="relative flex items-center justify-between px-4 py-5 sm:px-8">
+      <header className="relative z-10 flex items-center justify-between px-4 py-5 sm:px-8">
         <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-200/40">
           {role === "guest" ? "Mehmon" : "Xush kelibsiz"}
         </span>
@@ -235,9 +238,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         </button>
       </header>
 
-      <main className="relative mx-auto max-w-2xl px-4 sm:px-8">
+      <main className="relative z-10 mx-auto max-w-2xl px-4 sm:px-8">
         <div className="flex flex-col items-center text-center">
-          <span className="animate-heartbeat text-6xl" aria-hidden="true">
+          <MusicBoxCouple />
+          <span className="animate-heartbeat mt-2 text-6xl" aria-hidden="true">
             ❤️‍🔥
           </span>
 
