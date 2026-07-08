@@ -11,9 +11,10 @@ export interface UploadResult {
  * Rasmni Supabase Storage ga yuklash
  * @param file - Yuklanadigan fayl
  * @param folder - Papka nomi (book-quotes, gallery, notes)
+ * @param accessToken - Supabase auth token (/api/upload autentifikatsiya talab qiladi)
  * @returns Upload natijasi
  */
-export async function uploadImage(file: File, folder: string = 'general'): Promise<UploadResult> {
+export async function uploadImage(file: File, folder: string = 'general', accessToken?: string): Promise<UploadResult> {
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -21,6 +22,7 @@ export async function uploadImage(file: File, folder: string = 'general'): Promi
 
     const response = await fetch('/api/upload', {
       method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       body: formData,
     });
 
@@ -118,6 +120,58 @@ export function compressImage(
                 lastModified: Date.now(),
               });
               resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Rasmni berilgan box (maxWidth x maxHeight) ichiga sig'adigan qilib siqish,
+ * asl proportsiyasini (16:9, 9:16 va h.k.) saqlab qoladi - hech qachon katta qilmaydi.
+ * @param file - Asl fayl
+ * @param maxWidth - Box maksimal kengligi
+ * @param maxHeight - Box maksimal balandligi
+ * @param quality - Sifat (0-1)
+ * @returns Siqilgan fayl
+ */
+export function compressImageToBox(
+  file: File,
+  maxWidth: number = 480,
+  maxHeight: number = 640,
+  quality: number = 0.85
+): Promise<File> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width, maxHeight / img.height);
+        const width = Math.round(img.width * scale);
+        const height = Math.round(img.height * scale);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              }));
             } else {
               resolve(file);
             }

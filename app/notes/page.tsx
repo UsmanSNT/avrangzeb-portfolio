@@ -5,6 +5,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import RichTextEditor from "@/app/components/RichTextEditor";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
+import { Logo } from "@/app/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -206,25 +208,6 @@ const categoryValues: Record<string, string> = {
   "보안": "security",
   "기타": "other",
 };
-
-// Logo Component
-const Logo = () => (
-  <svg viewBox="0 0 40 40" className="w-10 h-10" fill="none">
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#06b6d4" />
-        <stop offset="100%" stopColor="#8b5cf6" />
-      </linearGradient>
-    </defs>
-    <rect width="40" height="40" rx="8" fill="url(#logoGradient)" />
-    <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="monospace">
-      AA
-    </text>
-    <circle cx="8" cy="8" r="2" fill="rgba(255,255,255,0.5)" />
-    <circle cx="32" cy="32" r="2" fill="rgba(255,255,255,0.5)" />
-    <path d="M8 8 L32 32" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="2,2" />
-  </svg>
-);
 
 // Icons
 const BookIcon = () => (
@@ -984,63 +967,64 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="min-h-screen network-bg text-slate-200">
+    <div className="min-h-screen network-bg text-foreground">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="animate-pulse-glow rounded-lg">
-                  <Logo />
-                </div>
-                <span className="font-bold text-xl">Avrangzeb</span>
-              </Link>
-              <span className="text-slate-600">|</span>
-              <div className="flex items-center gap-2 text-cyan-400">
-                <BookIcon />
-                <span className="font-medium">{t.nav.notes}</span>
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-line bg-background/80 backdrop-blur-2xl">
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/" className="flex min-w-0 items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="animate-pulse-glow flex-shrink-0 rounded-lg">
+                <Logo size={36} />
               </div>
-            </div>
-            <div className="flex items-center gap-3">
+              <span className="truncate font-bold text-lg sm:text-xl">Avrangzeb</span>
+              <span className="hidden items-center gap-1.5 border-l border-line pl-3 text-cyan-text sm:flex">
+                <BookIcon />
+                <span className="text-sm font-medium">{t.nav.notes}</span>
+              </span>
+            </Link>
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <ThemeToggle />
+
               {currentUser && (
                 <button
                   onClick={async () => {
                     await seedDefaultNotes();
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 transition-colors"
+                  className="hidden items-center gap-2 rounded-lg bg-accent-green/15 px-3 py-2 text-green-text transition-colors hover:bg-accent-green/25 md:flex"
                   title="Default qaydlarni yuklash"
                 >
                   📚
-                  <span className="hidden sm:inline text-sm">Default qaydlar</span>
+                  <span className="hidden text-sm lg:inline">Default qaydlar</span>
                 </button>
               )}
+
               <button
                 onClick={() => openModal()}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-lg font-medium text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                className="flex items-center gap-1.5 rounded-lg bg-accent-green px-2.5 py-2 text-xs font-bold text-inverse transition-colors hover:bg-accent-cyan sm:gap-2 sm:px-4 sm:text-sm"
               >
                 <PlusIcon />
                 <span className="hidden sm:inline">{t.nav.newNote}</span>
               </button>
-              
+
               {/* Language Switcher */}
               <div className="relative">
                 <button
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500/50 transition-colors"
+                  className="flex items-center gap-1 rounded-lg border border-line bg-hover/[0.05] px-2 py-2 transition-colors hover:border-accent-cyan/40 sm:gap-2 sm:px-3"
                 >
                   <GlobeIcon />
                   <span className="text-lg">{languageLabels[language].flag}</span>
                 </button>
-                
+
                 {isLangMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
+                  <div className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-xl border border-line bg-card shadow-2xl shadow-elevation/40">
                     {(Object.keys(languageLabels) as Language[]).map((lang) => (
                       <button
                         key={lang}
                         onClick={() => changeLanguage(lang)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-700/50 transition-colors ${
-                          language === lang ? "bg-cyan-500/20 text-cyan-400" : "text-slate-300"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-2/50 transition-colors ${
+                          language === lang ? "bg-accent-cyan/20 text-cyan-text" : "text-secondary"
                         }`}
                       >
                         <span className="text-xl">{languageLabels[lang].flag}</span>
@@ -1050,13 +1034,13 @@ export default function NotesPage() {
                   </div>
                 )}
               </div>
-              
-              <Link 
+
+              <Link
                 href="/"
-                className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                className="hidden items-center gap-2 text-muted transition-colors hover:text-cyan-text sm:flex"
               >
                 <ArrowLeftIcon />
-                <span className="hidden sm:inline">{t.nav.home}</span>
+                <span className="hidden lg:inline">{t.nav.home}</span>
               </Link>
             </div>
           </div>
@@ -1064,62 +1048,64 @@ export default function NotesPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="pt-24 pb-16 px-6">
-        <div className="max-w-6xl mx-auto">
+      <main className="px-4 pb-16 pt-24 sm:px-6">
+        <div className="mx-auto max-w-6xl">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <div className="mb-8 text-center sm:mb-12">
+            <h1 className="mb-3 text-3xl font-bold sm:mb-4 sm:text-4xl md:text-5xl">
               <span className="gradient-text">{t.header.title}</span>
             </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-base text-muted sm:text-lg">
               {t.header.description}
             </p>
           </div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="mb-5 flex flex-col gap-4 sm:mb-6 md:flex-row">
             <div className="relative flex-1">
               <input
                 type="text"
                 placeholder={t.search.placeholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                className="w-full rounded-xl border border-line bg-card/50 py-3 pl-12 pr-4 text-foreground placeholder-subtle transition-colors focus:outline-none focus:border-accent-cyan"
               />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle">
                 <SearchIcon />
               </div>
             </div>
           </div>
 
           {/* Categories */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categoryKeys.map((key) => (
-              <button
-                key={key}
-                onClick={() => setSelectedCategoryKey(key)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  selectedCategoryKey === key
-                    ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white"
-                    : "bg-slate-800/50 text-slate-400 hover:text-cyan-400 border border-slate-700"
-                }`}
-              >
-                {getCategoryName(key)}
-              </button>
-            ))}
+          <div className="mb-6 overflow-x-auto pb-1 sm:mb-8">
+            <div className="flex w-max min-w-full gap-2 sm:w-auto sm:flex-wrap">
+              {categoryKeys.map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedCategoryKey(key)}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                    selectedCategoryKey === key
+                      ? "bg-accent-green text-inverse"
+                      : "border border-line bg-card/50 text-muted hover:text-cyan-text"
+                  }`}
+                >
+                  {getCategoryName(key)}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Notes Grid */}
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
             {/* Notes List */}
-            <div className={`${selectedNote ? 'hidden lg:block' : ''} lg:col-span-1 space-y-4`}>
+            <div className={`${selectedNote ? 'hidden lg:block' : ''} space-y-3`}>
               {isLoadingNotes ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
-                  <p className="text-slate-500 mt-4">Yuklanmoqda...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-cyan mx-auto"></div>
+                  <p className="text-subtle mt-4">Yuklanmoqda...</p>
                 </div>
               ) : filteredNotes.length === 0 ? (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-subtle">
                   <div className="flex justify-center mb-4">
                     <BookIcon />
                   </div>
@@ -1127,7 +1113,7 @@ export default function NotesPage() {
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
                     <button
                       onClick={() => openModal()}
-                      className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-colors"
+                      className="px-4 py-2 bg-accent-cyan/20 text-cyan-text rounded-lg hover:bg-accent-cyan/30 transition-colors"
                     >
                       {t.notes.addNew}
                     </button>
@@ -1136,7 +1122,7 @@ export default function NotesPage() {
                         onClick={async () => {
                           await seedDefaultNotes();
                         }}
-                        className="px-4 py-2 bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 transition-colors"
+                        className="px-4 py-2 bg-accent-green/20 text-green-text rounded-lg hover:bg-accent-green/30 transition-colors"
                       >
                         📚 Default qaydlarni yuklash
                       </button>
@@ -1149,19 +1135,19 @@ export default function NotesPage() {
                     key={note.id}
                     className={`relative group p-5 rounded-xl border transition-all cursor-pointer ${
                       selectedNote?.id === note.id
-                        ? "bg-slate-800 border-cyan-500/50"
-                        : "bg-slate-800/50 border-slate-700 hover:border-cyan-500/30"
+                        ? "bg-card border-accent-cyan/50"
+                        : "bg-card/50 border-line hover:border-accent-cyan/30"
                     }`}
                     onClick={() => setSelectedNote(note)}
                   >
                     {/* Action buttons */}
-                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-3 right-3 flex gap-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           openModal(note);
                         }}
-                        className="p-1.5 bg-slate-700 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors"
+                        className="p-1.5 bg-surface-2 rounded-lg text-muted hover:text-cyan-text transition-colors"
                         title="Edit"
                       >
                         <EditIcon />
@@ -1171,7 +1157,7 @@ export default function NotesPage() {
                           e.stopPropagation();
                           deleteNote(note.id);
                         }}
-                        className="p-1.5 bg-slate-700 rounded-lg text-slate-400 hover:text-red-400 transition-colors"
+                        className="p-1.5 bg-surface-2 rounded-lg text-muted hover:text-red-400 transition-colors"
                         title="Delete"
                       >
                         <TrashIcon />
@@ -1179,17 +1165,17 @@ export default function NotesPage() {
                     </div>
 
                     <div className="flex items-start justify-between gap-2 mb-2 pr-16">
-                      <h3 className="font-semibold text-slate-200 line-clamp-2">
+                      <h3 className="font-semibold text-foreground line-clamp-2">
                         {note.important && <span className="text-yellow-400 mr-1">⭐</span>}
                         {note.title}
                       </h3>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-3">
+                    <div className="flex items-center gap-2 text-sm text-subtle mb-3">
                       <CalendarIcon />
                       <span>{formatDate(note.date)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded text-xs">
+                      <span className="px-2 py-1 bg-accent-cyan/20 text-cyan-text rounded text-xs">
                         {getCategoryName(note.categoryKey)}
                       </span>
                     </div>
@@ -1199,43 +1185,43 @@ export default function NotesPage() {
             </div>
 
             {/* Note Detail */}
-            <div className={`${selectedNote ? 'block' : 'hidden lg:block'} lg:col-span-2`}>
+            <div className={selectedNote ? 'block' : 'hidden lg:block'}>
               {selectedNote ? (
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 lg:p-8 sticky top-24">
+                <div className="bg-card/50 rounded-xl border border-line p-6 lg:p-8 sticky top-24">
                   {/* Back button for mobile */}
                   <button
                     onClick={() => setSelectedNote(null)}
-                    className="lg:hidden flex items-center gap-2 text-slate-400 hover:text-cyan-400 mb-4"
+                    className="lg:hidden flex items-center gap-2 text-muted hover:text-cyan-text mb-4"
                   >
                     <ArrowLeftIcon />
                     <span>{t.notes.back}</span>
                   </button>
 
                   {/* Note Header */}
-                  <div className="mb-6 pb-6 border-b border-slate-700">
+                  <div className="mb-6 pb-6 border-b border-line">
                     <div className="flex items-start justify-between gap-4">
-                      <h2 className="text-2xl font-bold text-slate-100">
+                      <h2 className="text-2xl font-bold text-foreground">
                         {selectedNote.important && <span className="text-yellow-400 mr-2">⭐</span>}
                         {selectedNote.title}
                       </h2>
                       <div className="flex gap-2">
                         <button
                           onClick={() => openModal(selectedNote)}
-                          className="p-2 bg-slate-700 rounded-lg text-slate-400 hover:text-cyan-400 transition-colors"
+                          className="p-2 bg-surface-2 rounded-lg text-muted hover:text-cyan-text transition-colors"
                           title="Edit"
                         >
                           <EditIcon />
                         </button>
                         <button
                           onClick={() => deleteNote(selectedNote.id)}
-                          className="p-2 bg-slate-700 rounded-lg text-slate-400 hover:text-red-400 transition-colors"
+                          className="p-2 bg-surface-2 rounded-lg text-muted hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <TrashIcon />
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mt-3">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted mt-3">
                       <div className="flex items-center gap-2">
                         <CalendarIcon />
                         <span>{formatDate(selectedNote.date)}</span>
@@ -1249,7 +1235,7 @@ export default function NotesPage() {
                       {selectedNote.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-xs"
+                          className="px-3 py-1 bg-surface-2/50 text-secondary rounded-full text-xs"
                         >
                           #{tag}
                         </span>
@@ -1260,7 +1246,7 @@ export default function NotesPage() {
                   {/* Note Content */}
                   <div className="prose prose-invert prose-cyan max-w-none">
                     <div 
-                      className="note-content text-slate-300 leading-relaxed whitespace-pre-wrap"
+                      className="note-content text-secondary leading-relaxed whitespace-pre-wrap"
                       style={{
                         wordBreak: 'break-word',
                         whiteSpace: 'pre-wrap',
@@ -1272,21 +1258,21 @@ export default function NotesPage() {
                         // Markdown formatting
                         if (line.startsWith('## ')) {
                           return (
-                            <h2 key={index} className="text-2xl font-bold text-cyan-400 mt-6 mb-3 first:mt-0">
+                            <h2 key={index} className="text-2xl font-bold text-cyan-text mt-6 mb-3 first:mt-0">
                               {line.replace(/^##\s+/, '')}
                             </h2>
                           );
                         }
                         if (line.startsWith('### ')) {
                           return (
-                            <h3 key={index} className="text-xl font-semibold text-violet-400 mt-4 mb-2">
+                            <h3 key={index} className="text-xl font-semibold text-green-text mt-4 mb-2">
                               {line.replace(/^###\s+/, '')}
                             </h3>
                           );
                         }
                         if (line.startsWith('#### ')) {
                           return (
-                            <h4 key={index} className="text-lg font-semibold text-cyan-300 mt-3 mb-2">
+                            <h4 key={index} className="text-lg font-semibold text-cyan-text mt-3 mb-2">
                               {line.replace(/^####\s+/, '')}
                             </h4>
                           );
@@ -1310,22 +1296,37 @@ export default function NotesPage() {
                         }
                         if (line.startsWith('|')) {
                           return (
-                            <p key={index} className="font-mono text-sm bg-slate-700/30 px-2 py-1 my-1 overflow-x-auto">
+                            <p key={index} className="font-mono text-sm bg-surface-2/30 px-2 py-1 my-1 overflow-x-auto">
                               {line}
                             </p>
+                          );
+                        }
+                        const imageMatch = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                        if (imageMatch) {
+                          const [, alt, url] = imageMatch;
+                          return (
+                            <div key={index} className="my-4 flex justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={url}
+                                alt={alt || 'Qayd rasmi'}
+                                loading="lazy"
+                                className="max-h-56 w-auto max-w-full rounded-lg border border-line object-contain shadow-lg shadow-elevation/20 sm:max-h-72 lg:max-h-96"
+                              />
+                            </div>
                           );
                         }
                         // Format inline markdown
                         const formatText = (text: string) => {
                           let formatted = text;
                           // Bold **text**
-                          formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-cyan-300">$1</strong>');
+                          formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-cyan-text">$1</strong>');
                           // Italic *text*
-                          formatted = formatted.replace(/\*(.+?)\*/g, '<em class="italic text-violet-300">$1</em>');
+                          formatted = formatted.replace(/\*(.+?)\*/g, '<em class="italic text-green-text">$1</em>');
                           // Code `text`
-                          formatted = formatted.replace(/`(.+?)`/g, '<code class="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded font-mono text-sm">$1</code>');
+                          formatted = formatted.replace(/`(.+?)`/g, '<code class="bg-card text-cyan-text px-1.5 py-0.5 rounded font-mono text-sm">$1</code>');
                           // Links [text](url)
-                          formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:text-cyan-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+                          formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-text hover:text-cyan-text underline" target="_blank" rel="noopener noreferrer">$1</a>');
                           return formatted;
                         };
                         
@@ -1345,16 +1346,16 @@ export default function NotesPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-8 pt-6 border-t border-slate-700">
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <div className="mt-8 pt-6 border-t border-line">
+                    <div className="flex items-center gap-2 text-sm text-subtle">
                       <LightbulbIcon />
                       <span>{t.notes.useful}</span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="hidden lg:flex h-96 items-center justify-center bg-slate-800/30 rounded-xl border border-slate-700/50">
-                  <div className="text-center text-slate-500">
+                <div className="hidden lg:flex h-96 items-center justify-center bg-card/30 rounded-xl border border-line/50">
+                  <div className="text-center text-subtle">
                     <div className="flex justify-center mb-4">
                       <BookIcon />
                     </div>
@@ -1366,37 +1367,37 @@ export default function NotesPage() {
           </div>
 
           {/* Info Section */}
-          <div className="mt-16 p-8 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <div className="mt-16 p-8 bg-card/50 rounded-xl border border-line">
+            <h3 className="text-xl font-bold text-cyan-text mb-4 flex items-center gap-2">
               <LightbulbIcon />
               {t.info.title}
             </h3>
-            <div className="grid md:grid-cols-3 gap-6 text-slate-300">
+            <div className="grid md:grid-cols-3 gap-6 text-secondary">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
                   <CheckIcon />
                 </div>
                 <div>
-                  <h4 className="font-medium text-slate-200">{t.info.daily}</h4>
-                  <p className="text-sm text-slate-400">{t.info.dailyDesc}</p>
+                  <h4 className="font-medium text-foreground">{t.info.daily}</h4>
+                  <p className="text-sm text-muted">{t.info.dailyDesc}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-accent-green/20 flex items-center justify-center text-green-text flex-shrink-0">
                   <CodeIcon />
                 </div>
                 <div>
-                  <h4 className="font-medium text-slate-200">{t.info.code}</h4>
-                  <p className="text-sm text-slate-400">{t.info.codeDesc}</p>
+                  <h4 className="font-medium text-foreground">{t.info.code}</h4>
+                  <p className="text-sm text-muted">{t.info.codeDesc}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-accent-cyan/20 flex items-center justify-center text-cyan-text flex-shrink-0">
                   <BookIcon />
                 </div>
                 <div>
-                  <h4 className="font-medium text-slate-200">{t.info.useful}</h4>
-                  <p className="text-sm text-slate-400">{t.info.usefulDesc}</p>
+                  <h4 className="font-medium text-foreground">{t.info.useful}</h4>
+                  <p className="text-sm text-muted">{t.info.usefulDesc}</p>
                 </div>
               </div>
             </div>
@@ -1407,14 +1408,14 @@ export default function NotesPage() {
       {/* Modal for adding/editing notes */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-700">
-              <h3 className="text-xl font-bold text-slate-100">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-2xl border border-line shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-line">
+              <h3 className="text-xl font-bold text-foreground">
                 {isEditing ? t.modal.editTitle : t.modal.addTitle}
               </h3>
               <button
                 onClick={closeModal}
-                className="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 text-muted hover:text-foreground transition-colors"
               >
                 <CloseIcon />
               </button>
@@ -1423,7 +1424,7 @@ export default function NotesPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-secondary mb-2">
                   {t.modal.titleLabel}
                 </label>
                 <input
@@ -1432,19 +1433,19 @@ export default function NotesPage() {
                   onChange={(e) => setFormTitle(e.target.value)}
                   required
                   placeholder={t.modal.titlePlaceholder}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full px-4 py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-secondary mb-2">
                   {t.modal.categoryLabel}
                 </label>
                 <select
                   value={formCategoryKey}
                   onChange={(e) => setFormCategoryKey(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full px-4 py-3 bg-surface/50 border border-line rounded-xl text-foreground focus:outline-none focus:border-accent-cyan transition-colors"
                 >
                   {categoryKeys.filter(k => k !== "all").map((key) => (
                     <option key={key} value={key}>
@@ -1456,7 +1457,7 @@ export default function NotesPage() {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-secondary mb-2">
                   {t.modal.tagsLabel}
                 </label>
                 <input
@@ -1464,24 +1465,24 @@ export default function NotesPage() {
                   value={formTags}
                   onChange={(e) => setFormTags(e.target.value)}
                   placeholder={t.modal.tagsPlaceholder}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full px-4 py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-secondary mb-2">
                   {t.modal.contentLabel}
                 </label>
                 <ErrorBoundary
                   fallback={
-                    <div className="h-[300px] bg-slate-900/50 border border-slate-700 rounded-xl p-4">
+                    <div className="h-[300px] bg-surface/50 border border-line rounded-xl p-4">
                       <p className="text-red-400 mb-2">Editor yuklanmadi</p>
                       <textarea
                         value={formContent || ''}
                         onChange={(e) => setFormContent(e.target.value)}
                         placeholder={t.modal.contentPlaceholder}
-                        className="w-full h-[250px] px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors resize-none"
+                        className="w-full h-[250px] px-4 py-3 bg-surface/50 border border-line rounded-xl text-foreground placeholder-subtle focus:outline-none focus:border-accent-cyan transition-colors resize-none"
                       />
                     </div>
                   }
@@ -1499,7 +1500,7 @@ export default function NotesPage() {
                     placeholder={t.modal.contentPlaceholder}
                   />
                 </ErrorBoundary>
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-subtle mt-2">
                   {t.modal.contentHint}
                 </p>
               </div>
@@ -1511,9 +1512,9 @@ export default function NotesPage() {
                   id="important"
                   checked={formImportant}
                   onChange={(e) => setFormImportant(e.target.checked)}
-                  className="w-5 h-5 rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-cyan-500"
+                  className="w-5 h-5 rounded border-line bg-surface text-cyan-text focus:ring-accent-cyan"
                 />
-                <label htmlFor="important" className="text-sm text-slate-300">
+                <label htmlFor="important" className="text-sm text-secondary">
                   {t.modal.importantLabel}
                 </label>
               </div>
@@ -1523,13 +1524,13 @@ export default function NotesPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 py-3 px-4 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700/50 transition-colors"
+                  className="flex-1 py-3 px-4 border border-line rounded-xl text-secondary hover:bg-surface-2/50 transition-colors"
                 >
                   {t.modal.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-xl font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  className="flex-1 rounded-xl bg-accent-green px-4 py-3 font-semibold text-inverse transition-all hover:bg-accent-cyan hover:shadow-lg hover:shadow-accent-cyan/30"
                 >
                   {isEditing ? t.modal.save : t.modal.add}
                 </button>
@@ -1540,9 +1541,9 @@ export default function NotesPage() {
       )}
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-slate-800">
+      <footer className="py-8 px-6 border-t border-card">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-slate-500">
+          <p className="text-subtle">
             © 2024 Abdujalilov Avrangzeb. {t.footer}
           </p>
         </div>

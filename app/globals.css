@@ -208,3 +208,28 @@ html.theme-transition *::after {
     repeating-linear-gradient(0deg, transparent, transparent 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 51px),
     repeating-linear-gradient(90deg, transparent, transparent 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 50px, color-mix(in srgb, var(--accent-cyan) 3%, transparent) 51px);
 }
+
+/* Safety net: any image inside note content stays contained regardless of
+   how it was inserted (markdown syntax or raw pasted HTML) - never breaks
+   the surrounding text layout, and keeps its own aspect ratio. */
+.note-content img {
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  max-height: 14rem;
+}
+
+@media (min-width: 640px) {
+  .note-content img {
+    max-height: 18rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .note-content img {
+    max-height: 24rem;
+  }
+}
