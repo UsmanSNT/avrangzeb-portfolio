@@ -6,25 +6,25 @@ const skillGroups = [
     title: "Frontend",
     tools: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
     icon: <CodeIcon />,
-    className: "border-accent-cyan/20 bg-accent-cyan/[0.07]",
+    className: "border-accent-cyan/20 bg-accent-cyan/[0.12]",
   },
   {
     title: "Backend",
     tools: ["API Routes", "Supabase", "Postgres", "Auth"],
     icon: <ServerIcon />,
-    className: "border-accent-blue/20 bg-accent-blue/[0.07]",
+    className: "border-accent-blue/20 bg-accent-blue/[0.12]",
   },
   {
     title: "AI Workflows",
     tools: ["Automation", "Prompt Systems", "Data Flows", "Internal Tools"],
     icon: <CloudIcon />,
-    className: "border-accent-green/20 bg-accent-green/[0.07]",
+    className: "border-accent-green/20 bg-accent-green/[0.12]",
   },
   {
     title: "Security",
     tools: ["Route Protection", "RLS Awareness", "Secure Uploads", "Network Basics"],
     icon: <ShieldIcon />,
-    className: "border-accent-blue/20 bg-accent-blue/[0.07]",
+    className: "border-accent-blue/20 bg-accent-blue/[0.12]",
   },
 ];
 
@@ -58,7 +58,7 @@ export function SkillsSection({ t }: SkillsSectionProps) {
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
               {t.skills.title}
             </p>
             <h2 className="mt-5 max-w-xl text-4xl font-black leading-[0.98] text-foreground sm:text-5xl">
@@ -92,7 +92,7 @@ export function SkillsSection({ t }: SkillsSectionProps) {
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-line bg-hover/[0.04] p-5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:p-6">
+        <div className="mt-6 rounded-2xl border border-line bg-hover/[0.08] p-5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:p-6">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-black text-foreground">{t.skills.additional}</h3>
             <p className="text-sm text-muted">{t.skills.cybersecurity}</p>

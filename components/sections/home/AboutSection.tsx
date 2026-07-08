@@ -39,7 +39,7 @@ export function AboutSection({ t }: AboutSectionProps) {
       <div className="relative mx-auto max-w-7xl">
         <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
           <div>
-            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+            <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
               {t.about.title}
             </p>
             <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal text-foreground sm:text-4xl">

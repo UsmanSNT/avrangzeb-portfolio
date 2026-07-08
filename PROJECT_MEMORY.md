@@ -10,11 +10,11 @@
 # Project Identity
 
 - **Project name:** Avrangzeb Portfolio (`package.json` name: `vibe-coding`)
-- **Live URL:** https://avrangzeb-portfolio.vercel.app/
+- **Live URL:** https://avrangzebabdujalilov.com/ (custom domain, connected 2026-07-07; the original https://avrangzeb-portfolio.vercel.app/ still resolves to the same deployment)
 - **Repo root:** `c:\Users\avran\OneDrive\Ishchi stol\avrangzeb-portfolio`
 - **Owner:** Abdujalilov Avrangzeb (GitHub: `UsmanSNT`)
-- **Current on-site positioning (as shipped):** "Network Administrator & Cybersecurity Student" — Woosuk University, Jeonju, South Korea.
-- **Target positioning (stated goal, not yet reflected in site copy/metadata):** Software Engineer / AI Engineer / Backend Engineer / Cybersecurity Engineer / Network Engineer.
+- **Current on-site positioning (as shipped):** "Software Engineer & AI/Backend Developer" — Woosuk University, Jeonju, South Korea. (Updated 2026-07-07 across Hero copy, browser title, OG/Twitter cards, and JSON-LD; previously shipped as "Network Administrator & Cybersecurity Student".)
+- **Target positioning:** Software Engineer / AI Engineer / Backend Engineer / Cybersecurity Engineer / Network Engineer — largely reflected in metadata/Hero now; still needs backing project content (see Known Problems: only 2 shallow showcase projects).
 - **Business goal:** Convert this from a personal student portfolio into a premium, Upwork-ready and recruiter-ready professional portfolio that demonstrates engineering quality, not just lists projects. Primary audiences: Upwork clients, recruiters, international companies, startup founders, technical interviewers.
 
 ---

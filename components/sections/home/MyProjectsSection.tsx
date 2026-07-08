@@ -35,7 +35,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-7 grid gap-4 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="max-w-2xl">
-            <span className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.08] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
+            <span className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
               {t.myProjects.featured}
             </span>
             <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal text-foreground sm:text-4xl">
@@ -48,7 +48,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
         </div>
 
         <div className="mb-5 overflow-x-auto pb-1.5">
-          <div className="flex w-max min-w-full gap-1.5 rounded-2xl border border-line bg-hover/[0.04] p-1.5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:w-auto sm:flex-wrap">
+          <div className="flex w-max min-w-full gap-1.5 rounded-2xl border border-line bg-hover/[0.08] p-1.5 shadow-2xl shadow-elevation/25 backdrop-blur-2xl sm:w-auto sm:flex-wrap">
             {projectFilterOptions.map((filter) => {
               const isActive = activeProjectFilter === filter;
 
@@ -61,7 +61,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
                   className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-background ${
                     isActive
                       ? "border-accent-cyan/45 bg-accent-cyan/15 text-cyan-text shadow-lg shadow-accent-cyan/15"
-                      : "border-transparent text-muted hover:bg-hover/[0.07] hover:text-foreground"
+                      : "border-transparent text-muted hover:bg-hover/[0.11] hover:text-foreground"
                   }`}
                 >
                   {t.myProjects.filters[filter]}
@@ -85,7 +85,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-line bg-hover/[0.04] px-6 py-10 text-center shadow-2xl shadow-elevation/25 backdrop-blur-2xl">
+          <div className="rounded-2xl border border-line bg-hover/[0.08] px-6 py-10 text-center shadow-2xl shadow-elevation/25 backdrop-blur-2xl">
             <h3 className="mb-2 text-xl font-bold text-foreground">{t.myProjects.emptyState.title}</h3>
             <p className="text-sm text-muted">{t.myProjects.emptyState.description}</p>
           </div>

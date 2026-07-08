@@ -1,5 +1,7 @@
 // Rasm yuklash yordamchi funksiyasi
 
+import { supabase } from './supabase';
+
 export interface UploadResult {
   success: boolean;
   url?: string;
@@ -11,18 +13,23 @@ export interface UploadResult {
  * Rasmni Supabase Storage ga yuklash
  * @param file - Yuklanadigan fayl
  * @param folder - Papka nomi (book-quotes, gallery, notes)
- * @param accessToken - Supabase auth token (/api/upload autentifikatsiya talab qiladi)
  * @returns Upload natijasi
  */
-export async function uploadImage(file: File, folder: string = 'general', accessToken?: string): Promise<UploadResult> {
+export async function uploadImage(file: File, folder: string = 'general'): Promise<UploadResult> {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      return { success: false, error: 'Iltimos, tizimga kiring' };
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);
 
     const response = await fetch('/api/upload', {
       method: 'POST',
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      headers: { Authorization: `Bearer ${session.access_token}` },
       body: formData,
     });
 
