@@ -52,7 +52,11 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/moments",
+      // Must cover both /moments (the page) and /api/moments/* (the API
+      // routes) - those don't share a path prefix other than root, so a
+      // scoped path here would silently stop the cookie being sent to one
+      // or the other. Still fully httpOnly, so no client-side JS can read it.
+      path: "/",
       maxAge: 60 * 60 * 24, // 24h, matches createSessionToken's owner expiry
     });
 

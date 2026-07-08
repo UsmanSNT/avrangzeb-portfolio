@@ -52,6 +52,7 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const [formContent, setFormContent] = useState("");
   const [formImage, setFormImage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -109,6 +110,7 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     const existing = entries[key];
     setFormContent(existing?.content || "");
     setFormImage(existing?.image_url || null);
+    setFormError(null);
     setIsEditing(role === "owner" && !existing);
   };
 
@@ -117,12 +119,14 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     setIsEditing(false);
     setFormContent("");
     setFormImage(null);
+    setFormError(null);
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsUploadingImage(true);
+    setFormError(null);
     try {
       const compressed = await compressImage(file, 1200, 0.85);
       const formData = new FormData();
@@ -130,6 +134,9 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       const res = await fetch("/api/moments/upload", { method: "POST", body: formData });
       const result = await res.json();
       if (result.success) setFormImage(result.url);
+      else setFormError(result.error || "Rasm yuklanmadi");
+    } catch {
+      setFormError("Rasm yuklanmadi");
     } finally {
       setIsUploadingImage(false);
       e.target.value = "";
@@ -139,6 +146,7 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const saveEntry = async () => {
     if (!selectedDateKey || !formContent.trim()) return;
     setIsSaving(true);
+    setFormError(null);
     try {
       const res = await fetch("/api/moments/entries", {
         method: "POST",
@@ -149,7 +157,11 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       if (result.success) {
         setEntries((prev) => ({ ...prev, [selectedDateKey]: result.data }));
         setIsEditing(false);
+      } else {
+        setFormError(result.error || "Saqlashda xatolik yuz berdi");
       }
+    } catch {
+      setFormError("Saqlashda xatolik yuz berdi");
     } finally {
       setIsSaving(false);
     }
@@ -388,6 +400,8 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                   {isUploadingImage ? "Yuklanmoqda..." : formImage ? "Rasmni almashtirish" : "Rasm qo'shish (ixtiyoriy)"}
                   <input type="file" accept="image/*" onChange={handleImageChange} disabled={isUploadingImage} className="hidden" />
                 </label>
+
+                {formError && <p className="text-xs text-rose-400">{formError}</p>}
 
                 <div className="flex gap-2 pt-1">
                   <button

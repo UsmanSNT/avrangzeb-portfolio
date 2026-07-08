@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/moments",
+      path: "/", // must cover /moments and /api/moments/* - see unlock/route.ts
       maxAge: 60 * 60 * 4, // 4h, matches createSessionToken's guest expiry
     });
 
