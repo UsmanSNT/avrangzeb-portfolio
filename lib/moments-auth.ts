@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
 export const MOMENTS_COOKIE_NAME = "moments_session";
-const OWNER_SESSION_MS = 24 * 60 * 60 * 1000; // 24h
+const OWNER_SESSION_MS = 30 * 24 * 60 * 60 * 1000; // 30d - private single-owner page, long session avoids silent lockouts
 const GUEST_SESSION_MS = 4 * 60 * 60 * 1000; // 4h
 
 export type MomentsRole = "owner" | "guest";

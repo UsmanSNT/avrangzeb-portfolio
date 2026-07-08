@@ -36,6 +36,14 @@ function startOfDay(date: Date): Date {
   return d;
 }
 
+// A 401/403 here means the session cookie expired or was never valid -
+// reload so the server component re-checks getMomentsRole() and shows
+// PasswordGate again, instead of leaving the stale owner UI up with a
+// cryptic "Ruxsat yo'q" error on every action.
+function isAuthFailure(status: number): boolean {
+  return status === 401 || status === 403;
+}
+
 function buildMonthCells(year: number, month: number): (number | null)[] {
   const firstDay = new Date(year, month, 1);
   const startWeekday = (firstDay.getDay() + 6) % 7; // Monday-first
@@ -72,6 +80,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     const load = async () => {
       try {
         const res = await fetch("/api/moments/entries");
+        if (isAuthFailure(res.status)) {
+          window.location.reload();
+          return;
+        }
         const result = await res.json();
         if (!cancelled && result.success) {
           const map: Record<string, MomentEntry> = {};
@@ -134,6 +146,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       const formData = new FormData();
       formData.append("file", compressed);
       const res = await fetch("/api/moments/upload", { method: "POST", body: formData });
+      if (isAuthFailure(res.status)) {
+        window.location.reload();
+        return;
+      }
       const result = await res.json();
       if (result.success) setFormImage(result.url);
       else setFormError(result.error || "Rasm yuklanmadi");
@@ -155,6 +171,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date: selectedDateKey, content: formContent.trim(), image_url: formImage }),
       });
+      if (isAuthFailure(res.status)) {
+        window.location.reload();
+        return;
+      }
       const result = await res.json();
       if (result.success) {
         setEntries((prev) => ({ ...prev, [selectedDateKey]: result.data }));
@@ -173,6 +193,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     if (!selectedDateKey) return;
     if (!confirm("Bu hotirani o'chirishni xohlaysizmi?")) return;
     const res = await fetch(`/api/moments/entries?date=${selectedDateKey}`, { method: "DELETE" });
+    if (isAuthFailure(res.status)) {
+      window.location.reload();
+      return;
+    }
     const result = await res.json();
     if (result.success) {
       setEntries((prev) => {
@@ -189,6 +213,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     setLinkCopied(false);
     try {
       const res = await fetch("/api/moments/share", { method: "POST" });
+      if (isAuthFailure(res.status)) {
+        window.location.reload();
+        return;
+      }
       const result = await res.json();
       if (result.success) {
         setShareLink(`${window.location.origin}/moments?token=${result.token}`);

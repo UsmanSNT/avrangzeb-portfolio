@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       // scoped path here would silently stop the cookie being sent to one
       // or the other. Still fully httpOnly, so no client-side JS can read it.
       path: "/",
-      maxAge: 60 * 60 * 24, // 24h, matches createSessionToken's owner expiry
+      maxAge: 60 * 60 * 24 * 30, // 30d, matches createSessionToken's owner expiry
     });
 
     return NextResponse.json({ success: true });
