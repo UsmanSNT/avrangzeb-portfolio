@@ -77,11 +77,16 @@ export async function getMomentsRole(): Promise<MomentsRole | null> {
   return verifySessionToken(token);
 }
 
-/** Constant-time comparison of the submitted password against the configured one. */
+/**
+ * Constant-time comparison of the submitted password against the configured
+ * one. Both sides are trimmed first - env var UIs (Vercel included) commonly
+ * introduce an accidental trailing newline/space on paste, which would
+ * otherwise make a correct password fail purely on length mismatch.
+ */
 export function checkOwnerPassword(candidate: string): boolean {
-  const expected = process.env.MEMORIES_ACCESS_PASSWORD;
+  const expected = process.env.MEMORIES_ACCESS_PASSWORD?.trim();
   if (!expected) return false;
-  const a = Buffer.from(candidate);
+  const a = Buffer.from(candidate.trim());
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
