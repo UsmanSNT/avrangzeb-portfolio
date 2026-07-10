@@ -333,6 +333,38 @@ html.theme-transition *::after {
   animation-delay: 1.1s;
 }
 
+/* Twinkling stars + breathing moon glow for MoonlitSkyline. */
+@keyframes moments-star-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.moments-star {
+  animation-name: moments-star-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes moments-moon-glow {
+  0%, 100% { box-shadow: 0 0 30px 10px rgba(253, 224, 71, 0.25), 0 0 70px 25px rgba(253, 224, 71, 0.1); }
+  50% { box-shadow: 0 0 42px 16px rgba(253, 224, 71, 0.35), 0 0 90px 34px rgba(253, 224, 71, 0.16); }
+}
+
+.moments-moon-glow {
+  animation: moments-moon-glow 5s ease-in-out infinite;
+}
+
+/* Hides the scrollbar on the horizontally-scrolling "Our Story" strip while
+   keeping it scrollable via touch/drag/wheel. */
+.moments-scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.moments-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .moments-petal,
   .moments-phrase,
@@ -341,7 +373,9 @@ html.theme-transition *::after {
   .moments-aura,
   .moments-shimmer,
   .moments-has-entry,
-  .moments-sparkle {
+  .moments-sparkle,
+  .moments-star,
+  .moments-moon-glow {
     animation: none !important;
   }
 }
