@@ -626,21 +626,23 @@ export default function GalleryPage() {
 
       {/* Gallery Viewer Modal */}
       {viewingGallery && viewingGallery.images.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm">
+          {/* Close/prev/next stay fixed to the viewport so they're reachable
+              even while the content below scrolls on short mobile screens. */}
           <button
             onClick={closeGalleryViewer}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+            className="fixed top-4 right-4 z-10 p-2 text-white/70 hover:text-white transition-colors"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
+
           {viewingGallery.images.length > 1 && (
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+                className="fixed left-4 top-1/2 z-10 -translate-y-1/2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -648,7 +650,7 @@ export default function GalleryPage() {
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+                className="fixed right-4 top-1/2 z-10 -translate-y-1/2 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -656,31 +658,35 @@ export default function GalleryPage() {
               </button>
             </>
           )}
-          
-          <div className="max-w-4xl w-full">
-            <img
-              src={viewingGallery.images[currentImageIndex]}
-              alt={viewingGallery.title}
-              className="w-full max-h-[70vh] object-contain rounded-lg"
-            />
-            <div className="text-center mt-4">
-              <h3 className="text-xl font-semibold text-white mb-2">{viewingGallery.title}</h3>
-              <p className="text-slate-400 text-sm max-w-xl mx-auto">{viewingGallery.description}</p>
-            </div>
-            
-            {viewingGallery.images.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                {viewingGallery.images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentImageIndex ? 'bg-cyan-400' : 'bg-slate-600 hover:bg-slate-500'
-                    }`}
-                  />
-                ))}
+
+          <div className="h-full overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div className="max-w-4xl w-full py-14 sm:py-4">
+                <img
+                  src={viewingGallery.images[currentImageIndex]}
+                  alt={viewingGallery.title}
+                  className="w-full max-h-[50vh] sm:max-h-[70vh] object-contain rounded-lg"
+                />
+                <div className="text-center mt-4">
+                  <h3 className="text-xl font-semibold text-white mb-2">{viewingGallery.title}</h3>
+                  <p className="text-slate-400 text-sm max-w-xl mx-auto">{viewingGallery.description}</p>
+                </div>
+
+                {viewingGallery.images.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    {viewingGallery.images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          index === currentImageIndex ? 'bg-cyan-400' : 'bg-slate-600 hover:bg-slate-500'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
