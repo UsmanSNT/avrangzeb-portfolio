@@ -201,6 +201,31 @@ function ProjectCardComponent({
               <div className="absolute bottom-3 right-3 rounded-lg border border-line bg-background/85 px-3 py-1.5 text-xs font-bold text-muted backdrop-blur">
                 {activePreviewIndex + 1} / {previewImages.length}
               </div>
+
+              {previewImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={showPreviousPreview}
+                    aria-label={previewLabels.previous}
+                    className="absolute left-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-line bg-background/80 text-foreground backdrop-blur transition-colors hover:bg-background/95"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={showNextPreview}
+                    aria-label={previewLabels.next}
+                    className="absolute right-2 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-line bg-background/80 text-foreground backdrop-blur transition-colors hover:bg-background/95"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </div>
 
             <div className="flex max-h-[92vh] flex-col overflow-y-auto p-5 sm:p-6">
