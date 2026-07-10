@@ -218,6 +218,11 @@ export const ko = {
     github: "GitHub",
     featured: "대표",
     backToProjects: "프로젝트로 돌아가기",
+    preview: {
+      close: "닫기",
+      previous: "이전",
+      next: "다음",
+    },
     details: {
       overview: "개요",
       problem: "문제",
@@ -273,6 +278,57 @@ export const ko = {
         challenges: ["넓은 여행 정보를 명확하게 제시하기", "시각 섹션을 가볍게 유지하기", "내비게이션 단순화하기"],
         lessonsLearned: ["여행 페이지는 빠르게 훑어볼 수 있어야 합니다", "이미지는 의사결정을 도와야 합니다", "단순한 구조는 방문자 신뢰를 높입니다"],
         futureImprovements: ["지도 기반 탐색 추가", "일정 추천 추가", "다국어 여행 콘텐츠 개선"],
+      },
+      {
+        ...showcaseProjectMeta.autoExport,
+        title: "Auto Export Mobile App UI Redesign",
+        category: "UI / UX 디자인",
+        status: "디자인 완료",
+        shortDescription:
+          "자동차 수출 회사를 위해 만들어진 기존 Figma 모바일 애플리케이션의 시각적 완성도와 디자인 일관성을 개선했습니다.",
+        overview:
+          "이 프로젝트는 자동차 수출 회사의 기존 모바일 애플리케이션 UI를 개선하는 작업이었습니다. 회사에는 이미 Figma 디자인이 있었고, 제 역할은 그 디자인의 시각적 품질, 위계, 일관성을 개선하는 것이었습니다.",
+        problem:
+          "이전 디자인은 색상 조화가 일정하지 않고 여백이 고르지 않았으며, 타이포그래피 위계와 카드 및 버튼 스타일이 약해 전체적으로 덜 정돈되어 보였습니다.",
+        solution:
+          "기존 Figma 디자인의 시각 시스템, 색상 팔레트, 라이트 모드, 다크 모드, 여백, 카드, 버튼, 타이포그래피, 컴포넌트, 배리언트, 전체 일관성을 개선했습니다.",
+        keyFeatures: [
+          "시각 시스템 개선",
+          "색상 조화 개선",
+          "라이트 모드와 다크 모드 정리",
+          "더 깔끔한 카드 디자인",
+          "더 명확한 버튼 위계",
+          "일관된 여백과 타이포그래피",
+        ],
+        challenges: [
+          "앱 전체를 처음부터 디자인했다고 말하지 않고 기존 Figma 디자인을 개선하기",
+          "라이트 모드와 다크 모드를 하나의 시각 방향으로 맞추기",
+          "화면 전반에서 카드, 버튼, 타이포그래피의 일관성 유지하기",
+        ],
+        lessonsLearned: [
+          "작은 여백과 타이포그래피 결정이 전체 품질 인식에 큰 영향을 줍니다",
+          "더 깔끔한 컴포넌트 시스템은 모바일 UI를 이해하기 쉽게 만듭니다",
+          "라이트 모드와 다크 모드는 하나의 시각 시스템으로 설계해야 합니다",
+        ],
+        futureImprovements: [
+          "재사용 가능한 Figma 컴포넌트를 더 자세히 문서화하기",
+          "개선된 화면을 실제 사용자와 검증하기",
+          "향후 구현을 위한 더 상세한 handoff 노트 준비하기",
+        ],
+        facts: [
+          { label: "역할", value: "UI/UX 디자이너" },
+          { label: "플랫폼", value: "모바일 애플리케이션" },
+          { label: "도구", value: "Figma" },
+        ],
+        previewImages: [
+          { src: "/projects/auto-export/cover.png", alt: "Auto Export 모바일 앱 커버 미리보기", group: "커버" },
+          { src: "/projects/auto-export/light-01.png", alt: "Auto Export 모바일 앱 라이트 모드 화면 1", group: "라이트 모드" },
+          { src: "/projects/auto-export/light-02.png", alt: "Auto Export 모바일 앱 라이트 모드 화면 2", group: "라이트 모드" },
+          { src: "/projects/auto-export/light-03.png", alt: "Auto Export 모바일 앱 라이트 모드 화면 3", group: "라이트 모드" },
+          { src: "/projects/auto-export/dark-01.png", alt: "Auto Export 모바일 앱 다크 모드 화면 1", group: "다크 모드" },
+          { src: "/projects/auto-export/dark-02.png", alt: "Auto Export 모바일 앱 다크 모드 화면 2", group: "다크 모드" },
+          { src: "/projects/auto-export/dark-03.png", alt: "Auto Export 모바일 앱 다크 모드 화면 3", group: "다크 모드" },
+        ],
       },
     ],
   },

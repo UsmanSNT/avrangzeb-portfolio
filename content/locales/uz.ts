@@ -218,6 +218,11 @@ export const uz = {
     github: "GitHub",
     featured: "Tanlangan",
     backToProjects: "Loyihalarga qaytish",
+    preview: {
+      close: "Yopish",
+      previous: "Oldingi",
+      next: "Keyingi",
+    },
     details: {
       overview: "Umumiy ko'rinish",
       problem: "Muammo",
@@ -273,6 +278,57 @@ export const uz = {
         challenges: ["Keng sayohat kontentini aniq ko'rsatish", "Vizual bo'limlarni yengil saqlash", "Navigatsiyani sodda qilish"],
         lessonsLearned: ["Sayohat sahifalari tez ko'zdan kechirishga qulay bo'lishi kerak", "Rasmlar qaror qabul qilishga yordam berishi kerak", "Sodda tuzilma ishonchni oshiradi"],
         futureImprovements: ["Xarita orqali qidirishni qo'shish", "Marshrut tavsiyalarini qo'shish", "Ko'p tilli sayohat kontentini yaxshilash"],
+      },
+      {
+        ...showcaseProjectMeta.autoExport,
+        title: "Auto Export Mobile App UI Redesign",
+        category: "UI / UX dizayn",
+        status: "Dizayn yakunlangan",
+        shortDescription:
+          "Avtomobil eksport kompaniyasi uchun yaratilgan mavjud Figma mobil ilovasining vizual sifati va dizayn izchilligini yaxshiladim.",
+        overview:
+          "Bu loyiha avtomobil eksport kompaniyasi uchun mavjud mobil ilova UI'ini yaxshilashga qaratilgan. Kompaniyada Figma dizayni allaqachon bor edi, mening mas'uliyatim esa uning vizual sifati, iyerarxiyasi va izchilligini yaxshilash edi.",
+        problem:
+          "Oldingi dizaynda rang uyg'unligi izchil emas edi, oraliqlar notekis, tipografiya iyerarxiyasi zaif, card va button uslublari esa interfeysni yetarlicha professional ko'rsatmas edi.",
+        solution:
+          "Men mavjud Figma dizaynini vizual tizim, rang palitrasi, light mode, dark mode, spacing, cardlar, buttonlar, tipografiya, componentlar, variantlar va umumiy vizual izchillik orqali yaxshiladim.",
+        keyFeatures: [
+          "Vizual tizimni qayta ishlash",
+          "Rang uyg'unligini yaxshilash",
+          "Light va dark mode'ni yaxshilash",
+          "Tozaroq card dizayni",
+          "Aniqroq button iyerarxiyasi",
+          "Izchil spacing va tipografiya",
+        ],
+        challenges: [
+          "Mavjud Figma dizaynini butunlay noldan yaratilgan deb ko'rsatmasdan yaxshilash",
+          "Light mode va dark mode'ni bir xil vizual yo'nalishda saqlash",
+          "Cardlar, buttonlar va tipografiyani ekranlar bo'ylab izchil qilish",
+        ],
+        lessonsLearned: [
+          "Kichik spacing va tipografiya qarorlari vizual sifatga kuchli ta'sir qiladi",
+          "Tozaroq component tizimi mobil UI'ni tushunarliroq qiladi",
+          "Light va dark mode bitta vizual tizim sifatida ishlab chiqilishi kerak",
+        ],
+        futureImprovements: [
+          "Ko'proq qayta ishlatiladigan Figma componentlarini hujjatlashtirish",
+          "Yaxshilangan ekranlarni real foydalanuvchilar bilan tekshirish",
+          "Kelajakdagi implementation uchun batafsil handoff qaydlarini tayyorlash",
+        ],
+        facts: [
+          { label: "Rol", value: "UI/UX dizayner" },
+          { label: "Platforma", value: "Mobil ilova" },
+          { label: "Vosita", value: "Figma" },
+        ],
+        previewImages: [
+          { src: "/projects/auto-export/cover.png", alt: "Auto Export mobil ilova muqova ko'rinishi", group: "Muqova" },
+          { src: "/projects/auto-export/light-01.png", alt: "Auto Export mobil ilova light mode ekrani 1", group: "Yorug' rejim" },
+          { src: "/projects/auto-export/light-02.png", alt: "Auto Export mobil ilova light mode ekrani 2", group: "Yorug' rejim" },
+          { src: "/projects/auto-export/light-03.png", alt: "Auto Export mobil ilova light mode ekrani 3", group: "Yorug' rejim" },
+          { src: "/projects/auto-export/dark-01.png", alt: "Auto Export mobil ilova dark mode ekrani 1", group: "Qorong'i rejim" },
+          { src: "/projects/auto-export/dark-02.png", alt: "Auto Export mobil ilova dark mode ekrani 2", group: "Qorong'i rejim" },
+          { src: "/projects/auto-export/dark-03.png", alt: "Auto Export mobil ilova dark mode ekrani 3", group: "Qorong'i rejim" },
+        ],
       },
     ],
   },

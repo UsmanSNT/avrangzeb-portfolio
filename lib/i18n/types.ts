@@ -28,6 +28,16 @@ export interface ShowcaseProject {
   demoUrl: string;
   featured: boolean;
   color: string;
+  hasCaseStudyPage?: boolean;
+  facts?: {
+    label: string;
+    value: string;
+  }[];
+  previewImages?: {
+    src: string;
+    alt: string;
+    group: string;
+  }[];
 }
 
 export interface HomeDictionary {
@@ -221,6 +231,11 @@ export interface HomeDictionary {
     github: string;
     featured: string;
     backToProjects: string;
+    preview: {
+      close: string;
+      previous: string;
+      next: string;
+    };
     details: {
       overview: string;
       problem: string;

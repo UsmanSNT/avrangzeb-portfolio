@@ -218,6 +218,11 @@ export const en = {
     github: "GitHub",
     featured: "Featured",
     backToProjects: "Back to projects",
+    preview: {
+      close: "Close",
+      previous: "Previous",
+      next: "Next",
+    },
     details: {
       overview: "Overview",
       problem: "Problem",
@@ -273,6 +278,57 @@ export const en = {
         challenges: ["Presenting broad travel content clearly", "Making visual sections lightweight", "Keeping navigation simple"],
         lessonsLearned: ["Travel pages need fast scanning", "Images should support decisions", "Simple structure improves visitor confidence"],
         futureImprovements: ["Add map-based discovery", "Add itinerary suggestions", "Improve multilingual travel content"],
+      },
+      {
+        ...showcaseProjectMeta.autoExport,
+        title: "Auto Export Mobile App UI Redesign",
+        category: "UI / UX Design",
+        status: "Completed Design",
+        shortDescription:
+          "Improved the visual quality and design consistency of an existing Figma mobile application created for an automobile export company.",
+        overview:
+          "This project focused on improving an existing mobile application's UI for an automobile export company. The company already had a Figma design, and my responsibility was to improve its visual quality, hierarchy, and consistency.",
+        problem:
+          "The previous design had inconsistent color harmony, uneven spacing, weak typography hierarchy, and card and button styles that made the interface feel less polished.",
+        solution:
+          "I improved the existing Figma design by refining the visual system, color palette, light mode, dark mode, spacing, cards, buttons, typography, components, variants, and overall visual consistency.",
+        keyFeatures: [
+          "Visual system redesign",
+          "Improved color harmony",
+          "Light and dark mode refinement",
+          "Cleaner card design",
+          "Clearer button hierarchy",
+          "More consistent spacing and typography",
+        ],
+        challenges: [
+          "Improving an existing Figma design without claiming a full-from-scratch build",
+          "Keeping light mode and dark mode visually aligned",
+          "Making cards, buttons, and typography feel consistent across screens",
+        ],
+        lessonsLearned: [
+          "Small spacing and typography decisions can strongly affect perceived quality",
+          "A cleaner component system makes mobile UI easier to understand",
+          "Light and dark modes need to be designed as one visual system",
+        ],
+        futureImprovements: [
+          "Document more reusable Figma components",
+          "Validate the improved screens with real users",
+          "Prepare more detailed handoff notes for future implementation",
+        ],
+        facts: [
+          { label: "Role", value: "UI/UX Designer" },
+          { label: "Platform", value: "Mobile Application" },
+          { label: "Tools", value: "Figma" },
+        ],
+        previewImages: [
+          { src: "/projects/auto-export/cover.png", alt: "Auto Export mobile app cover preview", group: "Cover" },
+          { src: "/projects/auto-export/light-01.png", alt: "Auto Export mobile app light mode screen 1", group: "Light Mode" },
+          { src: "/projects/auto-export/light-02.png", alt: "Auto Export mobile app light mode screen 2", group: "Light Mode" },
+          { src: "/projects/auto-export/light-03.png", alt: "Auto Export mobile app light mode screen 3", group: "Light Mode" },
+          { src: "/projects/auto-export/dark-01.png", alt: "Auto Export mobile app dark mode screen 1", group: "Dark Mode" },
+          { src: "/projects/auto-export/dark-02.png", alt: "Auto Export mobile app dark mode screen 2", group: "Dark Mode" },
+          { src: "/projects/auto-export/dark-03.png", alt: "Auto Export mobile app dark mode screen 3", group: "Dark Mode" },
+        ],
       },
     ],
   },

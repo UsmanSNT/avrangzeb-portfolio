@@ -25,4 +25,18 @@ export const showcaseProjectMeta = {
     featured: false,
     color: "from-cyan-500 to-blue-500",
   },
+  autoExport: {
+    id: 3,
+    slug: "auto-export-mobile-app-ui-redesign",
+    categoryKey: "mobile",
+    image: "/projects/auto-export/cover.png",
+    technologies: ["Figma", "UI/UX", "Mobile", "Design System", "Dark Mode", "Light Mode"],
+    status: "",
+    year: "2026",
+    githubUrl: "",
+    demoUrl: "",
+    featured: false,
+    color: "from-sky-500 to-emerald-500",
+    hasCaseStudyPage: false,
+  },
 } as const;

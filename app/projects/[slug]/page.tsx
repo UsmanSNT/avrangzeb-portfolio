@@ -11,13 +11,14 @@ type ProjectPageProps = {
 };
 
 const defaultDictionary = getHomeDictionary(defaultLocale);
+const caseStudyProjects = defaultDictionary.myProjects.projects.filter((project) => project.hasCaseStudyPage !== false);
 
 function getProjectBySlug(slug: string) {
-  return defaultDictionary.myProjects.projects.find((project) => project.slug === slug);
+  return caseStudyProjects.find((project) => project.slug === slug);
 }
 
 export function generateStaticParams() {
-  return defaultDictionary.myProjects.projects.map((project) => ({
+  return caseStudyProjects.map((project) => ({
     slug: project.slug,
   }));
 }

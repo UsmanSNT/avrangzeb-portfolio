@@ -81,6 +81,7 @@ export function MyProjectsSection({ t }: MyProjectsSectionProps) {
                 githubLabel={t.myProjects.github}
                 caseStudyLabel={t.myProjects.caseStudy}
                 featuredLabel={t.myProjects.featured}
+                previewLabels={t.myProjects.preview}
               />
             ))}
           </div>
