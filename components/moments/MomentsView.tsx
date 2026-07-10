@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { compressImage } from "@/lib/upload";
 import type { MomentsRole } from "@/lib/moments-auth";
 import { RomanticBackground } from "./RomanticBackground";
+import { MoonlitSkyline } from "./MoonlitSkyline";
 import { MusicBoxCouple } from "./MusicBoxCouple";
 
 interface MomentEntry {
@@ -68,6 +70,9 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const storyRef = useRef<HTMLDivElement>(null);
+
   const today = useMemo(() => startOfDay(new Date()), []);
   const start = useMemo(() => (startDate ? startOfDay(parseDateKey(startDate)) : today), [startDate, today]);
   const [viewYear, setViewYear] = useState(() => today.getFullYear());
@@ -106,6 +111,15 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const canGoPrev = !startDate || viewYear > start.getFullYear() || (viewYear === start.getFullYear() && viewMonth > start.getMonth());
   const canGoNext = viewYear < today.getFullYear() || (viewYear === today.getFullYear() && viewMonth < today.getMonth());
 
+  const storyEntries = useMemo(
+    () =>
+      Object.values(entries)
+        .filter((e) => e.image_url)
+        .sort((a, b) => (a.entry_date < b.entry_date ? 1 : -1))
+        .slice(0, 10),
+    [entries]
+  );
+
   const goPrevMonth = () => {
     if (!canGoPrev) return;
     if (viewMonth === 0) { setViewYear((y) => y - 1); setViewMonth(11); }
@@ -117,9 +131,7 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     else setViewMonth((m) => m + 1);
   };
 
-  const openDay = (day: number) => {
-    const date = new Date(viewYear, viewMonth, day);
-    const key = toDateKey(date);
+  const openEntry = (key: string) => {
     setSelectedDateKey(key);
     const existing = entries[key];
     setFormContent(existing?.content || "");
@@ -127,6 +139,19 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     setFormError(null);
     setIsEditing(role === "owner" && !existing);
   };
+
+  const openDay = (day: number) => {
+    openEntry(toDateKey(new Date(viewYear, viewMonth, day)));
+  };
+
+  const openToday = () => {
+    setViewYear(today.getFullYear());
+    setViewMonth(today.getMonth());
+    openEntry(toDateKey(today));
+  };
+
+  const scrollToCalendar = () => calendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToStory = () => storyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const closeDay = () => {
     setSelectedDateKey(null);
@@ -257,25 +282,64 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-200/40">
           {role === "guest" ? "Mehmon" : "Xush kelibsiz"}
         </span>
+        <div className="text-center">
+          <p className="flex items-center justify-center gap-1.5 text-sm font-bold text-rose-100">
+            <span aria-hidden="true">♡</span> Bizning kundaligimiz
+          </p>
+          <p className="hidden text-[10px] uppercase tracking-[0.25em] text-rose-200/35 sm:block">
+            Har lahza, abadiyatimiz
+          </p>
+        </div>
         <button
           type="button"
           onClick={lock}
-          className="rounded-full border border-rose-400/20 px-3 py-1.5 text-xs font-semibold text-rose-200/60 transition-colors hover:border-rose-400/40 hover:text-rose-100"
+          aria-label="Yopish"
+          className="grid h-8 w-8 place-items-center rounded-full border border-rose-400/20 text-rose-200/60 transition-colors hover:border-rose-400/40 hover:text-rose-100"
         >
-          Yopish
+          ⏻
         </button>
       </header>
 
       <main className="relative z-10 mx-auto max-w-2xl px-4 sm:px-8">
-        <div className="flex flex-col items-center text-center">
-          <MusicBoxCouple />
-          <span className="animate-heartbeat mt-2 text-6xl" aria-hidden="true">
-            ❤️‍🔥
-          </span>
+        {/* Hero: moonlit skyline behind the couple + headline */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative flex min-h-[22rem] flex-col overflow-hidden rounded-[2rem] border border-rose-400/15 shadow-xl shadow-black/30"
+        >
+          <MoonlitSkyline />
 
+          <div className="relative z-10 px-6 pt-8 text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-rose-200/50">
+              Har lahza, abadiyatimiz
+            </p>
+            <h1 className="mt-3 font-serif text-3xl italic leading-tight text-rose-50 [text-shadow:0_2px_6px_rgba(0,0,0,0.9),0_6px_28px_rgba(0,0,0,0.75)] sm:text-4xl">
+              Doim <span className="moments-shimmer bg-clip-text text-transparent">sen</span> bo&apos;lgansan
+            </h1>
+          </div>
+
+          <div className="relative z-10 mt-auto flex flex-col items-center pb-6 pt-8">
+            <MusicBoxCouple />
+            <span className="animate-heartbeat mt-2 text-5xl" aria-hidden="true">
+              ❤️‍🔥
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Together-for stat card, overlapping the hero like a locket clasp */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 -mt-8 mx-4 overflow-hidden rounded-[1.75rem] border border-rose-400/20 bg-gradient-to-b from-[#241019]/95 to-[#1a0c12]/95 p-6 text-center shadow-2xl shadow-black/40 ring-1 ring-white/[0.03] backdrop-blur-xl"
+        >
           {dayCount !== null && (
             <>
-              <p className="mt-6 text-6xl font-black leading-none text-transparent bg-gradient-to-r from-rose-300 via-rose-200 to-amber-200 bg-clip-text sm:text-7xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-rose-200/50">
+                Birga bo&apos;lganimizga
+              </p>
+              <p className="moments-shimmer mt-2 bg-clip-text text-6xl font-black leading-none text-transparent sm:text-7xl">
                 {dayCount}
               </p>
               <p className="mt-2 text-sm font-semibold uppercase tracking-[0.25em] text-rose-200/60">
@@ -288,10 +352,15 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
             {start.toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
             {"'"}dan beri
           </p>
-        </div>
+        </motion.div>
 
         {role === "owner" && (
-          <div className="mt-8 rounded-2xl border border-rose-400/15 bg-white/[0.02] p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-6 rounded-2xl border border-rose-400/15 bg-white/[0.02] p-4"
+          >
             {shareLink ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
@@ -321,11 +390,68 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
             <p className="mt-2 text-center text-[11px] text-rose-200/35">
               Havola faqat bir marta ochiladi va faqat ko&apos;rish uchun
             </p>
-          </div>
+          </motion.div>
+        )}
+
+        {/* Our Story: a horizontal reel of the memories that hold a photo */}
+        {storyEntries.length > 0 && (
+          <motion.div
+            ref={storyRef}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-8 scroll-mt-6"
+          >
+            <div className="flex items-center justify-between px-1">
+              <p className="font-serif text-lg italic text-rose-100">Bizning hikoyamiz</p>
+              <button
+                type="button"
+                onClick={scrollToCalendar}
+                className="text-xs font-semibold text-rose-200/50 transition-colors hover:text-rose-100"
+              >
+                Barchasi →
+              </button>
+            </div>
+
+            <div className="moments-scrollbar-hide mt-3 flex gap-3 overflow-x-auto pb-2">
+              {storyEntries.map((entry) => {
+                const date = parseDateKey(entry.entry_date);
+                return (
+                  <button
+                    key={entry.entry_date}
+                    type="button"
+                    onClick={() => openEntry(entry.entry_date)}
+                    className="group relative h-36 w-28 shrink-0 overflow-hidden rounded-2xl border border-rose-400/20 text-left shadow-lg shadow-black/30 transition-transform hover:scale-[1.03]"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={entry.image_url ?? undefined}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-rose-50">
+                        {date.toLocaleDateString("uz-UZ", { day: "numeric", month: "short" })}
+                      </p>
+                      <p className="truncate text-[10px] text-rose-100/80">{entry.content}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
         )}
 
         {/* Calendar */}
-        <div className="mt-10 rounded-3xl border border-rose-400/15 bg-white/[0.02] p-4 sm:p-6">
+        <motion.div
+          ref={calendarRef}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-8 scroll-mt-6 overflow-hidden rounded-3xl border border-rose-400/15 bg-white/[0.02] p-4 shadow-lg shadow-black/10 ring-1 ring-white/[0.02] sm:p-6"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" aria-hidden="true" />
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -377,13 +503,13 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                       type="button"
                       onClick={() => (!isFuture || role === "owner") && !isBeforeStart && openDay(day)}
                       disabled={isBeforeStart}
-                      className={`relative aspect-square rounded-lg text-xs font-semibold transition-all ${
+                      className={`relative aspect-square rounded-lg text-xs font-semibold transition-all duration-200 ${
                         isBeforeStart
                           ? "cursor-not-allowed text-rose-200/10"
                           : hasEntry
-                            ? "bg-gradient-to-br from-rose-500/30 to-amber-400/20 text-rose-50 hover:scale-105"
-                            : "text-rose-200/50 hover:bg-white/5"
-                      } ${isToday ? "ring-1 ring-rose-300/50" : ""} ${isStart ? "ring-1 ring-amber-300/60" : ""}`}
+                            ? "moments-has-entry bg-gradient-to-br from-rose-500/30 to-amber-400/20 text-rose-50 hover:scale-110 hover:from-rose-500/40 hover:to-amber-400/30"
+                            : "text-rose-200/50 hover:scale-105 hover:bg-white/5"
+                      } ${isToday ? "ring-1 ring-rose-300/60 shadow-[0_0_10px_rgba(251,113,133,0.35)]" : ""} ${isStart ? "ring-1 ring-amber-300/60" : ""}`}
                     >
                       {day}
                       {hasEntry && (
@@ -395,20 +521,80 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                   );
                 })}
           </div>
-        </div>
+        </motion.div>
+
+        {/* Quick actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-8 flex items-center justify-center gap-4"
+        >
+          {storyEntries.length > 0 && (
+            <button
+              type="button"
+              onClick={scrollToStory}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-rose-400/15 bg-white/[0.02] px-4 py-3 text-rose-200/60 transition-colors hover:border-rose-400/30 hover:text-rose-100"
+            >
+              <span className="text-lg" aria-hidden="true">🖼️</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide">Suratlar</span>
+            </button>
+          )}
+
+          {role === "owner" && (
+            <button
+              type="button"
+              onClick={openToday}
+              className="flex flex-col items-center gap-1.5 rounded-full bg-gradient-to-br from-rose-500 to-amber-400 px-6 py-4 text-rose-950 shadow-lg shadow-rose-500/30 transition-transform hover:scale-105"
+            >
+              <span className="text-2xl" aria-hidden="true">❤️</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide">Yangi yozuv</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={scrollToCalendar}
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-rose-400/15 bg-white/[0.02] px-4 py-3 text-rose-200/60 transition-colors hover:border-rose-400/30 hover:text-rose-100"
+          >
+            <span className="text-lg" aria-hidden="true">📅</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide">Kundalik</span>
+          </button>
+        </motion.div>
+
+        <p className="mt-10 text-center font-serif text-sm italic text-rose-200/40">
+          &ldquo;Sen mening bugunim va barcha ertaklarimsan&rdquo;
+        </p>
       </main>
 
-      {selectedDateKey && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={closeDay}>
-          <div
-            className="w-full max-w-md rounded-3xl border border-rose-400/20 bg-[#1f0f16] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {selectedDateKey && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            onClick={closeDay}
           >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-md rounded-3xl border border-rose-400/20 bg-[#1f0f16] p-6 shadow-2xl ring-1 ring-white/[0.03]"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-rose-100">
                 {parseDateKey(selectedDateKey).toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
               </p>
-              <button type="button" onClick={closeDay} className="text-rose-200/40 hover:text-rose-100" aria-label="Yopish">
+              <button
+                type="button"
+                onClick={closeDay}
+                className="grid h-7 w-7 place-items-center rounded-full text-rose-200/40 transition-all hover:rotate-90 hover:bg-white/5 hover:text-rose-100"
+                aria-label="Yopish"
+              >
                 ✕
               </button>
             </div>
@@ -496,9 +682,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                 )}
               </div>
             )}
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
