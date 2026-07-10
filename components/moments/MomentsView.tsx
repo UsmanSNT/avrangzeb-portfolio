@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { compressImage } from "@/lib/upload";
 import type { MomentsRole } from "@/lib/moments-auth";
 import { RomanticBackground } from "./RomanticBackground";
@@ -267,31 +268,46 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       </header>
 
       <main className="relative z-10 mx-auto max-w-2xl px-4 sm:px-8">
-        <div className="flex flex-col items-center text-center">
-          <MusicBoxCouple />
-          <span className="animate-heartbeat mt-2 text-6xl" aria-hidden="true">
-            ❤️‍🔥
-          </span>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden rounded-[2rem] border border-rose-400/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 shadow-xl shadow-black/20 ring-1 ring-white/[0.02]"
+        >
+          <div className="moments-aura pointer-events-none absolute left-1/2 top-10 h-40 w-40 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(244,63,94,0.16),transparent_70%)] blur-2xl" aria-hidden="true" />
+          <div className="moments-aura moments-aura-delay pointer-events-none absolute right-4 top-24 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.12),transparent_70%)] blur-2xl" aria-hidden="true" />
 
-          {dayCount !== null && (
-            <>
-              <p className="mt-6 text-6xl font-black leading-none text-transparent bg-gradient-to-r from-rose-300 via-rose-200 to-amber-200 bg-clip-text sm:text-7xl">
-                {dayCount}
-              </p>
-              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.25em] text-rose-200/60">
-                kun birga
-              </p>
-            </>
-          )}
+          <div className="relative flex flex-col items-center text-center">
+            <MusicBoxCouple />
+            <span className="animate-heartbeat mt-2 text-6xl" aria-hidden="true">
+              ❤️‍🔥
+            </span>
 
-          <p className="mt-4 text-sm text-rose-200/40">
-            {start.toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
-            {"'"}dan beri
-          </p>
-        </div>
+            {dayCount !== null && (
+              <>
+                <p className="moments-shimmer mt-6 bg-clip-text text-6xl font-black leading-none text-transparent sm:text-7xl">
+                  {dayCount}
+                </p>
+                <p className="mt-2 text-sm font-semibold uppercase tracking-[0.25em] text-rose-200/60">
+                  kun birga
+                </p>
+              </>
+            )}
+
+            <p className="mt-4 text-sm text-rose-200/40">
+              {start.toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
+              {"'"}dan beri
+            </p>
+          </div>
+        </motion.div>
 
         {role === "owner" && (
-          <div className="mt-8 rounded-2xl border border-rose-400/15 bg-white/[0.02] p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-6 rounded-2xl border border-rose-400/15 bg-white/[0.02] p-4"
+          >
             {shareLink ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
@@ -321,11 +337,17 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
             <p className="mt-2 text-center text-[11px] text-rose-200/35">
               Havola faqat bir marta ochiladi va faqat ko&apos;rish uchun
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Calendar */}
-        <div className="mt-10 rounded-3xl border border-rose-400/15 bg-white/[0.02] p-4 sm:p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-8 overflow-hidden rounded-3xl border border-rose-400/15 bg-white/[0.02] p-4 shadow-lg shadow-black/10 ring-1 ring-white/[0.02] sm:p-6"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" aria-hidden="true" />
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -377,13 +399,13 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                       type="button"
                       onClick={() => (!isFuture || role === "owner") && !isBeforeStart && openDay(day)}
                       disabled={isBeforeStart}
-                      className={`relative aspect-square rounded-lg text-xs font-semibold transition-all ${
+                      className={`relative aspect-square rounded-lg text-xs font-semibold transition-all duration-200 ${
                         isBeforeStart
                           ? "cursor-not-allowed text-rose-200/10"
                           : hasEntry
-                            ? "bg-gradient-to-br from-rose-500/30 to-amber-400/20 text-rose-50 hover:scale-105"
-                            : "text-rose-200/50 hover:bg-white/5"
-                      } ${isToday ? "ring-1 ring-rose-300/50" : ""} ${isStart ? "ring-1 ring-amber-300/60" : ""}`}
+                            ? "moments-has-entry bg-gradient-to-br from-rose-500/30 to-amber-400/20 text-rose-50 hover:scale-110 hover:from-rose-500/40 hover:to-amber-400/30"
+                            : "text-rose-200/50 hover:scale-105 hover:bg-white/5"
+                      } ${isToday ? "ring-1 ring-rose-300/60 shadow-[0_0_10px_rgba(251,113,133,0.35)]" : ""} ${isStart ? "ring-1 ring-amber-300/60" : ""}`}
                     >
                       {day}
                       {hasEntry && (
@@ -395,20 +417,37 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                   );
                 })}
           </div>
-        </div>
+        </motion.div>
       </main>
 
-      {selectedDateKey && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={closeDay}>
-          <div
-            className="w-full max-w-md rounded-3xl border border-rose-400/20 bg-[#1f0f16] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {selectedDateKey && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            onClick={closeDay}
           >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-md rounded-3xl border border-rose-400/20 bg-[#1f0f16] p-6 shadow-2xl ring-1 ring-white/[0.03]"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-rose-100">
                 {parseDateKey(selectedDateKey).toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
               </p>
-              <button type="button" onClick={closeDay} className="text-rose-200/40 hover:text-rose-100" aria-label="Yopish">
+              <button
+                type="button"
+                onClick={closeDay}
+                className="grid h-7 w-7 place-items-center rounded-full text-rose-200/40 transition-all hover:rotate-90 hover:bg-white/5 hover:text-rose-100"
+                aria-label="Yopish"
+              >
                 ✕
               </button>
             </div>
@@ -496,9 +535,10 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
                 )}
               </div>
             )}
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
