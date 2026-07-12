@@ -184,10 +184,10 @@ function ProjectCardComponent({
           aria-label={project.title}
         >
           <div
-            className="grid max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-line bg-background shadow-2xl shadow-elevation/40 lg:grid-cols-[1.05fr_0.95fr]"
+            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-line bg-background shadow-2xl shadow-elevation/40 lg:grid lg:grid-cols-[1.05fr_0.95fr]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="relative min-h-[360px] bg-surface sm:min-h-[520px]">
+            <div className="relative h-[38vh] shrink-0 bg-surface lg:h-auto lg:min-h-[520px]">
               <Image
                 src={activePreview.src}
                 alt={activePreview.alt}
@@ -228,7 +228,7 @@ function ProjectCardComponent({
               )}
             </div>
 
-            <div className="flex max-h-[92vh] flex-col overflow-y-auto p-5 sm:p-6">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5 sm:p-6 lg:max-h-[92vh]">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <p className="mb-2 inline-flex rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-text">
