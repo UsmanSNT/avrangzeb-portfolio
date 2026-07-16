@@ -1,0 +1,11 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="640" fill="#0f172a"/>
+  <rect x="72" y="72" width="816" height="496" rx="32" fill="#111827" stroke="#84cc16" stroke-opacity=".35" stroke-width="2"/>
+  <circle cx="330" cy="270" r="96" fill="#f97316" fill-opacity=".22" stroke="#fb923c" stroke-width="16"/>
+  <path d="M330 200c26 0 46 30 46 70s-20 70-46 70-46-30-46-70 20-70 46-70z" fill="#84cc16" fill-opacity=".3"/>
+  <path d="M330 196c10-18 32-24 48-18" stroke="#a3e635" stroke-width="12" stroke-linecap="round"/>
+  <rect x="470" y="360" width="300" height="70" rx="16" fill="#84cc16" fill-opacity=".18" stroke="#a3e635" stroke-opacity=".5"/>
+  <path d="M506 395h228" stroke="#ecfccb" stroke-width="14" stroke-linecap="round"/>
+  <path d="M470 230h230M470 262h230M470 294h160" stroke="#fed7aa" stroke-width="16" stroke-linecap="round"/>
+  <text x="120" y="524" fill="#ecfeff" font-family="Arial, sans-serif" font-size="44" font-weight="700">INTERFRUIT</text>
+</svg>

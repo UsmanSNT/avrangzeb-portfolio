@@ -330,6 +330,74 @@ export const ko = {
           { src: "/projects/auto-export/dark-03.png", alt: "Auto Export 모바일 앱 다크 모드 화면 3", group: "다크 모드" },
         ],
       },
+      {
+        ...showcaseProjectMeta.interfruit,
+        title: "INTERFRUIT",
+        category: "기업 웹사이트",
+        shortDescription:
+          "우즈베키스탄과 한국 간 과일 수출입 회사를 위한 4개 언어 마케팅 및 리드 생성 웹사이트입니다.",
+        overview:
+          "INTERFRUIT는 우즈베키스탄과 한국 사이에서 활동하는 과일 수출입 회사를 위한 완전한 기능의 기업 웹사이트입니다. 제품, 수출 프로세스, 서류, 은행 정보, 문의 접수를 한 곳에 모았습니다.",
+        problem:
+          "국제 무역 회사는 잠재 파트너를 위해 제품, 수출 프로세스, 서류에 관한 신뢰할 수 있는 다국어 공식 정보원과 실시간으로 문의를 받을 수 있는 방법이 필요했습니다.",
+        solution:
+          "Next.js App Router의 동적 [locale] 세그먼트를 사용해 4개 언어(우즈베크어/영어/러시아어/한국어) 사이트를 구축했습니다. 문의 양식은 Drizzle ORM을 통해 Neon Postgres 데이터베이스에 실시간으로 기록되며, 제품과 서류는 실제 사진과 함께 제공됩니다.",
+        keyFeatures: [
+          "동적 [locale] 세그먼트를 통한 4개 언어 i18n (uz/en/ru/ko)",
+          "Neon Postgres에 실시간으로 기록되는 문의 양식",
+          "실제 사진이 포함된 수출 서류 및 제품 갤러리",
+          "홈페이지의 자동 회전 이미지 캐러셀",
+        ],
+        challenges: [
+          "네 개 언어를 동일한 품질로 번역하고 관리하기",
+          "백엔드(문의 양식)를 가볍고 빠르게 유지하기",
+          "실제 서류와 사진을 전문적으로 배치하기",
+        ],
+        lessonsLearned: [
+          "Next.js App Router의 [locale] 세그먼트는 다국어 사이트 관리를 훨씬 쉽게 만들어줍니다",
+          "Drizzle + Neon은 작은 백엔드 요구사항에 매우 가벼운 솔루션입니다",
+          "실제 콘텐츠(사진, 서류)는 placeholder 콘텐츠보다 훨씬 더 신뢰를 줍니다",
+        ],
+        futureImprovements: [
+          "관리자 패널을 통한 제품 가격/카탈로그 관리",
+          "문의 양식 제출에 대한 이메일/텔레그램 알림 추가",
+          "SEO 및 페이지 속도 추가 최적화",
+        ],
+      },
+      {
+        ...showcaseProjectMeta.turboCarsChat,
+        title: "Turbo Cars Chat",
+        category: "사내 비즈니스 플랫폼",
+        shortDescription:
+          "실시간 채팅, 일일 보고서, 10개 이상의 비즈니스 모듈을 결합한 자동차 비즈니스용 완전한 직원 관리 플랫폼입니다.",
+        overview:
+          "Turbo Cars Chat는 단일 HTML 파일 포털을 완전한 풀스택 애플리케이션으로 전환한 프로젝트입니다. 이 플랫폼은 인증, 실시간 채팅, 일일 보고서, 재무, 마케팅, 재고, 고객 데이터베이스 등 수십 개의 비즈니스 모듈을 하나로 통합합니다.",
+        problem:
+          "자동차 회사의 내부 프로세스(일일 보고, 재무, 재고, 고객)는 흩어져 있고 표준화되지 않았으며, 직원을 위한 빠르고 권한이 통제된 커뮤니케이션 도구가 없었습니다.",
+        solution:
+          "React + Vite 프런트엔드와 Node.js/Express + Socket.IO 백엔드로 완전한 플랫폼을 구축했습니다. 3단계 역할 시스템(User → Worker → Admin)이 서버와 클라이언트 양쪽에서 권한을 통제하며, PostgreSQL(Neon)이 모든 모듈의 데이터를 저장합니다.",
+        keyFeatures: [
+          "그룹 및 개인 메시지, 읽지 않은 메시지 카운터를 갖춘 실시간 채팅(Socket.IO)",
+          "3단계 역할 시스템 (User → Worker → Admin)",
+          "Daily Log, News, Finance, Marketing, Inventory, Clients, Files, Achievements 등 10개 이상의 비즈니스 모듈",
+          "완전한 프로덕션 배포(Netlify + Render + Neon), 모바일 반응형 디자인",
+        ],
+        challenges: [
+          "단일 정적 HTML 파일을 완전히 인증된 풀스택 시스템으로 전환하기",
+          "여러 역할과 모듈에서 실시간 메시징을 안정적으로 유지하기",
+          "10개 이상의 모듈을 하나의 일관된 아키텍처로 유지하기",
+        ],
+        lessonsLearned: [
+          "초기 단계에서 역할 시스템과 함께 실시간 기능(Socket.IO)을 계획하는 것이 중요합니다",
+          "Prisma + Zod 유효성 검사는 백엔드 신뢰성을 크게 향상시킵니다",
+          "큰 애플리케이션을 모듈로 나누면 장기적인 유지보수가 훨씬 쉬워집니다",
+        ],
+        futureImprovements: [
+          "다국어 지원 추가",
+          "네이티브 모바일 앱 버전 개발",
+          "모듈을 위한 상세 분석 대시보드 추가",
+        ],
+      },
     ],
   },
   contact: {
