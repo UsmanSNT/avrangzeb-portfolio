@@ -330,6 +330,74 @@ export const en = {
           { src: "/projects/auto-export/dark-03.png", alt: "Auto Export mobile app dark mode screen 3", group: "Dark Mode" },
         ],
       },
+      {
+        ...showcaseProjectMeta.interfruit,
+        title: "INTERFRUIT",
+        category: "Company Website",
+        shortDescription:
+          "A 4-language marketing and lead-generation website for a fruit export/import company connecting Uzbekistan and South Korea.",
+        overview:
+          "INTERFRUIT is a full-featured corporate website built for a fruit export/import company operating between Uzbekistan and South Korea. It brings together products, the export process, documentation, banking details, and inquiry handling in one place.",
+        problem:
+          "An international trading company needed a trustworthy, multilingual, and official source of information for potential partners - covering products, the export process, and documentation - along with a way to capture inquiries in real time.",
+        solution:
+          "I built a 4-language (Uzbek/English/Russian/Korean) site on Next.js App Router using a dynamic [locale] segment. The contact form writes to a Neon Postgres database in real time via Drizzle ORM, and products and documents are presented with real photos.",
+        keyFeatures: [
+          "4-language i18n (uz/en/ru/ko) via a dynamic [locale] segment",
+          "Contact form that writes to Neon Postgres in real time",
+          "Export documents and product gallery with real photos",
+          "Auto-rotating image carousel on the homepage",
+        ],
+        challenges: [
+          "Translating and managing four languages to the same quality bar",
+          "Keeping the backend (contact form) lightweight and fast",
+          "Presenting real documents and photos in a professional layout",
+        ],
+        lessonsLearned: [
+          "Next.js App Router's [locale] segment makes multilingual sites much easier to manage",
+          "Drizzle + Neon is a very lightweight solution for small backend needs",
+          "Real content (photos, documents) builds trust far more than placeholder content",
+        ],
+        futureImprovements: [
+          "Manage product prices/catalogs through an admin panel",
+          "Add email/Telegram notifications for contact form submissions",
+          "Further optimize SEO and page speed",
+        ],
+      },
+      {
+        ...showcaseProjectMeta.turboCarsChat,
+        title: "Turbo Cars Chat",
+        category: "Internal Business Platform",
+        shortDescription:
+          "A full-featured staff management platform for an automotive business, combining real-time chat, daily reports, and 10+ business modules.",
+        overview:
+          "Turbo Cars Chat is a project that transformed a single-HTML-file portal into a full-stack application. The platform combines authentication, real-time chat, daily reports, finance, marketing, inventory, and a client database into one system with dozens of business modules.",
+        problem:
+          "The automotive company's internal processes (daily reporting, finance, inventory, clients) were scattered and unstandardized, and there was no fast, access-controlled communication tool for staff.",
+        solution:
+          "I built a complete platform on a React + Vite frontend and a Node.js/Express + Socket.IO backend. A three-tier role system (User → Worker → Admin) enforces permissions on both server and client, with PostgreSQL (Neon) storing data for every module.",
+        keyFeatures: [
+          "Real-time chat with group and direct messages, unread counters (Socket.IO)",
+          "Three-tier role system (User → Worker → Admin)",
+          "10+ business modules: Daily Log, News, Finance, Marketing, Inventory, Clients, Files, Achievements, and more",
+          "Full production deployment (Netlify + Render + Neon), mobile-responsive design",
+        ],
+        challenges: [
+          "Migrating a single static HTML file into a fully authenticated full-stack system",
+          "Keeping real-time messaging stable across multiple roles and modules",
+          "Maintaining 10+ modules within one consistent architecture",
+        ],
+        lessonsLearned: [
+          "Planning real-time features (Socket.IO) alongside the role system early on pays off",
+          "Prisma + Zod validation meaningfully improves backend reliability",
+          "Splitting a large app into modules makes long-term maintenance much easier",
+        ],
+        futureImprovements: [
+          "Add multilingual support",
+          "Build a native mobile app version",
+          "Add a detailed analytics dashboard for the modules",
+        ],
+      },
     ],
   },
   contact: {

@@ -330,6 +330,74 @@ export const uz = {
           { src: "/projects/auto-export/dark-03.png", alt: "Auto Export mobil ilova dark mode ekrani 3", group: "Qorong'i rejim" },
         ],
       },
+      {
+        ...showcaseProjectMeta.interfruit,
+        title: "INTERFRUIT",
+        category: "Kompaniya sayti",
+        shortDescription:
+          "O'zbekistondan Janubiy Koreyaga meva eksport/import qiluvchi kompaniya uchun 4 tilli marketing va lead-generatsiya sayti.",
+        overview:
+          "INTERFRUIT — O'zbekistondan Janubiy Koreyaga meva eksport/import qiluvchi kompaniya uchun yaratilgan to'liq funksional korporativ sayt. Sayt mahsulotlar, eksport jarayoni, hujjatlar, bank rekvizitlari va aloqa so'rovlarini bitta joyda jamlaydi.",
+        problem:
+          "Xalqaro savdo kompaniyasiga potensial hamkorlar uchun ishonchli, ko'p tilli va rasmiy ma'lumot manbai kerak edi — mahsulotlar, eksport jarayoni va hujjatlar haqida, shuningdek so'rovlarni real vaqtda qabul qilish imkoniyati.",
+        solution:
+          "Next.js App Router asosida 4 tilli (o'zbek/ingliz/rus/koreys) sayt qurdim, dinamik [locale] segmenti orqali. Aloqa formasi Drizzle ORM orqali Neon Postgres bazasiga real vaqtda yozadi, mahsulotlar va hujjatlar esa real fotolar bilan taqdim etiladi.",
+        keyFeatures: [
+          "4 tilli i18n (uz/en/ru/ko) — dinamik [locale] segmenti orqali",
+          "Aloqa formasi — Neon Postgres bazasiga real vaqtda yozadi",
+          "Eksport hujjatlari va mahsulotlar galereyasi — real rasmlar bilan",
+          "Bosh sahifada avtomatik almashinadigan rasm carousel'i",
+        ],
+        challenges: [
+          "4 tilni bir xil sifatda tarjima qilish va boshqarish",
+          "Backend'ni (aloqa formasi) yengil va tez saqlash",
+          "Real hujjatlar va rasmlarni professional ko'rinishda joylash",
+        ],
+        lessonsLearned: [
+          "App Router'ning [locale] segmenti ko'p tilli saytlarni boshqarishni soddalashtiradi",
+          "Drizzle + Neon kichik backend ehtiyojlari uchun juda yengil yechim",
+          "Real kontent (rasmlar, hujjatlar) ishonchni sun'iy kontentdan ko'ra kuchliroq oshiradi",
+        ],
+        futureImprovements: [
+          "Mahsulotlar uchun narxlar/kataloglarni admin panel orqali boshqarish",
+          "Aloqa formasi uchun email/Telegram bildirishnomalarini qo'shish",
+          "SEO va sahifa tezligini yanada optimallashtirish",
+        ],
+      },
+      {
+        ...showcaseProjectMeta.turboCarsChat,
+        title: "Turbo Cars Chat",
+        category: "Ichki boshqaruv platformasi",
+        shortDescription:
+          "Avtomobil biznesi uchun real-vaqtli chat, kunlik hisobotlar va 10dan ortiq biznes modulini birlashtirgan to'liq funksional xodimlar boshqaruv platformasi.",
+        overview:
+          "Turbo Cars Chat — bitta HTML fayldan iborat oddiy portalni to'liq full-stack ilovaga aylantirish loyihasi. Platforma autentifikatsiya, real-vaqtli chat, kunlik hisobotlar, moliya, marketing, ombor va mijozlar bazasi kabi o'nlab biznes modulini birlashtiradi.",
+        problem:
+          "Avtomobil kompaniyasining ichki jarayonlari (kunlik hisobot, moliya, ombor, mijozlar) tarqoq va nostandart tarzda yuritilar, xodimlar orasida tezkor va nazoratlanadigan muloqot vositasi yo'q edi.",
+        solution:
+          "Men React + Vite frontend va Node.js/Express + Socket.IO backend asosida to'liq platforma qurdim. Uch bosqichli rol tizimi (User → Worker → Admin) server va klient darajasida huquqlarni nazorat qiladi, PostgreSQL (Neon) esa barcha modullar uchun ma'lumotlarni saqlaydi.",
+        keyFeatures: [
+          "Real-vaqtli chat — guruh va shaxsiy xabarlar, o'qilmagan xabarlar hisoblagichi (Socket.IO)",
+          "Uch bosqichli rol tizimi (User → Worker → Admin)",
+          "10+ biznes moduli: Daily Log, News, Finance, Marketing, Inventory, Clients, Files, Achievements va boshqalar",
+          "To'liq production deploy (Netlify + Render + Neon), mobil-responsive dizayn",
+        ],
+        challenges: [
+          "Bitta statik HTML faylni to'liq autentifikatsiyalangan full-stack tizimga aylantirish",
+          "Real-vaqtli xabarlashuvni ko'p rol va ko'p modul bilan barqaror ishlashi",
+          "10dan ortiq modulni bitta izchil arxitekturada saqlash",
+        ],
+        lessonsLearned: [
+          "Socket.IO orqali real-vaqtli funksiyalarni rol tizimi bilan birga loyihalash boshida rejalashtirish muhim",
+          "Prisma + Zod validatsiyasi backend ishonchliligini sezilarli oshiradi",
+          "Katta ilovani modullarga bo'lish uzoq muddatli qo'llab-quvvatlashni osonlashtiradi",
+        ],
+        futureImprovements: [
+          "Ko'p tillilikni qo'shish",
+          "Mobil ilova (native) versiyasini yaratish",
+          "Modullar uchun batafsil analitika paneli qo'shish",
+        ],
+      },
     ],
   },
   contact: {
