@@ -94,7 +94,21 @@ function FloralPlaceholder() {
   );
 }
 
-function CoverFace({ startLabel, dayCount }: { startLabel: string; dayCount: number | null }) {
+function CoverFace({
+  startLabel,
+  dayCount,
+  coverImageUrl,
+  isOwner,
+  isUploadingCover,
+  onUploadCover,
+}: {
+  startLabel: string;
+  dayCount: number | null;
+  coverImageUrl: string | null;
+  isOwner: boolean;
+  isUploadingCover: boolean;
+  onUploadCover: (e: ChangeEvent<HTMLInputElement>) => void;
+}) {
   return (
     <div className="book-leather-texture relative flex h-full w-full flex-col items-center justify-between rounded-r-lg border-l-[5px] border-[#1c0f12] px-8 py-12">
       <div className="pointer-events-none absolute inset-4 rounded-sm border-2 border-[#B8955A] opacity-30" />
@@ -115,8 +129,30 @@ function CoverFace({ startLabel, dayCount }: { startLabel: string; dayCount: num
       <div className="z-10 relative mb-2 mt-2 transition-transform duration-700 hover:scale-[1.02]">
         <div className="book-animate-shimmer pointer-events-none absolute -inset-1 rounded-t-[105px] rounded-b-xl border border-[#B8955A] opacity-40" />
         <div className="relative flex h-72 w-52 items-center justify-center overflow-hidden rounded-b-lg rounded-t-[100px] border-[3px] border-double border-[#B8955A] bg-[#2A161A] shadow-[0_20px_40px_rgba(0,0,0,0.9)]">
-          <FloralPlaceholder />
+          {coverImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={coverImageUrl}
+              alt=""
+              className="h-full w-full object-cover contrast-[1.15] brightness-[0.95] sepia-[0.3]"
+            />
+          ) : (
+            <FloralPlaceholder />
+          )}
         </div>
+
+        {/* Always-visible (not hover-gated, since touch devices have no
+            hover state) small upload badge, tucked into the frame's corner. */}
+        {isOwner && (
+          <label
+            className="book-font-serif absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1.5 rounded-full border-2 border-[#3A2025] bg-[#F6EBDD] px-3 py-1.5 text-xs font-semibold text-[#3A2025] shadow-[0_5px_15px_rgba(0,0,0,0.6)] transition-all hover:scale-105 hover:bg-white"
+            aria-label={coverImageUrl ? "Muqova rasmini almashtirish" : "Muqovaga surat qo'yish"}
+          >
+            <Camera size={14} />
+            {isUploadingCover && <span>...</span>}
+            <input type="file" accept="image/*" className="hidden" onChange={onUploadCover} disabled={isUploadingCover} />
+          </label>
+        )}
       </div>
 
       <div className="z-10 mb-2 flex w-full flex-col items-center px-6 text-center">
@@ -467,6 +503,16 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Mobile shows one page at a time (see renderPageFace usage below) instead
+  // of the desktop two-page spread, so it needs its own index into the flat
+  // pagesData array - reusing `currentSheet` would only ever expose half the
+  // pages (the "front" or "back" of each spread, never both).
+  const [mobilePageIndex, setMobilePageIndex] = useState(0);
+  const [mobileFlipDirection, setMobileFlipDirection] = useState(1);
+
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<MomentEntry | null>(null);
   const [modalDefaultDate, setModalDefaultDate] = useState("");
@@ -490,18 +536,25 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     let cancelled = false;
     const load = async () => {
       try {
-        const res = await fetch("/api/moments/entries");
-        if (isAuthFailure(res.status)) {
+        const [entriesRes, coverRes] = await Promise.all([
+          fetch("/api/moments/entries"),
+          fetch("/api/moments/cover"),
+        ]);
+        if (isAuthFailure(entriesRes.status)) {
           window.location.reload();
           return;
         }
-        const result = await res.json();
+        const result = await entriesRes.json();
         if (!cancelled && result.success) {
           const map: Record<string, MomentEntry> = {};
           for (const entry of result.data as MomentEntry[]) {
             map[entry.entry_date] = entry;
           }
           setEntries(map);
+        }
+        const coverResult = await coverRes.json().catch(() => null);
+        if (!cancelled && coverResult?.success) {
+          setCoverImageUrl(coverResult.url);
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -513,19 +566,24 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     };
   }, []);
 
+  // Fit-to-screen scale for the book. Desktop scales the 900x600 two-page
+  // spread; mobile scales a single native 450x600 page instead (see
+  // .book-page-single in globals.css) - scaling the whole fixed-size page
+  // rather than fighting individual elements (photo frame, headings, etc.)
+  // with responsive overrides guarantees it always fits, exactly like the
+  // desktop spread already does.
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const mobile = width < 768;
       setIsMobile(mobile);
-      if (containerRef.current) {
-        const padding = mobile ? 20 : 100;
-        const availableWidth = width - padding;
-        const availableHeight = window.innerHeight - 220;
-        const targetScale = mobile
-          ? Math.min(availableWidth / 450, availableHeight / 600) * 0.9
-          : Math.min(availableWidth / 900, availableHeight / 600);
-        setScale(Math.min(targetScale, 1.2));
+      const availableHeight = window.innerHeight - (mobile ? 200 : 220);
+      if (mobile) {
+        const availableWidth = width - 32;
+        setScale(Math.min(availableWidth / 450, availableHeight / 600, 1.2));
+      } else if (containerRef.current) {
+        const availableWidth = width - 100;
+        setScale(Math.min(availableWidth / 900, availableHeight / 600, 1.2));
       }
     };
     window.addEventListener("resize", handleResize);
@@ -555,17 +613,32 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   }, [pagesData]);
 
   const totalSheets = sheets.length;
+  const lastPageIndex = pagesData.length - 1;
 
   const handleNext = () => setCurrentSheet((s) => Math.min(s + 1, totalSheets));
   const handlePrev = () => setCurrentSheet((s) => Math.max(s - 1, 0));
+
+  const mobileNext = () => {
+    setMobileFlipDirection(1);
+    setMobilePageIndex((i) => Math.min(i + 1, lastPageIndex));
+  };
+  const mobilePrev = () => {
+    setMobileFlipDirection(-1);
+    setMobilePageIndex((i) => Math.max(i - 1, 0));
+  };
+
+  const goNext = isMobile ? mobileNext : handleNext;
+  const goPrev = isMobile ? mobilePrev : handlePrev;
+  const isAtStart = isMobile ? mobilePageIndex === 0 : currentSheet === 0;
+  const isAtEnd = isMobile ? mobilePageIndex >= lastPageIndex : currentSheet >= totalSheets;
 
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null) return;
     const distance = touchStart - e.changedTouches[0].clientX;
-    if (distance > 50) handleNext();
-    if (distance < -50) handlePrev();
+    if (distance > 50) goNext();
+    if (distance < -50) goPrev();
     setTouchStart(null);
   };
 
@@ -621,6 +694,7 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         return next;
       });
       setCurrentSheet((s) => Math.min(s, Math.max(0, totalSheets - 1)));
+      setMobilePageIndex((i) => Math.min(i, Math.max(0, lastPageIndex - 1)));
     }
   };
 
@@ -651,6 +725,39 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     }
   };
 
+  const handleCoverUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingCover(true);
+    try {
+      const compressed = await compressImage(file, 1200, 0.85);
+      const formData = new FormData();
+      formData.append("file", compressed);
+      const uploadRes = await fetch("/api/moments/upload", { method: "POST", body: formData });
+      if (isAuthFailure(uploadRes.status)) {
+        window.location.reload();
+        return;
+      }
+      const uploadResult = await uploadRes.json();
+      if (!uploadResult.success) return;
+
+      const saveRes = await fetch("/api/moments/cover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: uploadResult.url }),
+      });
+      if (isAuthFailure(saveRes.status)) {
+        window.location.reload();
+        return;
+      }
+      const saveResult = await saveRes.json();
+      if (saveResult.success) setCoverImageUrl(saveResult.url);
+    } finally {
+      setIsUploadingCover(false);
+      e.target.value = "";
+    }
+  };
+
   const toggleMusic = () => {
     if (!audioRef.current) {
       audioRef.current = new Audio("https://cdn.pixabay.com/download/audio/2022/02/10/audio_5b66d863f6.mp3?filename=soft-romantic-piano-10118.mp3");
@@ -669,7 +776,16 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const renderPageFace = (pageData: PageData, isLeft: boolean) => {
     switch (pageData.type) {
       case "cover":
-        return <CoverFace startLabel={startLabel} dayCount={dayCount} />;
+        return (
+          <CoverFace
+            startLabel={startLabel}
+            dayCount={dayCount}
+            coverImageUrl={coverImageUrl}
+            isOwner={isOwner}
+            isUploadingCover={isUploadingCover}
+            onUploadCover={handleCoverUpload}
+          />
+        );
       case "inside-cover":
         return <InsideCover />;
       case "story-left":
@@ -746,18 +862,30 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
 
       {isLoading ? (
         <p className="book-font-script text-3xl text-[#e8d5cc]/60">Ochilmoqda...</p>
+      ) : isMobile ? (
+        <div className="flex w-full flex-1 flex-col items-center justify-center" style={{ perspective: 1600 }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mobilePageIndex}
+              initial={{ rotateY: mobileFlipDirection > 0 ? 85 : -85, opacity: 0, scale }}
+              animate={{ rotateY: 0, opacity: 1, scale }}
+              exit={{ rotateY: mobileFlipDirection > 0 ? -85 : 85, opacity: 0, scale }}
+              transition={{ duration: 0.45, ease: [0.645, 0.045, 0.355, 1.0] }}
+              className="book-page-single overflow-hidden rounded-lg shadow-[0_25px_60px_rgba(0,0,0,0.7)]"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {renderPageFace(pagesData[mobilePageIndex], true)}
+            </motion.div>
+          </AnimatePresence>
+          <p className="book-font-serif mt-4 text-xs tracking-[0.2em] text-[#e8d5cc]/50">
+            {mobilePageIndex + 1} / {pagesData.length}
+          </p>
+        </div>
       ) : (
         <div className="book-scene flex h-full w-full items-center justify-center">
           <motion.div
             className="book-container"
-            animate={{
-              scale,
-              // On mobile only one page-width (450 of the 900 total) is
-              // visible at a time, so the shift has to scale with `scale`
-              // (a plain "25%" would be relative to the unscaled box and
-              // drift out of alignment as the fit-to-screen scale changes).
-              x: isMobile ? (currentSheet === 0 ? -225 * scale : 225 * scale) : 0,
-            }}
+            animate={{ scale, x: 0 }}
             transition={{ type: "spring", stiffness: 60, damping: 15 }}
           >
             <div className="book-leather-texture absolute right-0 top-0 h-full w-1/2 rounded-r-lg shadow-2xl" style={{ zIndex: 0 }} />
@@ -798,11 +926,11 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       <div className="absolute bottom-8 z-50 flex space-x-6">
         <button
           type="button"
-          onClick={handlePrev}
-          disabled={currentSheet === 0}
+          onClick={goPrev}
+          disabled={isAtStart}
           aria-label="Oldingi"
           className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-            currentSheet === 0
+            isAtStart
               ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
               : "bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
           }`}
@@ -813,18 +941,18 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         <div className="group relative">
           <button
             type="button"
-            onClick={handleNext}
-            disabled={currentSheet >= totalSheets}
+            onClick={goNext}
+            disabled={isAtEnd}
             aria-label="Keyingi"
             className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-              currentSheet >= totalSheets
+              isAtEnd
                 ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
                 : "animate-pulse bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
             }`}
           >
             <ChevronRight size={28} />
           </button>
-          {currentSheet === 0 && (
+          {isAtStart && (
             <span className="book-font-serif absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-[#B8955A]/30 bg-[#17110F] px-3 py-1.5 text-xs text-[#F6EBDD] opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
               Kitobni ochish
             </span>
