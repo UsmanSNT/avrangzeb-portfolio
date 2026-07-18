@@ -135,6 +135,13 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/images/profile.png" />
         <link rel="manifest" href="/manifest.json" />
+        {/* Decorative script/serif fonts for the /moments memory book */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Dancing+Script&display=swap"
+        />
         <meta name="theme-color" content="#081018" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#eef2f8" media="(prefers-color-scheme: light)" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

@@ -423,3 +423,148 @@ html.theme-transition *::after {
     max-height: 24rem;
   }
 }
+
+/* ---------------------------------------------------------------------
+   /moments memory book: a 3D flip-book UI. All classes are prefixed
+   `book-` (or scoped to `.book-*` containers) so they never collide with
+   Tailwind's own utilities (e.g. `font-serif`) or other site styles.
+   --------------------------------------------------------------------- */
+:root {
+  --book-primary-text: #3a2025; /* deep bordeaux */
+  --book-accent: #b8955a; /* antique gold */
+  --book-paper-bg: #f6ebdd; /* soft cream */
+}
+
+.book-font-serif {
+  font-family: "Cormorant Garamond", "Playfair Display", serif;
+}
+
+.book-font-script {
+  font-family: "Great Vibes", cursive;
+}
+
+.book-font-poetic {
+  font-family: "Dancing Script", cursive;
+}
+
+.book-paper-texture {
+  background-color: var(--book-paper-bg);
+  background-image: linear-gradient(
+      90deg,
+      rgba(184, 149, 90, 0.08) 0%,
+      transparent 5%,
+      transparent 95%,
+      rgba(184, 149, 90, 0.08) 100%
+    ),
+    url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  box-shadow: inset 0 0 40px rgba(58, 32, 37, 0.05);
+}
+
+.book-aged-edges {
+  box-shadow: inset 0 0 20px 5px rgba(184, 149, 90, 0.12), inset 0 0 60px rgba(0, 0, 0, 0.03);
+}
+
+.book-leather-texture {
+  background-color: #3a2025;
+  background-image: radial-gradient(circle at 50% 50%, rgba(246, 235, 221, 0.04) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='leather'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.15' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.3 0' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23leather)'/%3E%3C/svg%3E");
+  box-shadow: inset 4px 0 15px rgba(0, 0, 0, 0.7), inset -4px 0 10px rgba(246, 235, 221, 0.05),
+    3px 5px 25px rgba(0, 0, 0, 0.8);
+}
+
+.book-desk-bg {
+  background-color: #17110f;
+  background-image: radial-gradient(circle at 50% 40%, #3a2025 0%, #17110f 65%);
+}
+
+.book-scene {
+  perspective: 2500px;
+  transform-style: preserve-3d;
+}
+
+.book-container {
+  transform-style: preserve-3d;
+  position: relative;
+  width: 900px;
+  height: 600px;
+  flex-shrink: 0;
+}
+
+.book-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+}
+
+.book-page-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.book-page-back {
+  transform: rotateY(180deg);
+}
+
+@keyframes book-shimmer {
+  0% {
+    opacity: 0.5;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.2);
+  }
+  100% {
+    opacity: 0.5;
+    filter: brightness(1);
+  }
+}
+
+.book-animate-shimmer {
+  animation: book-shimmer 4s infinite ease-in-out;
+}
+
+@keyframes book-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+}
+
+.book-animate-breathe {
+  animation: book-breathe 6s infinite ease-in-out;
+}
+
+@keyframes book-petal-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.book-animate-petal {
+  animation: book-petal-sway 5s infinite ease-in-out;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-animate-shimmer,
+  .book-animate-breathe,
+  .book-animate-petal {
+    animation: none !important;
+  }
+}
