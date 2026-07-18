@@ -490,19 +490,6 @@ html.theme-transition *::after {
   flex-shrink: 0;
 }
 
-/* A single page at its native size (half of .book-container), scaled to fit
-   the viewport in the mobile one-page-at-a-time view. Fixed native size +
-   a JS-computed `scale` (same proven approach as .book-container) means
-   every inner page component (built assuming this exact 450x600 canvas)
-   renders identically to desktop, just smaller - no per-component mobile
-   overrides needed, and nothing can silently overflow/clip. flex-shrink:0
-   guards against the same flex-item-crushing bug .book-container had. */
-.book-page-single {
-  width: 450px;
-  height: 600px;
-  flex-shrink: 0;
-}
-
 .book-sheet {
   position: absolute;
   top: 0;
