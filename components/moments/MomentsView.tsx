@@ -864,19 +864,30 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         <p className="book-font-script text-3xl text-[#e8d5cc]/60">Ochilmoqda...</p>
       ) : isMobile ? (
         <div className="flex w-full flex-1 flex-col items-center justify-center" style={{ perspective: 1600 }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={mobilePageIndex}
-              initial={{ rotateY: mobileFlipDirection > 0 ? 85 : -85, opacity: 0, scale }}
-              animate={{ rotateY: 0, opacity: 1, scale }}
-              exit={{ rotateY: mobileFlipDirection > 0 ? -85 : 85, opacity: 0, scale }}
-              transition={{ duration: 0.45, ease: [0.645, 0.045, 0.355, 1.0] }}
-              className="book-page-single overflow-hidden rounded-lg shadow-[0_25px_60px_rgba(0,0,0,0.7)]"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              {renderPageFace(pagesData[mobilePageIndex], true)}
-            </motion.div>
-          </AnimatePresence>
+          {/* Scale-to-fit and the page-turn rotation live on separate
+              elements: scaling has to pivot around the page's own center to
+              stay put in the centered flex layout (the same proven approach
+              .book-container uses on desktop), while the flip has to pivot
+              around the left edge to look like a real page turning on a
+              spine - one transform-origin can't do both at once. */}
+          <div
+            className="book-page-single relative"
+            style={{ transformStyle: "preserve-3d", transform: `scale(${scale})`, transition: "transform 0.3s ease" }}
+          >
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={mobilePageIndex}
+                initial={{ rotateY: mobileFlipDirection > 0 ? 150 : -150, opacity: 0.4 }}
+                animate={{ rotateY: 0, opacity: 1, zIndex: 1 }}
+                exit={{ rotateY: mobileFlipDirection > 0 ? -150 : 150, opacity: 0.4, zIndex: 2 }}
+                transition={{ duration: 0.6, ease: [0.645, 0.045, 0.355, 1.0] }}
+                className="absolute inset-0 overflow-hidden rounded-lg shadow-[0_25px_60px_rgba(0,0,0,0.7)]"
+                style={{ transformStyle: "preserve-3d", transformOrigin: "left center", backfaceVisibility: "hidden" }}
+              >
+                {renderPageFace(pagesData[mobilePageIndex], true)}
+              </motion.div>
+            </AnimatePresence>
+          </div>
           <p className="book-font-serif mt-4 text-xs tracking-[0.2em] text-[#e8d5cc]/50">
             {mobilePageIndex + 1} / {pagesData.length}
           </p>
