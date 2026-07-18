@@ -499,16 +499,8 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const [entries, setEntries] = useState<Record<string, MomentEntry>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [currentSheet, setCurrentSheet] = useState(0);
-  const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Mobile shows one page at a time (see renderPageFace usage below) instead
-  // of the desktop two-page spread, so it needs its own index into the flat
-  // pagesData array - reusing `currentSheet` would only ever expose half the
-  // pages (the "front" or "back" of each spread, never both).
-  const [mobilePageIndex, setMobilePageIndex] = useState(0);
-  const [mobileFlipDirection, setMobileFlipDirection] = useState(1);
+  const [viewportSize, setViewportSize] = useState({ width: 1024, height: 768 });
 
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -566,30 +558,36 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     };
   }, []);
 
-  // Fit-to-screen scale for the book. Desktop scales the 900x600 two-page
-  // spread; mobile scales a single native 450x600 page instead (see
-  // .book-page-single in globals.css) - scaling the whole fixed-size page
-  // rather than fighting individual elements (photo frame, headings, etc.)
-  // with responsive overrides guarantees it always fits, exactly like the
-  // desktop spread already does.
   useEffect(() => {
     const handleResize = () => {
-      const width = window.innerWidth;
-      const mobile = width < 768;
-      setIsMobile(mobile);
-      const availableHeight = window.innerHeight - (mobile ? 200 : 220);
-      if (mobile) {
-        const availableWidth = width - 32;
-        setScale(Math.min(availableWidth / 450, availableHeight / 600, 1.2));
-      } else if (containerRef.current) {
-        const availableWidth = width - 100;
-        setScale(Math.min(availableWidth / 900, availableHeight / 600, 1.2));
-      }
+      setIsMobile(window.innerWidth < 768);
+      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
     };
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // The book is always the same 900x600 two-page .book-container - closed,
+  // only its right half (the cover) has content, open, both halves do. On
+  // mobile that 900px is too wide to fit, so it's scaled down; closed, it's
+  // scaled (and shifted) to frame just the cover centered on screen, open,
+  // it's scaled to fit the *full* spread centered on screen instead - so
+  // opening the book visibly widens outward from the same center point,
+  // rather than only ever showing one half. Desktop never shifts and always
+  // fits the full spread.
+  const isClosed = currentSheet === 0;
+  const scale = useMemo(() => {
+    const { width, height } = viewportSize;
+    const availableHeight = height - (isMobile ? 200 : 220);
+    if (isMobile) {
+      const availableWidth = width - 32;
+      const fitWidth = isClosed ? 450 : 900;
+      return Math.min(availableWidth / fitWidth, availableHeight / 600, 1.2);
+    }
+    const availableWidth = width - 100;
+    return Math.min(availableWidth / 900, availableHeight / 600, 1.2);
+  }, [viewportSize, isMobile, isClosed]);
 
   // Chronological, oldest-first - the book reads like a real diary and
   // keeps growing as new memories are saved (no fixed page count).
@@ -613,32 +611,17 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   }, [pagesData]);
 
   const totalSheets = sheets.length;
-  const lastPageIndex = pagesData.length - 1;
 
   const handleNext = () => setCurrentSheet((s) => Math.min(s + 1, totalSheets));
   const handlePrev = () => setCurrentSheet((s) => Math.max(s - 1, 0));
-
-  const mobileNext = () => {
-    setMobileFlipDirection(1);
-    setMobilePageIndex((i) => Math.min(i + 1, lastPageIndex));
-  };
-  const mobilePrev = () => {
-    setMobileFlipDirection(-1);
-    setMobilePageIndex((i) => Math.max(i - 1, 0));
-  };
-
-  const goNext = isMobile ? mobileNext : handleNext;
-  const goPrev = isMobile ? mobilePrev : handlePrev;
-  const isAtStart = isMobile ? mobilePageIndex === 0 : currentSheet === 0;
-  const isAtEnd = isMobile ? mobilePageIndex >= lastPageIndex : currentSheet >= totalSheets;
 
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null) return;
     const distance = touchStart - e.changedTouches[0].clientX;
-    if (distance > 50) goNext();
-    if (distance < -50) goPrev();
+    if (distance > 50) handleNext();
+    if (distance < -50) handlePrev();
     setTouchStart(null);
   };
 
@@ -694,7 +677,6 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         return next;
       });
       setCurrentSheet((s) => Math.min(s, Math.max(0, totalSheets - 1)));
-      setMobilePageIndex((i) => Math.min(i, Math.max(0, lastPageIndex - 1)));
     }
   };
 
@@ -815,7 +797,6 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       className="book-desk-bg relative flex min-h-screen flex-col items-center justify-center overflow-hidden font-sans"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      ref={containerRef}
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -862,46 +843,25 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
 
       {isLoading ? (
         <p className="book-font-script text-3xl text-[#e8d5cc]/60">Ochilmoqda...</p>
-      ) : isMobile ? (
-        <div className="flex w-full flex-1 flex-col items-center justify-center" style={{ perspective: 1600 }}>
-          {/* Scale-to-fit and the page-turn rotation live on separate
-              elements: scaling has to pivot around the page's own center to
-              stay put in the centered flex layout (the same proven approach
-              .book-container uses on desktop), while the flip has to pivot
-              around the left edge to look like a real page turning on a
-              spine - one transform-origin can't do both at once. */}
-          <div
-            className="book-page-single relative"
-            style={{ transformStyle: "preserve-3d", transform: `scale(${scale})`, transition: "transform 0.3s ease" }}
-          >
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                key={mobilePageIndex}
-                initial={{ rotateY: mobileFlipDirection > 0 ? 150 : -150, opacity: 0.4 }}
-                animate={{ rotateY: 0, opacity: 1, zIndex: 1 }}
-                exit={{ rotateY: mobileFlipDirection > 0 ? -150 : 150, opacity: 0.4, zIndex: 2 }}
-                transition={{ duration: 0.6, ease: [0.645, 0.045, 0.355, 1.0] }}
-                className="absolute inset-0 overflow-hidden rounded-lg shadow-[0_25px_60px_rgba(0,0,0,0.7)]"
-                style={{ transformStyle: "preserve-3d", transformOrigin: "left center", backfaceVisibility: "hidden" }}
-              >
-                {renderPageFace(pagesData[mobilePageIndex], true)}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          <p className="book-font-serif mt-4 text-xs tracking-[0.2em] text-[#e8d5cc]/50">
-            {mobilePageIndex + 1} / {pagesData.length}
-          </p>
-        </div>
       ) : (
         <div className="book-scene flex h-full w-full items-center justify-center">
           <motion.div
             className="book-container"
-            animate={{ scale, x: 0 }}
+            animate={{
+              scale,
+              // Closed, only the right half (the cover) has content, so the
+              // container is shifted left to frame just that half centered
+              // on screen. Open, both halves have content, so no shift is
+              // needed - the whole spread is simply centered, which is what
+              // makes it visibly *widen* outward from the same center point
+              // as it opens, instead of only ever showing one half.
+              x: isMobile ? (isClosed ? -225 * scale : 0) : 0,
+            }}
             transition={{ type: "spring", stiffness: 60, damping: 15 }}
           >
             <div className="book-leather-texture absolute right-0 top-0 h-full w-1/2 rounded-r-lg shadow-2xl" style={{ zIndex: 0 }} />
 
-            {currentSheet === 0 && (
+            {isClosed && (
               <div className="absolute right-1 top-1 h-[98%] w-[49%] rounded-r-sm bg-white shadow-[inset_-5px_0_10px_rgba(0,0,0,0.1)]" style={{ zIndex: 0 }} />
             )}
 
@@ -937,11 +897,11 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
       <div className="absolute bottom-8 z-50 flex space-x-6">
         <button
           type="button"
-          onClick={goPrev}
-          disabled={isAtStart}
+          onClick={handlePrev}
+          disabled={isClosed}
           aria-label="Oldingi"
           className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-            isAtStart
+            isClosed
               ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
               : "bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
           }`}
@@ -952,18 +912,18 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         <div className="group relative">
           <button
             type="button"
-            onClick={goNext}
-            disabled={isAtEnd}
+            onClick={handleNext}
+            disabled={currentSheet >= totalSheets}
             aria-label="Keyingi"
             className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-              isAtEnd
+              currentSheet >= totalSheets
                 ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
                 : "animate-pulse bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
             }`}
           >
             <ChevronRight size={28} />
           </button>
-          {isAtStart && (
+          {isClosed && (
             <span className="book-font-serif absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-[#B8955A]/30 bg-[#17110F] px-3 py-1.5 text-xs text-[#F6EBDD] opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
               Kitobni ochish
             </span>
