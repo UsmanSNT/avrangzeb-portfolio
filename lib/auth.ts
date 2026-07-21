@@ -54,6 +54,55 @@ export async function signIn(email: string, password: string) {
   return data;
 }
 
+// Google orqali kirish
+export async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export interface TelegramAuthUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+  auth_date: number;
+  hash: string;
+}
+
+// Telegram orqali kirish: Telegram Login Widget'dan kelgan ma'lumotni
+// serverda tekshirtirib, natijada olingan bir martalik kod bilan Supabase
+// sessiyasini o'rnatadi.
+export async function signInWithTelegram(telegramUser: TelegramAuthUser) {
+  const res = await fetch('/api/auth/telegram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(telegramUser),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok || !result.success) {
+    throw new Error(result.error || 'Telegram orqali kirish xatosi');
+  }
+
+  const { data, error } = await supabase.auth.verifyOtp({
+    email: result.email,
+    token: result.token,
+    type: 'email',
+  });
+
+  if (error) throw error;
+  return data;
+}
+
 // Chiqish
 export async function signOut() {
   const { error } = await supabase.auth.signOut();

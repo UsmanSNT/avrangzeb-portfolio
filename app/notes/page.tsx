@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import RichTextEditor from "@/app/components/RichTextEditor";
@@ -33,6 +33,8 @@ const translations = {
       cisco: "Cisco",
       devops: "DevOps",
       security: "Xavfsizlik",
+      english: "Ingliz tili",
+      korean: "Koreys tili",
       other: "Boshqa",
     },
     notes: {
@@ -42,6 +44,9 @@ const translations = {
       back: "Orqaga",
       useful: "Bu qayd boshqalar uchun ham foydali bo'lishi mumkin!",
       confirmDelete: "Bu qaydni o'chirishni xohlaysizmi?",
+      share: "Yuborish",
+      shared: "Havola nusxalandi!",
+      shareViaTelegram: "Telegram orqali yuborishni xohlaysizmi?",
     },
     modal: {
       addTitle: "Yangi qayd qo'shish",
@@ -90,6 +95,8 @@ const translations = {
       cisco: "Cisco",
       devops: "DevOps",
       security: "Security",
+      english: "English",
+      korean: "Korean",
       other: "Other",
     },
     notes: {
@@ -99,6 +106,9 @@ const translations = {
       back: "Back",
       useful: "This note can be useful for others too!",
       confirmDelete: "Are you sure you want to delete this note?",
+      share: "Share",
+      shared: "Link copied!",
+      shareViaTelegram: "Share via Telegram?",
     },
     modal: {
       addTitle: "Add New Note",
@@ -147,6 +157,8 @@ const translations = {
       cisco: "시스코",
       devops: "데브옵스",
       security: "보안",
+      english: "영어",
+      korean: "한국어",
       other: "기타",
     },
     notes: {
@@ -156,6 +168,9 @@ const translations = {
       back: "뒤로",
       useful: "이 노트는 다른 사람들에게도 유용할 수 있습니다!",
       confirmDelete: "이 노트를 삭제하시겠습니까?",
+      share: "공유",
+      shared: "링크가 복사되었습니다!",
+      shareViaTelegram: "텔레그램으로 공유하시겠습니까?",
     },
     modal: {
       addTitle: "새 노트 추가",
@@ -187,7 +202,7 @@ const translations = {
 };
 
 // Category mapping for display
-const categoryKeys = ["all", "networking", "linux", "cisco", "devops", "security", "other"] as const;
+const categoryKeys = ["all", "networking", "linux", "cisco", "devops", "security", "english", "korean", "other"] as const;
 const categoryValues: Record<string, string> = {
   "Barchasi": "all",
   "Tarmoq asoslari": "networking",
@@ -243,6 +258,12 @@ const ArrowLeftIcon = () => (
 const CheckIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+const ShareIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342a3 3 0 100 2.316m0-2.316a3 3 0 100 2.316m0-2.316l6.632-3.316m-6.632 5.632l6.632 3.316m0-8.632a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 8.632a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
   </svg>
 );
 
@@ -705,6 +726,8 @@ export default function NotesPage() {
   // Auth state
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const noteAppliedFromUrl = useRef(false);
 
   // Auth check
   useEffect(() => {
@@ -869,6 +892,58 @@ export default function NotesPage() {
   useEffect(() => {
     fetchNotes();
   }, []);
+
+  // Open the note referenced by ?note=<id> in the URL, once notes are loaded
+  useEffect(() => {
+    if (noteAppliedFromUrl.current || notes.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const noteId = params.get("note");
+    if (!noteId) return;
+    const target = notes.find((n) => String(n.id) === noteId);
+    if (target) {
+      setSelectedNote(target);
+    }
+    noteAppliedFromUrl.current = true;
+  }, [notes]);
+
+  const selectNote = (note: Note | null) => {
+    setSelectedNote(note);
+    const url = new URL(window.location.href);
+    if (note) {
+      url.searchParams.set("note", String(note.id));
+    } else {
+      url.searchParams.delete("note");
+    }
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const shareNote = async (note: Note) => {
+    const noteUrl = `${window.location.origin}/notes?note=${note.id}`;
+    const contentPreview = note.content.substring(0, 200);
+    const shareText = `📝 ${note.title}\n\n${contentPreview}${note.content.length > 200 ? "..." : ""}\n\n🔗 ${noteUrl}`;
+    const telegramShareText = `📝 *${note.title}*\n\n${contentPreview}${note.content.length > 200 ? "..." : ""}\n\n🔗 [${t.notes.selectNote}](${noteUrl})`;
+    const telegramShareLink = `https://t.me/share/url?url=${encodeURIComponent(noteUrl)}&text=${encodeURIComponent(telegramShareText)}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: note.title, text: shareText, url: noteUrl });
+        return;
+      }
+      const useTelegram = confirm(t.notes.shareViaTelegram);
+      if (useTelegram) {
+        window.open(telegramShareLink, "_blank");
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        setShareFeedback(t.notes.shared);
+        setTimeout(() => setShareFeedback(null), 2500);
+      }
+    } catch (error: any) {
+      if (error.name !== "AbortError") {
+        console.error("Share error:", error);
+        window.open(telegramShareLink, "_blank");
+      }
+    }
+  };
 
   const filteredNotes = notes.filter((note) => {
     const matchesCategory = selectedCategoryKey === "all" || note.categoryKey === selectedCategoryKey;
@@ -1118,7 +1193,7 @@ export default function NotesPage() {
         
         // Clear selected note if it was deleted
         if (selectedNote?.id === noteId) {
-          setSelectedNote(null);
+          selectNote(null);
         }
       } else {
         alert('Xato: ' + (result.error || 'Qayd o\'chirilmadi'));
@@ -1140,27 +1215,10 @@ export default function NotesPage() {
                 <Logo size={36} />
               </div>
               <span className="truncate font-bold text-lg sm:text-xl">Avrangzeb</span>
-              <span className="hidden items-center gap-1.5 border-l border-line pl-3 text-cyan-text sm:flex">
-                <BookIcon />
-                <span className="text-sm font-medium">{t.nav.notes}</span>
-              </span>
             </Link>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
               <ThemeToggle />
-
-              {currentUser && (
-                <button
-                  onClick={async () => {
-                    await seedDefaultNotes();
-                  }}
-                  className="hidden items-center gap-2 rounded-lg bg-accent-green/15 px-3 py-2 text-green-text transition-colors hover:bg-accent-green/25 md:flex"
-                  title="Default qaydlarni yuklash"
-                >
-                  📚
-                  <span className="hidden text-sm lg:inline">Default qaydlar</span>
-                </button>
-              )}
 
               <button
                 onClick={() => openModal()}
@@ -1197,14 +1255,6 @@ export default function NotesPage() {
                   </div>
                 )}
               </div>
-
-              <Link
-                href="/"
-                className="hidden items-center gap-2 text-muted transition-colors hover:text-cyan-text sm:flex"
-              >
-                <ArrowLeftIcon />
-                <span className="hidden lg:inline">{t.nav.home}</span>
-              </Link>
             </div>
           </div>
         </div>
@@ -1261,7 +1311,7 @@ export default function NotesPage() {
           {/* Notes Grid */}
           <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
             {/* Notes List */}
-            <div className={`${selectedNote ? 'hidden lg:block' : ''} space-y-3`}>
+            <div className={`${selectedNote ? 'hidden lg:block' : ''} space-y-3 lg:h-[calc(100vh-260px)] lg:min-h-[420px] lg:overflow-y-auto lg:pr-2`}>
               {isLoadingNotes ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-cyan mx-auto"></div>
@@ -1301,7 +1351,7 @@ export default function NotesPage() {
                         ? "bg-card border-accent-cyan/50"
                         : "bg-card/50 border-line hover:border-accent-cyan/30"
                     }`}
-                    onClick={() => setSelectedNote(note)}
+                    onClick={() => selectNote(note)}
                   >
                     {/* Action buttons */}
                     <div className="absolute top-3 right-3 flex gap-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
@@ -1325,9 +1375,19 @@ export default function NotesPage() {
                       >
                         <TrashIcon />
                       </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          shareNote(note);
+                        }}
+                        className="p-1.5 bg-surface-2 rounded-lg text-muted hover:text-cyan-text transition-colors"
+                        title={t.notes.share}
+                      >
+                        <ShareIcon />
+                      </button>
                     </div>
 
-                    <div className="flex items-start justify-between gap-2 mb-2 pr-16">
+                    <div className="flex items-start justify-between gap-2 mb-2 pr-24">
                       <h3 className="font-semibold text-foreground line-clamp-2">
                         {note.important && <span className="text-yellow-400 mr-1">⭐</span>}
                         {note.title}
@@ -1350,10 +1410,10 @@ export default function NotesPage() {
             {/* Note Detail */}
             <div className={selectedNote ? 'block' : 'hidden lg:block'}>
               {selectedNote ? (
-                <div className="bg-card/50 rounded-xl border border-line p-6 lg:p-8 sticky top-24">
+                <div className="bg-card/50 rounded-xl border border-line p-6 lg:p-8 lg:h-[calc(100vh-260px)] lg:min-h-[420px] lg:overflow-y-auto">
                   {/* Back button for mobile */}
                   <button
-                    onClick={() => setSelectedNote(null)}
+                    onClick={() => selectNote(null)}
                     className="lg:hidden flex items-center gap-2 text-muted hover:text-cyan-text mb-4"
                   >
                     <ArrowLeftIcon />
@@ -1382,8 +1442,18 @@ export default function NotesPage() {
                         >
                           <TrashIcon />
                         </button>
+                        <button
+                          onClick={() => shareNote(selectedNote)}
+                          className="p-2 bg-surface-2 rounded-lg text-muted hover:text-cyan-text transition-colors"
+                          title={t.notes.share}
+                        >
+                          <ShareIcon />
+                        </button>
                       </div>
                     </div>
+                    {shareFeedback && (
+                      <p className="mt-2 text-sm text-green-text">{shareFeedback}</p>
+                    )}
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted mt-3">
                       <div className="flex items-center gap-2">
                         <CalendarIcon />
@@ -1620,7 +1690,7 @@ export default function NotesPage() {
       <footer className="py-8 px-6 border-t border-card">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-subtle">
-            © 2024 Abdujalilov Avrangzeb. {t.footer}
+            © {new Date().getFullYear()} Abdujalilov Avrangzeb. {t.footer}
           </p>
         </div>
       </footer>
