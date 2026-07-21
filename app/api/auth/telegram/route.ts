@@ -60,41 +60,45 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = createSupabaseServerClient({ useServiceRole: true });
     const fullName = [payload.first_name, payload.last_name].filter(Boolean).join(" ");
-    const syntheticEmail = `telegram_${payload.id}@telegram.local`;
+    const email = `telegram_${payload.id}@telegram.local`;
 
-    const { data: existingProfile } = await supabaseAdmin
-      .from("user_profiles")
-      .select("id, email")
-      .eq("telegram_id", payload.id)
-      .maybeSingle();
-
-    let email = existingProfile?.email as string | undefined;
-
-    if (!email) {
-      const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: syntheticEmail,
-        email_confirm: true,
-        user_metadata: {
+    // generateLink with type "magiclink" finds-or-creates the auth user in one
+    // step (unlike admin.createUser, which errors if the email already exists),
+    // so a partial failure on a previous attempt can't strand this in a
+    // "user exists but we don't know its id" state.
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      options: {
+        data: {
           full_name: fullName,
           telegram_id: payload.id,
           telegram_username: payload.username,
           avatar_url: payload.photo_url,
         },
-      });
+      },
+    });
 
-      if (createError || !created.user) {
-        console.error("Telegram createUser error:", createError);
-        return NextResponse.json(
-          { success: false, error: "Foydalanuvchi yaratilmadi" },
-          { status: 500 }
-        );
-      }
+    if (linkError || !linkData?.user) {
+      console.error("Telegram generateLink error:", linkError);
+      return NextResponse.json(
+        { success: false, error: "Kirish havolasi yaratilmadi" },
+        { status: 500 }
+      );
+    }
 
-      email = syntheticEmail;
+    const userId = linkData.user.id;
 
+    const { data: existingProfile } = await supabaseAdmin
+      .from("user_profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (!existingProfile) {
       const { error: profileError } = await supabaseAdmin.from("user_profiles").insert({
-        id: created.user.id,
-        email: syntheticEmail,
+        id: userId,
+        email,
         full_name: fullName || null,
         avatar_url: payload.photo_url || null,
         role: "user",
@@ -105,19 +109,6 @@ export async function POST(request: Request) {
       if (profileError) {
         console.error("Telegram user_profiles insert error:", profileError);
       }
-    }
-
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email,
-    });
-
-    if (linkError || !linkData) {
-      console.error("Telegram generateLink error:", linkError);
-      return NextResponse.json(
-        { success: false, error: "Kirish havolasi yaratilmadi" },
-        { status: 500 }
-      );
     }
 
     return NextResponse.json({
