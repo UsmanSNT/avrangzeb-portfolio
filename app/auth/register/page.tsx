@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/app/components/Logo";
 import { signUp } from "@/lib/auth";
+import { SocialLogins } from "@/components/auth/SocialLogins";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -159,6 +160,8 @@ export default function RegisterPage() {
               "Ro'yxatdan o'tish"
             )}
           </button>
+
+          <SocialLogins onError={setError} />
 
           <div className="mt-6 text-center">
             <p className="text-slate-400">

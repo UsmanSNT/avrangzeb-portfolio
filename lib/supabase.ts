@@ -83,6 +83,10 @@ function createMissingConfigAuth() {
     updateUser: () =>
       createMissingConfigPromise({ data: { user: null }, error: missingSupabaseConfigError }),
     resetPasswordForEmail: () => createMissingConfigPromise({ data: null, error: missingSupabaseConfigError }),
+    signInWithOAuth: () =>
+      createMissingConfigPromise({ data: { provider: null, url: null }, error: missingSupabaseConfigError }),
+    verifyOtp: () =>
+      createMissingConfigPromise({ data: { user: null, session: null }, error: missingSupabaseConfigError }),
     onAuthStateChange: () => ({
       data: {
         subscription: {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/app/components/Logo";
 import { signIn } from "@/lib/auth";
+import { SocialLogins } from "@/components/auth/SocialLogins";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -111,6 +112,8 @@ export default function LoginPage() {
               Parolni unutdingizmi?
             </Link>
           </div>
+
+          <SocialLogins onError={setError} />
 
           <div className="mt-6 text-center">
             <p className="text-slate-400">
