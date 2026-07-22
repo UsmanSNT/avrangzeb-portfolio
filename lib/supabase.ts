@@ -145,7 +145,11 @@ function getBrowserSupabaseClient() {
     return browserSupabase;
   }
 
-  browserSupabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+  browserSupabase = createClient(config.supabaseUrl, config.supabaseAnonKey, {
+    auth: {
+      flowType: 'pkce',
+    },
+  });
   return browserSupabase;
 }
 

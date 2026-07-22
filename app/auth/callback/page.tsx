@@ -2,16 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+
+const TIMEOUT_MS = 10000;
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let resolved = false;
 
     const finishLogin = async (userId: string) => {
+      resolved = true;
       try {
         const res = await fetch(`/api/auth/profile?userId=${userId}`);
         const profile = await res.json();
@@ -28,6 +34,7 @@ export default function AuthCallbackPage() {
     supabase.auth.getSession().then(({ data, error: sessionError }) => {
       if (!active) return;
       if (sessionError) {
+        resolved = true;
         setError(sessionError.message);
         return;
       }
@@ -43,8 +50,15 @@ export default function AuthCallbackPage() {
       }
     });
 
+    const timeout = setTimeout(() => {
+      if (active && !resolved) {
+        setTimedOut(true);
+      }
+    }, TIMEOUT_MS);
+
     return () => {
       active = false;
+      clearTimeout(timeout);
       subscription.subscription.unsubscribe();
     };
   }, [router]);
@@ -54,6 +68,13 @@ export default function AuthCallbackPage() {
       <div className="text-center text-slate-300">
         {error ? (
           <p className="text-red-400">{error}</p>
+        ) : timedOut ? (
+          <div className="space-y-3">
+            <p className="text-red-400">Kirish amalga oshmadi. Iltimos, qayta urinib ko&apos;ring.</p>
+            <Link href="/auth/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+              Kirish sahifasiga qaytish
+            </Link>
+          </div>
         ) : (
           <span className="flex items-center gap-3">
             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
