@@ -7,6 +7,7 @@ import RichTextEditor from "@/app/components/RichTextEditor";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 import { Logo } from "@/app/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { SectionsDropdown } from "@/components/SectionsDropdown";
 
 // Language types
 type Language = "uz" | "en" | "ko";
@@ -300,12 +301,6 @@ const TrashIcon = () => (
 const EditIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
-);
-
-const GlobeIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
   </svg>
 );
 
@@ -1228,14 +1223,16 @@ export default function NotesPage() {
                 <span className="hidden sm:inline">{t.nav.newNote}</span>
               </button>
 
+              {/* Section links (Notes/Books/News/Gallery) */}
+              <SectionsDropdown locale={language} />
+
               {/* Language Switcher */}
               <div className="relative">
                 <button
                   onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                  className="flex items-center gap-1 rounded-lg border border-line bg-hover/[0.05] px-2 py-2 transition-colors hover:border-accent-cyan/40 sm:gap-2 sm:px-3"
+                  className="rounded-lg border border-line bg-hover/[0.05] px-2 py-1.5 text-xs font-bold text-cyan-text transition-colors hover:border-accent-cyan/40"
                 >
-                  <GlobeIcon />
-                  <span className="text-lg">{languageLabels[language].flag}</span>
+                  {languageLabels[language].flag}
                 </button>
 
                 {isLangMenuOpen && (
