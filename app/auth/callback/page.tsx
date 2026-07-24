@@ -7,12 +7,21 @@ import { supabase } from "@/lib/supabase";
 
 const TIMEOUT_MS = 10000;
 
+function getOAuthErrorFromUrl(): string {
+  if (typeof window === "undefined") return "";
+  const params = new URLSearchParams(window.location.search);
+  const oauthError = params.get("error_description") || params.get("error");
+  return oauthError ? decodeURIComponent(oauthError.replace(/\+/g, " ")) : "";
+}
+
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState(getOAuthErrorFromUrl);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
+    if (error) return;
+
     let active = true;
     let resolved = false;
 
@@ -61,13 +70,18 @@ export default function AuthCallbackPage() {
       clearTimeout(timeout);
       subscription.subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, error]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="text-center text-slate-300">
         {error ? (
-          <p className="text-red-400">{error}</p>
+          <div className="space-y-3">
+            <p className="text-red-400">{error}</p>
+            <Link href="/auth/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+              Kirish sahifasiga qaytish
+            </Link>
+          </div>
         ) : timedOut ? (
           <div className="space-y-3">
             <p className="text-red-400">Kirish amalga oshmadi. Iltimos, qayta urinib ko&apos;ring.</p>
