@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { SectionsDropdown } from "@/components/SectionsDropdown";
 
 type Language = "uz" | "en" | "ko";
 
@@ -500,7 +501,7 @@ export default function BooksPage() {
               <span>{t.back}</span>
             </Link>
             <h1 className="text-xl font-bold text-white">📚 {t.title}</h1>
-            <div className="w-20"></div>
+            <SectionsDropdown locale={language} forceDark />
           </div>
         </div>
       </header>
