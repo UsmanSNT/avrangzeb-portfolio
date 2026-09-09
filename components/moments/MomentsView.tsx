@@ -340,6 +340,123 @@ function MemoryPage({
   );
 }
 
+const WEEKDAY_LABELS = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"];
+
+/** Month-grid calendar: pick any day to add or edit that day's memory directly. */
+function CalendarModal({
+  isOpen,
+  onClose,
+  onSelectDate,
+  entries,
+  minDate,
+  maxDate,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectDate: (dateKey: string) => void;
+  entries: Record<string, MomentEntry>;
+  minDate?: string;
+  maxDate: string;
+}) {
+  const maxDateObj = useMemo(() => parseDateKey(maxDate), [maxDate]);
+  const minDateObj = useMemo(() => (minDate ? parseDateKey(minDate) : null), [minDate]);
+  const [viewMonth, setViewMonth] = useState(() => new Date(maxDateObj.getFullYear(), maxDateObj.getMonth(), 1));
+
+  useEffect(() => {
+    if (isOpen) setViewMonth(new Date(maxDateObj.getFullYear(), maxDateObj.getMonth(), 1));
+  }, [isOpen, maxDateObj]);
+
+  if (!isOpen) return null;
+
+  const year = viewMonth.getFullYear();
+  const month = viewMonth.getMonth();
+  const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-first
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (Date | null)[] = [...Array(firstDayIndex).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1))];
+
+  const canGoPrev = !minDateObj || new Date(year, month, 0) >= new Date(minDateObj.getFullYear(), minDateObj.getMonth(), 1);
+  const canGoNext = new Date(year, month + 1, 1) <= maxDateObj;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-sm overflow-hidden rounded-xl border border-[#e8d5cc] bg-[#fdfbf7] shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-[#e8d5cc] bg-[#f5f0e6] px-6 py-4">
+          <h2 className="book-font-serif text-xl text-[var(--book-primary-text)]">Kalendar</h2>
+          <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-800" aria-label="Yopish">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(year, month - 1, 1))}
+              disabled={!canGoPrev}
+              aria-label="Oldingi oy"
+              className="rounded-full p-1.5 text-[#7a6b5e] hover:bg-[#e8d5cc] disabled:opacity-30"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <span className="book-font-serif text-sm font-semibold text-[var(--book-primary-text)]">
+              {viewMonth.toLocaleDateString("uz-UZ", { month: "long", year: "numeric" })}
+            </span>
+            <button
+              type="button"
+              onClick={() => setViewMonth(new Date(year, month + 1, 1))}
+              disabled={!canGoNext}
+              aria-label="Keyingi oy"
+              className="rounded-full p-1.5 text-[#7a6b5e] hover:bg-[#e8d5cc] disabled:opacity-30"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {WEEKDAY_LABELS.map((label) => (
+              <span key={label} className="book-font-serif py-1 text-[10px] uppercase tracking-wide text-[#a39081]">
+                {label}
+              </span>
+            ))}
+            {cells.map((day, i) => {
+              if (!day) return <span key={i} />;
+              const key = toDateKey(day);
+              const hasEntry = Boolean(entries[key]);
+              const outOfRange = day > maxDateObj || (minDateObj && day < minDateObj);
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={Boolean(outOfRange)}
+                  onClick={() => onSelectDate(key)}
+                  className={`relative aspect-square rounded-full text-sm transition-colors ${
+                    outOfRange
+                      ? "cursor-not-allowed text-gray-300"
+                      : hasEntry
+                      ? "bg-[#8b2e3e] font-semibold text-white hover:bg-[#6e2330]"
+                      : "text-[#4a3b32] hover:bg-[#e8d5cc]"
+                  }`}
+                >
+                  {day.getDate()}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="book-font-serif mt-4 text-center text-[11px] text-[#a39081]">
+            Sana tanlang - xotira qo&apos;shish yoki tahrirlash uchun
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 function MemoryModal({
   isOpen,
   onClose,
@@ -511,6 +628,8 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -633,6 +752,16 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     setEditingEntry(entry);
     setModalDefaultDate(entry.entry_date);
     setIsModalOpen(true);
+  };
+  const openModalForDate = (dateKey: string) => {
+    const existing = entries[dateKey];
+    setIsCalendarOpen(false);
+    if (existing) openEditModal(existing);
+    else {
+      setEditingEntry(null);
+      setModalDefaultDate(dateKey);
+      setIsModalOpen(true);
+    }
   };
   const closeModal = () => {
     setIsModalOpen(false);
@@ -823,6 +952,16 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
         {isOwner && (
           <button
             type="button"
+            onClick={() => setIsCalendarOpen(true)}
+            aria-label="Kalendar"
+            className="rounded-full bg-white/20 p-3 text-[#e8d5cc] shadow-lg backdrop-blur-sm transition-all hover:bg-white/30"
+          >
+            <Calendar size={20} />
+          </button>
+        )}
+        {isOwner && (
+          <button
+            type="button"
             onClick={() => setIsShareOpen(true)}
             aria-label="Ulashish"
             className="rounded-full bg-white/20 p-3 text-[#e8d5cc] shadow-lg backdrop-blur-sm transition-all hover:bg-white/30"
@@ -929,6 +1068,15 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
           )}
         </div>
       </div>
+
+      <CalendarModal
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        onSelectDate={openModalForDate}
+        entries={entries}
+        minDate={startDate || undefined}
+        maxDate={toDateKey(today)}
+      />
 
       <MemoryModal
         isOpen={isModalOpen}
