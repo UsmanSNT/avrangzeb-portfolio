@@ -707,6 +707,16 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     return Math.min(availableWidth / 900, availableHeight / 600, 1.2);
   }, [viewportSize, isMobile, isClosed]);
 
+  // Small fixed-ish preview of just the cover half, used on the closed
+  // landing screen where the book sits beside the intro text instead of
+  // filling the viewport.
+  const landingScale = useMemo(() => {
+    const { width, height } = viewportSize;
+    const availableWidth = (isMobile ? width - 64 : width * 0.4) / 450;
+    const availableHeight = (height - 260) / 600;
+    return Math.max(Math.min(0.85, availableWidth, availableHeight), 0.3);
+  }, [viewportSize, isMobile]);
+
   // Chronological, oldest-first - the book reads like a real diary and
   // keeps growing as new memories are saved (no fixed page count).
   const sortedMemories = useMemo(
@@ -920,6 +930,49 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
     }
   };
 
+  // The 900x600 two-page book, reused both centered full-size (open, or
+  // closed on the old layout) and shrunk beside the closed-landing intro
+  // text - only the scale and horizontal shift differ between the two.
+  const renderBookContainer = (containerScale: number, shiftX: number) => (
+    <motion.div
+      className="book-container"
+      animate={{ scale: containerScale, x: shiftX }}
+      transition={{ type: "spring", stiffness: 60, damping: 15 }}
+    >
+      <div className="book-leather-texture absolute right-0 top-0 h-full w-1/2 rounded-r-lg shadow-2xl" style={{ zIndex: 0 }} />
+
+      {isClosed && (
+        <div className="absolute right-1 top-1 h-[98%] w-[49%] rounded-r-sm bg-white shadow-[inset_-5px_0_10px_rgba(0,0,0,0.1)]" style={{ zIndex: 0 }} />
+      )}
+
+      {sheets.map((sheet, index) => {
+        const isFlipped = currentSheet > index;
+        const zIndex = isFlipped ? index + 10 : totalSheets - index + 10;
+
+        return (
+          <motion.div
+            key={index}
+            className="book-sheet shadow-[-2px_0_15px_rgba(0,0,0,0.1)]"
+            style={{ zIndex }}
+            initial={false}
+            animate={{ rotateY: isFlipped ? -180 : 0 }}
+            transition={{ duration: 1.2, ease: [0.645, 0.045, 0.355, 1.0] }}
+          >
+            <div className="book-page-face group rounded-r-lg bg-white shadow-sm">
+              {renderPageFace(sheet.front, false)}
+              <div className="pointer-events-none absolute inset-0 w-10 bg-gradient-to-r from-black/20 to-transparent" />
+            </div>
+
+            <div className="book-page-face book-page-back group rounded-l-lg bg-white shadow-sm shadow-[-5px_0_20px_rgba(0,0,0,0.2)]">
+              {renderPageFace(sheet.back, true)}
+              <div className="pointer-events-none absolute inset-0 left-auto right-0 w-10 bg-gradient-to-l from-black/20 to-transparent" />
+            </div>
+          </motion.div>
+        );
+      })}
+    </motion.div>
+  );
+
   return (
     <div
       className="book-desk-bg relative flex min-h-screen flex-col items-center justify-center overflow-hidden font-sans"
@@ -981,93 +1034,113 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
 
       {isLoading ? (
         <p className="book-font-script text-3xl text-[#e8d5cc]/60">Ochilmoqda...</p>
-      ) : (
-        <div className="book-scene flex h-full w-full items-center justify-center">
-          <motion.div
-            className="book-container"
-            animate={{
-              scale,
-              // Closed, only the right half (the cover) has content, so the
-              // container is shifted left to frame just that half centered
-              // on screen. Open, both halves have content, so no shift is
-              // needed - the whole spread is simply centered, which is what
-              // makes it visibly *widen* outward from the same center point
-              // as it opens, instead of only ever showing one half.
-              x: isMobile ? (isClosed ? -225 * scale : 0) : 0,
-            }}
-            transition={{ type: "spring", stiffness: 60, damping: 15 }}
-          >
-            <div className="book-leather-texture absolute right-0 top-0 h-full w-1/2 rounded-r-lg shadow-2xl" style={{ zIndex: 0 }} />
+      ) : isClosed ? (
+        <div className="relative z-10 flex w-full max-w-6xl flex-1 flex-col items-center justify-center gap-10 px-6 py-24 md:flex-row md:items-center md:justify-between md:gap-6 md:px-16">
+          <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[#B8637F]/25 blur-[100px]" aria-hidden="true" />
 
-            {isClosed && (
-              <div className="absolute right-1 top-1 h-[98%] w-[49%] rounded-r-sm bg-white shadow-[inset_-5px_0_10px_rgba(0,0,0,0.1)]" style={{ zIndex: 0 }} />
-            )}
-
-            {sheets.map((sheet, index) => {
-              const isFlipped = currentSheet > index;
-              const zIndex = isFlipped ? index + 10 : totalSheets - index + 10;
-
-              return (
-                <motion.div
-                  key={index}
-                  className="book-sheet shadow-[-2px_0_15px_rgba(0,0,0,0.1)]"
-                  style={{ zIndex }}
-                  initial={false}
-                  animate={{ rotateY: isFlipped ? -180 : 0 }}
-                  transition={{ duration: 1.2, ease: [0.645, 0.045, 0.355, 1.0] }}
-                >
-                  <div className="book-page-face group rounded-r-lg bg-white shadow-sm">
-                    {renderPageFace(sheet.front, false)}
-                    <div className="pointer-events-none absolute inset-0 w-10 bg-gradient-to-r from-black/20 to-transparent" />
-                  </div>
-
-                  <div className="book-page-face book-page-back group rounded-l-lg bg-white shadow-sm shadow-[-5px_0_20px_rgba(0,0,0,0.2)]">
-                    {renderPageFace(sheet.back, true)}
-                    <div className="pointer-events-none absolute inset-0 left-auto right-0 w-10 bg-gradient-to-l from-black/20 to-transparent" />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
-      )}
-
-      <div className="absolute bottom-8 z-50 flex space-x-6">
-        <button
-          type="button"
-          onClick={handlePrev}
-          disabled={isClosed}
-          aria-label="Oldingi"
-          className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-            isClosed
-              ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
-              : "bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
-          }`}
-        >
-          <ChevronLeft size={28} />
-        </button>
-
-        <div className="group relative">
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={currentSheet >= totalSheets}
-            aria-label="Keyingi"
-            className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
-              currentSheet >= totalSheets
-                ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
-                : "animate-pulse bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
-            }`}
-          >
-            <ChevronRight size={28} />
-          </button>
-          {isClosed && (
-            <span className="book-font-serif absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-[#B8955A]/30 bg-[#17110F] px-3 py-1.5 text-xs text-[#F6EBDD] opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-              Kitobni ochish
+          <div className="relative z-10 flex max-w-md flex-col items-center text-center md:items-start md:text-left">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#e8b9c8]">
+              <Heart size={11} className="fill-[#e8b9c8] text-[#e8b9c8]" />
+              Bizning
             </span>
-          )}
+            <h1 className="book-font-serif mt-3 text-5xl font-light leading-[1.05] text-[#F6EBDD] sm:text-6xl">
+              Hayot
+              <br />
+              <span className="bg-gradient-to-r from-[#e8b9c8] to-[#B8637F] bg-clip-text text-transparent">Daftarimiz</span>
+            </h1>
+            <p className="book-font-poetic mt-4 flex items-center gap-3 text-2xl text-[#e8b9c8]/90">
+              bizning sevgi kundaligimiz
+              <span className="hidden h-px w-10 bg-[#e8b9c8]/40 md:inline-block" />
+            </p>
+            <p className="mt-6 text-sm leading-relaxed text-[#e8d5cc]/70">
+              Har bir sahifa — bizning unutilmas lahzalarimiz,
+              <br className="hidden md:block" /> birgalikda yozilgan baxt hikoyamiz...
+            </p>
+            <Heart size={16} className="mt-4 fill-[#B8637F] text-[#B8637F]" />
+
+            <div className="mt-10 flex items-center gap-5">
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled
+                aria-label="Oldingi"
+                className="flex h-12 w-12 cursor-not-allowed items-center justify-center rounded-full bg-white/10 text-white/40"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Kitobni ochish"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#e8b9c8] to-[#B8637F] text-white shadow-[0_10px_25px_rgba(184,99,127,0.5)] transition-transform hover:scale-105"
+              >
+                <ChevronRight size={20} />
+              </button>
+              <span className="book-font-serif flex items-center gap-3 text-xs tracking-[0.2em] text-[#e8d5cc]/60">
+                01
+                <span className="h-px w-10 bg-[#e8d5cc]/30" />
+                {String(Math.max(totalSheets, 1)).padStart(2, "0")}
+              </span>
+            </div>
+
+            <p className="book-font-script mt-14 hidden text-xl text-[#e8d5cc]/50 md:block">
+              Nice memories last forever ... <Heart size={14} className="inline fill-[#e8d5cc]/50 text-[#e8d5cc]/50" />
+            </p>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-6">
+            <div
+              className="book-scene relative flex items-center justify-center overflow-hidden"
+              style={{ width: 450 * landingScale, height: 600 * landingScale }}
+            >
+              {renderBookContainer(landingScale, -225 * landingScale)}
+              <div
+                className="book-font-serif pointer-events-none absolute bottom-0 left-1/2 h-16 -translate-x-1/2 translate-y-2 bg-[#B8637F]"
+                style={{ width: 18 * landingScale, clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%)" }}
+                aria-hidden="true"
+              />
+            </div>
+            <div className="hidden flex-col items-center gap-3 md:flex">
+              <span className="h-16 w-px bg-[#e8d5cc]/25" />
+              <span className="book-font-serif [writing-mode:vertical-rl] text-xs tracking-[0.3em] text-[#e8d5cc]/50">
+                BIRGALIKDA YANADA CHIROYLI
+              </span>
+              <Heart size={12} className="fill-[#B8637F]/70 text-[#B8637F]/70" />
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="book-scene flex h-full w-full items-center justify-center">
+            {renderBookContainer(scale, isMobile ? -225 * scale : 0)}
+          </div>
+
+          <div className="absolute bottom-8 z-50 flex space-x-6">
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Oldingi"
+              className="flex items-center justify-center rounded-full border border-[#B8955A]/30 bg-[#3A2025]/90 p-4 text-[#F6EBDD] shadow-[0_5px_15px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all hover:scale-105 hover:bg-[#3A2025]"
+            >
+              <ChevronLeft size={28} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={currentSheet >= totalSheets}
+              aria-label="Keyingi"
+              className={`flex items-center justify-center rounded-full border border-[#B8955A]/30 p-4 shadow-[0_5px_15px_rgba(0,0,0,0.5)] transition-all ${
+                currentSheet >= totalSheets
+                  ? "cursor-not-allowed bg-black/20 text-white/50 opacity-30"
+                  : "bg-[#3A2025]/90 text-[#F6EBDD] backdrop-blur-sm hover:scale-105 hover:bg-[#3A2025]"
+              }`}
+            >
+              <ChevronRight size={28} />
+            </button>
+          </div>
+        </>
+      )}
 
       <CalendarModal
         isOpen={isCalendarOpen}
