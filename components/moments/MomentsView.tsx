@@ -129,13 +129,13 @@ function CoverFace({
       </div>
 
       <div className="book-animate-breathe z-10 relative mb-2 mt-2">
-        <div className="relative flex h-64 w-64 items-center justify-center overflow-hidden rounded-[2.5rem] border-4 border-white/70 bg-white/40 shadow-[0_25px_45px_rgba(90,46,61,0.35)]">
+        <div className="relative flex h-72 w-56 items-center justify-center overflow-hidden rounded-[2.5rem] border-4 border-white/70 bg-white/40 shadow-[0_25px_45px_rgba(90,46,61,0.35)]">
           {coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={coverImageUrl}
               alt=""
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-center"
             />
           ) : (
             <FloralPlaceholder />
