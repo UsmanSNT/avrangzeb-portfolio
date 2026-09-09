@@ -110,31 +110,32 @@ function CoverFace({
   onUploadCover: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div className="book-leather-texture relative flex h-full w-full flex-col items-center justify-between rounded-r-lg border-l-[5px] border-[#1c0f12] px-8 py-12">
-      <div className="pointer-events-none absolute inset-4 rounded-sm border-2 border-[#B8955A] opacity-30" />
-      <div className="pointer-events-none absolute inset-6 rounded-sm border border-[#B8955A] opacity-15" />
+    <div className="book-cover-modern relative flex h-full w-full flex-col items-center justify-between overflow-hidden rounded-r-lg px-8 py-12">
+      <div className="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full bg-[#B8637F]/25 blur-3xl" />
 
-      <div className="book-animate-breathe z-10 mt-4 flex w-full flex-col items-center text-center">
-        <span className="book-font-serif mb-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-[#B8955A] opacity-90">
+      <div className="z-10 mt-2 flex w-full flex-col items-center text-center">
+        <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.4em] text-[#8A4F63]">
+          <Heart size={11} className="fill-[#B8637F] text-[#B8637F]" />
           Bizning
+          <Heart size={11} className="fill-[#B8637F] text-[#B8637F]" />
         </span>
-        <h1 className="book-font-serif bg-gradient-to-b from-[#F6EBDD] to-[#B8955A] bg-clip-text text-[3.4rem] leading-[1.1] tracking-wide text-transparent drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+        <h1 className="book-font-serif mt-2 text-[3.2rem] font-medium leading-[1.05] tracking-tight text-[#5A2E3D] drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">
           Hayot Daftarimiz
         </h1>
-        <p className="book-font-poetic mt-3 text-2xl tracking-wide text-[#A96E78] opacity-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <p className="book-font-poetic mt-2 text-2xl tracking-wide text-[#B8637F]">
           bizning sevgi kundaligimiz
         </p>
       </div>
 
-      <div className="z-10 relative mb-2 mt-2 transition-transform duration-700 hover:scale-[1.02]">
-        <div className="book-animate-shimmer pointer-events-none absolute -inset-1 rounded-t-[105px] rounded-b-xl border border-[#B8955A] opacity-40" />
-        <div className="relative flex h-72 w-52 items-center justify-center overflow-hidden rounded-b-lg rounded-t-[100px] border-[3px] border-double border-[#B8955A] bg-[#2A161A] shadow-[0_20px_40px_rgba(0,0,0,0.9)]">
+      <div className="book-animate-breathe z-10 relative mb-2 mt-2">
+        <div className="relative flex h-64 w-64 items-center justify-center overflow-hidden rounded-[2.5rem] border-4 border-white/70 bg-white/40 shadow-[0_25px_45px_rgba(90,46,61,0.35)]">
           {coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={coverImageUrl}
               alt=""
-              className="h-full w-full object-cover contrast-[1.15] brightness-[0.95] sepia-[0.3]"
+              className="h-full w-full object-cover"
             />
           ) : (
             <FloralPlaceholder />
@@ -145,7 +146,7 @@ function CoverFace({
             hover state) small upload badge, tucked into the frame's corner. */}
         {isOwner && (
           <label
-            className="book-font-serif absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1.5 rounded-full border-2 border-[#3A2025] bg-[#F6EBDD] px-3 py-1.5 text-xs font-semibold text-[#3A2025] shadow-[0_5px_15px_rgba(0,0,0,0.6)] transition-all hover:scale-105 hover:bg-white"
+            className="book-font-serif absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1.5 rounded-full border-2 border-white bg-[#5A2E3D] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(90,46,61,0.5)] transition-all hover:scale-105 hover:bg-[#6f3a4e]"
             aria-label={coverImageUrl ? "Muqova rasmini almashtirish" : "Muqovaga surat qo'yish"}
           >
             <Camera size={14} />
@@ -156,16 +157,14 @@ function CoverFace({
       </div>
 
       <div className="z-10 mb-2 flex w-full flex-col items-center px-6 text-center">
-        <p className="book-font-serif mb-3 text-[9px] uppercase tracking-[0.3em] text-[#B8955A] opacity-90 drop-shadow-md">
+        <p className="book-font-serif mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-[#8A4F63]">
           Tanishgan kunimizdan boshlangan hikoya
         </p>
-        <div className="flex w-full items-center justify-center opacity-90">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#B8955A] to-[#B8955A]" />
-          <span className="book-font-serif px-4 text-sm tracking-[0.2em] text-[#F6EBDD]">{startLabel}</span>
-          <div className="h-px w-16 bg-gradient-to-l from-transparent via-[#B8955A] to-[#B8955A]" />
+        <div className="rounded-full border border-[#B8637F]/40 bg-white/50 px-6 py-2 shadow-sm">
+          <span className="book-font-serif text-sm font-medium tracking-[0.15em] text-[#5A2E3D]">{startLabel}</span>
         </div>
         {dayCount !== null && (
-          <p className="book-font-serif mt-2 text-xs tracking-[0.15em] text-[#A96E78]">{dayCount} kun birga</p>
+          <p className="book-font-serif mt-3 text-xs font-medium tracking-[0.15em] text-[#8A4F63]">{dayCount} kun birga ❤</p>
         )}
       </div>
     </div>
