@@ -110,43 +110,67 @@ function CoverFace({
   onUploadCover: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div className="book-cover-modern relative flex h-full w-full flex-col items-center justify-between overflow-hidden rounded-r-lg px-8 py-12">
-      <div className="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-white/40 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full bg-[#B8637F]/25 blur-3xl" />
+    <div className="book-cover-modern relative flex h-full w-full flex-col items-center overflow-hidden rounded-r-lg px-7 py-9">
+      {/* Soft watercolor brush-stroke accents, top and bottom corners */}
+      <div
+        className="pointer-events-none absolute -right-6 top-10 h-16 w-40 rotate-[-8deg] bg-[#B8637F]/25 blur-md"
+        style={{ borderRadius: "50% 50% 45% 55% / 60% 40% 60% 40%" }}
+      />
+      <div
+        className="pointer-events-none absolute -left-8 bottom-24 h-14 w-36 rotate-[6deg] bg-[#B8637F]/20 blur-md"
+        style={{ borderRadius: "45% 55% 50% 50% / 40% 60% 40% 60%" }}
+      />
 
-      <div className="z-10 mt-2 flex w-full flex-col items-center text-center">
+      <div className="z-10 flex w-full flex-col items-center text-center">
         <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.4em] text-[#8A4F63]">
-          <Heart size={11} className="fill-[#B8637F] text-[#B8637F]" />
+          <Heart size={10} className="fill-[#B8637F] text-[#B8637F]" />
           Bizning
-          <Heart size={11} className="fill-[#B8637F] text-[#B8637F]" />
+          <Heart size={10} className="fill-[#B8637F] text-[#B8637F]" />
         </span>
-        <h1 className="book-font-serif mt-2 text-[3.2rem] font-medium leading-[1.05] tracking-tight text-[#5A2E3D] drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">
+        <h1 className="book-font-serif mt-2 whitespace-nowrap text-[2rem] font-medium tracking-tight text-[#5A2E3D]">
           Hayot Daftarimiz
         </h1>
-        <p className="book-font-poetic mt-2 text-2xl tracking-wide text-[#B8637F]">
+        <p className="book-font-poetic -mt-1 text-lg tracking-wide text-[#B8637F]">
           bizning sevgi kundaligimiz
         </p>
       </div>
 
-      <div className="book-animate-breathe z-10 relative mb-2 mt-2">
-        <div className="relative flex h-72 w-56 items-center justify-center overflow-hidden rounded-[2.5rem] border-4 border-white/70 bg-white/40 shadow-[0_25px_45px_rgba(90,46,61,0.35)]">
+      <div className="book-animate-breathe z-10 relative mt-5 flex items-center gap-3">
+        {/* Floral sprig, tucked behind the photo's left edge */}
+        <svg viewBox="0 0 60 100" className="pointer-events-none absolute -left-9 bottom-4 h-24 w-16 text-[#B8637F]" fill="none" aria-hidden="true">
+          <path d="M30,95 Q28,60 32,30" stroke="#8A4F63" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="32" cy="28" r="6" fill="#f3c9d6" />
+          <circle cx="22" cy="38" r="5" fill="#eeb4c8" />
+          <circle cx="24" cy="52" r="5.5" fill="#f3c9d6" />
+          <circle cx="18" cy="20" r="4.5" fill="#eeb4c8" />
+        </svg>
+
+        <div className="relative flex h-60 w-44 items-center justify-center overflow-hidden rounded-md bg-white/40 shadow-[0_20px_35px_rgba(90,46,61,0.3)]">
           {coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={coverImageUrl}
-              alt=""
-              className="h-full w-full object-cover object-center"
-            />
+            <img src={coverImageUrl} alt="" className="h-full w-full object-cover object-center" />
           ) : (
             <FloralPlaceholder />
           )}
+
+          {/* Washi-tape corners, as if the photo were taped onto the page */}
+          <div className="pointer-events-none absolute -top-2 -left-3 h-5 w-12 -rotate-45 bg-white/50 shadow-sm" />
+          <div className="pointer-events-none absolute -bottom-2 -right-3 h-5 w-12 -rotate-45 bg-white/50 shadow-sm" />
         </div>
+
+        <span className="book-font-poetic flex flex-col items-center gap-1 text-sm leading-tight text-[#8A4F63]">
+          <span>Good</span>
+          <span>People</span>
+          <span>Good</span>
+          <span>Memories</span>
+          <Heart size={11} className="mt-1 text-[#8A4F63]" />
+        </span>
 
         {/* Always-visible (not hover-gated, since touch devices have no
             hover state) small upload badge, tucked into the frame's corner. */}
         {isOwner && (
           <label
-            className="book-font-serif absolute -bottom-2 -right-2 flex cursor-pointer items-center gap-1.5 rounded-full border-2 border-white bg-[#5A2E3D] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(90,46,61,0.5)] transition-all hover:scale-105 hover:bg-[#6f3a4e]"
+            className="book-font-serif absolute -bottom-2 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border-2 border-white bg-[#5A2E3D] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(90,46,61,0.5)] transition-all hover:scale-105 hover:bg-[#6f3a4e]"
             aria-label={coverImageUrl ? "Muqova rasmini almashtirish" : "Muqovaga surat qo'yish"}
           >
             <Camera size={14} />
@@ -156,7 +180,7 @@ function CoverFace({
         )}
       </div>
 
-      <div className="z-10 mb-2 flex w-full flex-col items-center px-6 text-center">
+      <div className="z-10 mt-8 flex w-full flex-col items-center px-4 text-center">
         <p className="book-font-serif mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-[#8A4F63]">
           Tanishgan kunimizdan boshlangan hikoya
         </p>
@@ -164,9 +188,17 @@ function CoverFace({
           <span className="book-font-serif text-sm font-medium tracking-[0.15em] text-[#5A2E3D]">{startLabel}</span>
         </div>
         {dayCount !== null && (
-          <p className="book-font-serif mt-3 text-xs font-medium tracking-[0.15em] text-[#8A4F63]">{dayCount} kun birga ❤</p>
+          <p className="book-font-serif mt-3 flex items-center gap-1 text-xs font-medium tracking-[0.15em] text-[#8A4F63]">
+            {dayCount} kun birga <Heart size={11} className="fill-[#B8637F] text-[#B8637F]" />
+          </p>
         )}
       </div>
+
+      {/* Bookmark ribbon, hanging off the bottom edge */}
+      <div
+        className="pointer-events-none absolute bottom-0 left-10 h-10 w-4 bg-[#B8637F]"
+        style={{ clipPath: "polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)" }}
+      />
     </div>
   );
 }
@@ -1094,11 +1126,6 @@ export function MomentsView({ role, startDate }: { role: MomentsRole; startDate:
               style={{ width: 450 * landingScale, height: 600 * landingScale }}
             >
               {renderBookContainer(landingScale, -225 * landingScale)}
-              <div
-                className="book-font-serif pointer-events-none absolute bottom-0 left-1/2 h-16 -translate-x-1/2 translate-y-2 bg-[#B8637F]"
-                style={{ width: 18 * landingScale, clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%)" }}
-                aria-hidden="true"
-              />
             </div>
             <div className="hidden flex-col items-center gap-3 md:flex">
               <span className="h-16 w-px bg-[#e8d5cc]/25" />
