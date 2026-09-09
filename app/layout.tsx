@@ -1,33 +1,61 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { themeInitScript } from "@/lib/theme";
+import { supabase } from "@/lib/supabase";
 
-export const metadata: Metadata = {
+const defaultTitle = "Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer";
+const defaultDescription = "Abdujalilov Avrangzeb - Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea. Portfolio, projects, and contact.";
+const defaultKeywords = [
+  "Avrangzeb Abdujalilov",
+  "Abdujalilov Avrangzeb",
+  "압둘잘릴로프 아브랑젭",
+  "Software Engineer",
+  "AI Engineer",
+  "Backend Developer",
+  "Network Administrator",
+  "Cybersecurity",
+  "CCNA",
+  "Woosuk University",
+  "우석대학교",
+  "IT Security",
+  "Tarmoq mutaxassisi",
+  "Axborot xavfsizligi",
+  "O'zbekiston IT",
+  "Korea IT student",
+  "Portfolio",
+  "Linux Administrator",
+  "Cisco",
+  "CompTIA Network+"
+];
+
+// Admin panel (/admin/seo) orqali tahrirlanadigan global SEO sozlamalarini oladi.
+// Baza mavjud bo'lmasa yoki xato bo'lsa, standart qiymatlarga qaytadi.
+async function getGlobalSeoSettings() {
+  try {
+    const { data } = await supabase
+      .from('portfolio_seo_settings')
+      .select('title, description, keywords')
+      .eq('page_key', 'global')
+      .single();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getGlobalSeoSettings();
+  const title = seo?.title || defaultTitle;
+  const description = seo?.description || defaultDescription;
+  const keywords = seo?.keywords
+    ? seo.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
+    : defaultKeywords;
+
+  return {
   metadataBase: new URL("https://avrangzebabdujalilov.com"),
-  title: "Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer",
-  description: "Abdujalilov Avrangzeb - Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea. Portfolio, projects, and contact.",
-  keywords: [
-    "Avrangzeb Abdujalilov",
-    "Abdujalilov Avrangzeb",
-    "압둘잘릴로프 아브랑젭",
-    "Software Engineer",
-    "AI Engineer",
-    "Backend Developer",
-    "Network Administrator",
-    "Cybersecurity",
-    "CCNA",
-    "Woosuk University",
-    "우석대학교",
-    "IT Security",
-    "Tarmoq mutaxassisi",
-    "Axborot xavfsizligi",
-    "O'zbekiston IT",
-    "Korea IT student",
-    "Portfolio",
-    "Linux Administrator",
-    "Cisco",
-    "CompTIA Network+"
-  ],
+  title,
+  description,
+  keywords,
   authors: [{ name: "Avrangzeb Abdujalilov" }],
   creator: "Avrangzeb Abdujalilov",
   publisher: "Avrangzeb Abdujalilov",
@@ -48,8 +76,8 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US', 'ko_KR'],
     url: 'https://avrangzebabdujalilov.com',
     siteName: 'Avrangzeb Abdujalilov Portfolio',
-    title: 'Avrangzeb Abdujalilov | Software Engineer & AI/Backend Developer',
-    description: 'Software Engineer specializing in AI, backend development, network security, and cybersecurity. Based in Jeonju, South Korea.',
+    title,
+    description,
     images: [
       {
         url: '/images/profile.png',
@@ -61,8 +89,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Avrangzeb Abdujalilov | Software Engineer',
-    description: 'Software Engineer specializing in AI, backend development, and cybersecurity, based in South Korea',
+    title,
+    description,
     images: ['/images/profile.png'],
   },
   verification: {
@@ -77,7 +105,8 @@ export const metadata: Metadata = {
     },
   },
   category: 'technology',
-};
+  };
+}
 
 // JSON-LD structured data
 const jsonLd = {
