@@ -162,7 +162,7 @@ export default function RootLayout({
   return (
     <html lang="uz" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/images/profile.png" />
+        <link rel="apple-touch-icon" href="/brand/logo/aaa-oltin-512.png" />
         <link rel="manifest" href="/manifest.json" />
         {/* Decorative script/serif fonts for the /moments memory book */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
