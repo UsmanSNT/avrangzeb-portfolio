@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 
 type SectionsLocale = "uz" | "en" | "ru" | "ko";
 
-const COPY: Record<SectionsLocale, { trigger: string; notes: string; books: string; news: string; gallery: string }> = {
-  uz: { trigger: "Bo'limlar", notes: "Qaydlar", books: "Kitob fikrlari", news: "Yangiliklar", gallery: "Galereya" },
-  en: { trigger: "Sections", notes: "Notes", books: "Book Quotes", news: "News", gallery: "Gallery" },
-  ru: { trigger: "Разделы", notes: "Заметки", books: "Цитаты из книг", news: "Новости", gallery: "Галерея" },
-  ko: { trigger: "섹션", notes: "노트", books: "책 인용구", news: "뉴스", gallery: "갤러리" },
+const COPY: Record<SectionsLocale, { trigger: string; notes: string; books: string; news: string; gallery: string; networkCourses: string }> = {
+  uz: { trigger: "Bo'limlar", notes: "Qaydlar", books: "Kitob fikrlari", news: "Yangiliklar", gallery: "Galereya", networkCourses: "Tarmoq darslari" },
+  en: { trigger: "Sections", notes: "Notes", books: "Book Quotes", news: "News", gallery: "Gallery", networkCourses: "Network Courses" },
+  ru: { trigger: "Разделы", notes: "Заметки", books: "Цитаты из книг", news: "Новости", gallery: "Галерея", networkCourses: "Сетевые курсы" },
+  ko: { trigger: "섹션", notes: "노트", books: "책 인용구", news: "뉴스", gallery: "갤러리", networkCourses: "네트워크 강의" },
 };
 
 function resolveLocale(locale: string): SectionsLocale {
@@ -35,6 +35,7 @@ function useSectionLinks(locale: string) {
     { href: "/books", label: t.books },
     { href: "/news", label: t.news },
     { href: "/gallery", label: t.gallery },
+    { href: "/network-courses", label: t.networkCourses },
   ];
 }
 
