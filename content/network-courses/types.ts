@@ -1,30 +1,124 @@
-export type LessonCheck = {
+/** Data-driven diagrams, rendered by components/network-courses/visuals. */
+export type Visual =
+  | {
+      kind: "stack";
+      /** Listed top to bottom. */
+      layers: readonly { label: string; note?: string; accent?: boolean }[];
+    }
+  | {
+      kind: "sequence";
+      actors: readonly string[];
+      /** `from` and `to` are indexes into `actors`. */
+      messages: readonly { from: number; to: number; label: string }[];
+    }
+  | {
+      kind: "topology";
+      nodes: readonly { id: string; label: string; icon: "host" | "switch" | "router" | "cloud" | "server" }[];
+      links: readonly (readonly [string, string])[];
+    };
+
+/** Short explanation: one idea per step. */
+export type LearnStep = {
+  type: "learn";
+  title: string;
+  body: string;
+  points?: readonly string[];
+  visual?: Visual;
+  /** Sample terminal output / notation, rendered as a monospaced block. */
+  terminal?: readonly string[];
+};
+
+/** Multiple choice; the learner must pick the right option to continue. */
+export type QuizStep = {
+  type: "quiz";
   question: string;
   options: readonly string[];
   answerIndex: number;
   explanation: string;
 };
 
-export type LessonLab = {
+/** Hands-on task on a real machine or in Packet Tracer; each task is ticked off. */
+export type LabStep = {
+  type: "lab";
   title: string;
-  /** Step-by-step instructions the learner performs on a real machine or in Packet Tracer. */
-  steps: readonly string[];
-  /** Commands to type by hand; rendered as a code block. */
+  tasks: readonly string[];
   commands?: readonly string[];
-  /** What the learner should see when the lab is done correctly. */
   expected: string;
 };
+
+/** Typing drill: the learner types a command from memory `reps` times. */
+export type TypeStep = {
+  type: "type";
+  title: string;
+  prompt: string;
+  accept: readonly string[];
+  reps: number;
+};
+
+/** Free-text answer to a calculation or recall question. */
+export type InputStep = {
+  type: "input";
+  question: string;
+  answers: readonly string[];
+  hint?: string;
+  explanation: string;
+  placeholder?: string;
+};
+
+/** Offline drill (paper, fingers, speaking) with an optional countdown. */
+export type PracticeStep = {
+  type: "practice";
+  title: string;
+  instructions: readonly string[];
+  seconds?: number;
+};
+
+/** Toggle 8 bits to reach each target number. */
+export type BinaryStep = {
+  type: "binary";
+  title: string;
+  prompt: string;
+  targets: readonly number[];
+};
+
+/** Put items in the right order; `items` are listed in the CORRECT order (the UI scrambles them). */
+export type OrderStep = {
+  type: "order";
+  title: string;
+  prompt: string;
+  items: readonly string[];
+};
+
+/** Interactive CIDR prefix explorer. */
+export type CidrStep = {
+  type: "cidr";
+  title: string;
+  prompt: string;
+};
+
+export type Step =
+  | LearnStep
+  | QuizStep
+  | LabStep
+  | TypeStep
+  | InputStep
+  | PracticeStep
+  | BinaryStep
+  | OrderStep
+  | CidrStep;
 
 export type Lesson = {
   id: string;
   title: string;
   summary: string;
   estimatedMinutes: number;
-  theory: readonly string[];
-  labs: readonly LessonLab[];
-  /** Short repetition drills that build muscle memory (typing, drawing, counting). */
-  drills: readonly string[];
-  checks: readonly LessonCheck[];
+  /** What the learner will be able to do after this lesson (shown on the intro screen). */
+  goals: readonly string[];
+  /** Tools needed for the labs, e.g. a terminal or Packet Tracer. */
+  requires?: string;
+  /** Key takeaways shown on the completion screen. */
+  recap: readonly string[];
+  steps: readonly Step[];
 };
 
 export type CourseLevelId = "beginner" | "intermediate" | "advanced";

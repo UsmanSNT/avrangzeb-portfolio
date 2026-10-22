@@ -1,0 +1,141 @@
+import type { Lesson } from "../types";
+
+export const osiTcpip: Lesson = {
+  id: "osi-tcpip",
+  title: "OSI va TCP/IP modellari",
+  summary: "Tarmoqni qatlamlarga bo'lib o'ylash. Muammoni qaysi qatlamda qidirishni o'rganasiz.",
+  estimatedMinutes: 30,
+  goals: [
+    "OSI ning 7 qatlamini tartib bilan sanab bera olasiz",
+    "Switch va router qaysi qatlamda ishlashini bilasiz",
+    "Encapsulation nima ekanini tushuntirib bera olasiz",
+  ],
+  requires: "Ixtiyoriy mashq uchun Wireshark (wireshark.org)",
+  recap: [
+    "OSI — 7 qatlam; pastdan yuqoriga: Physical, Data Link, Network, Transport, Session, Presentation, Application.",
+    "Switch — 2-qatlam, router — 3-qatlam.",
+    "Encapsulation: har qatlam ma'lumotga o'z sarlavhasini qo'shadi.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Nega qatlamlar kerak?",
+      body: "Tarmoqdagi jarayon murakkab. Uni sodda bo'laklarga ajratish uchun OSI modeli o'ylab topilgan: har qatlam faqat o'z vazifasini bajaradi va boshqasiga xalaqit bermaydi. Bu xuddi pochta kabi: xat yozuvchi yo'lni bilmaydi, pochtachi xat mazmunini bilmaydi.",
+    },
+    {
+      type: "learn",
+      title: "OSI ning 7 qatlami",
+      body: "Yuqoridan pastga qarab o'qing. Eng yuqorida siz ko'radigan dasturlar, eng pastda kabel.",
+      visual: {
+        kind: "stack",
+        layers: [
+          { label: "7 · Application", note: "Brauzer, pochta" },
+          { label: "6 · Presentation", note: "Format, shifrlash" },
+          { label: "5 · Session", note: "Seans boshqaruvi" },
+          { label: "4 · Transport", note: "TCP / UDP, portlar", accent: true },
+          { label: "3 · Network", note: "IP manzil, router", accent: true },
+          { label: "2 · Data Link", note: "MAC manzil, switch", accent: true },
+          { label: "1 · Physical", note: "Kabel, signal" },
+        ],
+      },
+    },
+    {
+      type: "learn",
+      title: "Qatlamlarni eslab qolish usuli",
+      body: "Pastdan yuqoriga inglizcha ibora yordam beradi: «Please Do Not Throw Sausage Pizza Away».",
+      points: [
+        "Please — Physical (1)",
+        "Do — Data Link (2)",
+        "Not — Network (3)",
+        "Throw — Transport (4)",
+        "Sausage — Session (5)",
+        "Pizza — Presentation (6)",
+        "Away — Application (7)",
+      ],
+    },
+    {
+      type: "order",
+      title: "Qatlamlarni tartiblang",
+      prompt: "Qatlamlarni pastdan yuqoriga (1 dan 7 gacha) bosish tartibida tering.",
+      items: ["Physical", "Data Link", "Network", "Transport", "Session", "Presentation", "Application"],
+    },
+    {
+      type: "quiz",
+      question: "Router OSI ning qaysi qatlamida ishlaydi?",
+      options: ["1 · Physical", "2 · Data Link", "3 · Network", "7 · Application"],
+      answerIndex: 2,
+      explanation: "Router IP manzillar bo'yicha qaror qiladi, IP esa Network (3) qatlamiga tegishli.",
+    },
+    {
+      type: "quiz",
+      question: "Switch asosan qaysi qatlamda ishlaydi?",
+      options: ["1 · Physical", "2 · Data Link", "3 · Network", "4 · Transport"],
+      answerIndex: 1,
+      explanation: "Switch MAC manzillar bilan ishlaydi, MAC esa Data Link (2) qatlamiga tegishli.",
+    },
+    {
+      type: "learn",
+      title: "TCP/IP: amaldagi 4 qatlam",
+      body: "Amalda OSI emas, soddaroq TCP/IP modeli ishlatiladi. U OSI qatlamlarini 4 ta guruhga birlashtiradi.",
+      visual: {
+        kind: "stack",
+        layers: [
+          { label: "Application", note: "OSI 5–7" },
+          { label: "Transport", note: "OSI 4 · TCP, UDP", accent: true },
+          { label: "Internet", note: "OSI 3 · IP", accent: true },
+          { label: "Network Access", note: "OSI 1–2" },
+        ],
+      },
+    },
+    {
+      type: "learn",
+      title: "Encapsulation: «konvert ichida konvert»",
+      body: "Ma'lumot yuborilganda har qatlam unga o'z sarlavhasini (header) qo'shadi, ya'ni uni o'z konvertiga soladi. Qabul qiluvchi tomonda konvertlar ketma-ket ochiladi.",
+      visual: {
+        kind: "stack",
+        layers: [
+          { label: "Ma'lumot", note: "Application" },
+          { label: "Segment", note: "Transport: port qo'shiladi", accent: true },
+          { label: "Paket", note: "Network: IP manzil qo'shiladi", accent: true },
+          { label: "Kadr", note: "Data Link: MAC manzil qo'shiladi", accent: true },
+          { label: "Bitlar", note: "Physical: signal" },
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "Yuboruvchi tomonda har qatlam sarlavha qo'shishi qanday ataladi?",
+      options: ["Decapsulation", "Encapsulation", "Routing", "Fragmentation"],
+      answerIndex: 1,
+      explanation: "Encapsulation — sarlavha qo'shish. Qabul qiluvchida teskari jarayon (decapsulation) bo'ladi.",
+    },
+    {
+      type: "input",
+      question: "Kabel uzilib qoldi. Muammo OSI ning nechanchi qatlamida?",
+      answers: ["1"],
+      hint: "Kabel va signal — eng quyi qatlam.",
+      explanation: "Kabel — Physical (1) qatlam. Diagnostika odatda shu qatlamdan boshlanadi.",
+      placeholder: "Raqamni yozing",
+    },
+    {
+      type: "practice",
+      title: "Qatlamlarni yodlang",
+      instructions: [
+        "7 qatlamni pastdan yuqoriga baland ovozda ayting, so'ng yuqoridan pastga.",
+        "Bo'sh qog'ozga jadvalni yodingizdan chizing va har qatlam yoniga misol yozing.",
+        "Xatosiz bajara olguningizcha takrorlang.",
+      ],
+      seconds: 90,
+    },
+    {
+      type: "lab",
+      title: "Paketni ushlab ko'ring (ixtiyoriy)",
+      tasks: [
+        "wireshark.org saytidan Wireshark'ni o'rnating va tarmoq interfeysingizni tanlab yozuvni boshlang.",
+        "Boshqa oynada ping 8.8.8.8 ni ishga tushiring. Wireshark filtriga icmp yozing.",
+        "Birinchi paketni oching: Ethernet (2-qatlam), Internet Protocol (3-qatlam) va ICMP bo'limlarini toping.",
+      ],
+      expected: "Bitta ping paketida bir nechta qatlam sarlavhalari ketma-ket joylashgani ko'rinadi.",
+    },
+  ],
+};

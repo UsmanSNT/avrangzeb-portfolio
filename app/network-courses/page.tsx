@@ -7,12 +7,14 @@ import { SectionsDropdown } from "@/components/SectionsDropdown";
 import { LessonItem } from "@/components/network-courses/LessonItem";
 import { useLessonProgress } from "@/components/network-courses/useLessonProgress";
 import { networkCoursesCopy } from "@/content/network-courses/copy";
-import { publishedLevels, upcomingLevels } from "@/content/network-courses";
+import { allLessons, publishedLevels, upcomingLevels } from "@/content/network-courses";
 
 const t = networkCoursesCopy;
 
 export default function NetworkCoursesPage() {
-  const { completed, toggle } = useLessonProgress();
+  const { completed, position } = useLessonProgress();
+  const currentLesson = allLessons.find((lesson) => !completed.has(lesson.id));
+  const hasStarted = completed.size > 0 || Object.keys(position).length > 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -35,8 +37,8 @@ export default function NetworkCoursesPage() {
           className="absolute inset-0 bg-[linear-gradient(125deg,rgba(47,226,138,0.12),transparent_35%,rgba(34,211,238,0.1)_78%,transparent)] opacity-0 transition-opacity duration-500 dark:opacity-100"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-4xl">
-          <header className="mb-12">
+        <div className="relative mx-auto max-w-3xl">
+          <header className="mb-10">
             <p className="inline-flex rounded-lg border border-accent-green/20 bg-accent-green/[0.14] px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-green-text">
               {t.hero.eyebrow}
             </p>
@@ -44,20 +46,18 @@ export default function NetworkCoursesPage() {
             <p className="mt-4 max-w-2xl text-base leading-7 text-secondary sm:text-lg">{t.hero.subtitle}</p>
           </header>
 
-          <section aria-labelledby="method-title" className="mb-14">
-            <h2 id="method-title" className="mb-4 text-lg font-bold text-foreground">
-              {t.method.title}
-            </h2>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {t.method.items.map((item, index) => (
-                <li key={item.label} className="rounded-xl border border-line bg-card p-4">
-                  <span className="text-xs font-black text-cyan-text">0{index + 1}</span>
-                  <p className="mt-1 text-sm font-bold text-foreground">{item.label}</p>
-                  <p className="mt-1 text-sm leading-6 text-muted">{item.text}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {currentLesson && hasStarted && (
+            <Link
+              href={`/network-courses/${currentLesson.id}`}
+              className="mb-10 flex items-center justify-between gap-4 rounded-2xl border border-accent-green/40 bg-accent-green/10 p-4 transition-colors hover:border-accent-green sm:p-5"
+            >
+              <span>
+                <span className="block text-xs font-black uppercase tracking-[0.16em] text-green-text">{t.card.continueTitle}</span>
+                <span className="mt-1 block text-base font-bold text-foreground sm:text-lg">{currentLesson.title}</span>
+              </span>
+              <span className="text-xl text-green-text" aria-hidden="true">→</span>
+            </Link>
+          )}
 
           {publishedLevels.map((level) => {
             const doneCount = level.lessons.filter((lesson) => completed.has(lesson.id)).length;
@@ -93,10 +93,7 @@ export default function NetworkCoursesPage() {
                     aria-valuenow={doneCount}
                     className="mt-2 h-2 overflow-hidden rounded-full bg-line"
                   >
-                    <div
-                      className="h-full rounded-full bg-accent-green transition-[width] duration-500"
-                      style={{ width: `${percent}%` }}
-                    />
+                    <div className="h-full rounded-full bg-accent-green transition-[width] duration-500" style={{ width: `${percent}%` }} />
                   </div>
                 </div>
 
@@ -107,13 +104,29 @@ export default function NetworkCoursesPage() {
                       lesson={lesson}
                       number={index + 1}
                       isDone={completed.has(lesson.id)}
-                      onToggleDone={toggle}
+                      savedStep={position[lesson.id]}
+                      isCurrent={currentLesson?.id === lesson.id}
                     />
                   ))}
                 </div>
               </section>
             );
           })}
+
+          <section aria-labelledby="method-title" className="mb-14">
+            <h2 id="method-title" className="mb-4 text-lg font-bold text-foreground">
+              {t.method.title}
+            </h2>
+            <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {t.method.items.map((item, index) => (
+                <li key={item.label} className="rounded-xl border border-line bg-card p-4">
+                  <span className="text-xs font-black text-cyan-text">0{index + 1}</span>
+                  <p className="mt-1 text-sm font-bold text-foreground">{item.label}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted sm:text-sm sm:leading-6">{item.text}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
 
           <section aria-label={t.level.soon} className="grid gap-4 sm:grid-cols-2">
             {upcomingLevels.map((level) => (
