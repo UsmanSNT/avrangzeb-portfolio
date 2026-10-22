@@ -109,14 +109,22 @@ export const switching: Lesson = {
         "PC0 Command Prompt'da ping 192.168.1.11 ni bajaring.",
         "Switch CLI'ga o'ting va MAC jadvalini ko'ring.",
       ],
-      commands: ["enable", "show mac address-table"],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "enable", note: "Switch'da imtiyozli rejimga o'tadi. Qatorning oxiri > dan # ga o'zgaradi; show buyruqlari shu rejimda ishlaydi." },
+          { command: "show mac address-table", note: "Switch o'rgangan MAC manzillar jadvalini ko'rsatadi: qaysi MAC qaysi portda." },
+        ],
+      },
       expected: "Ping muvaffaqiyatli. Switch MAC jadvalida ikkala PC ning MAC manzillari va ularning portlari ko'rinadi.",
     },
     {
       type: "type",
       title: "Qo'l xotirasi: switch jadvali",
       prompt: "Cisco switch'da MAC jadvalini ko'rsatadigan buyruqni yozing.",
-      accept: ["show mac address-table", "show mac-address-table"],
+      options: [
+        { command: "show mac address-table", os: "Cisco switch" },
+      ],
       reps: 3,
     },
     {

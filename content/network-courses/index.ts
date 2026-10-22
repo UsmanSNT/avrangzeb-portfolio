@@ -10,6 +10,8 @@ export type {
   LearnStep,
   QuizStep,
   LabStep,
+  LabCommand,
+  LabCommands,
   TypeStep,
   InputStep,
   PracticeStep,

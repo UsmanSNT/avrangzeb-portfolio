@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ClipboardEvent, DragEvent, ReactNode } from "react";
 import { networkCoursesCopy } from "@/content/network-courses/copy";
 
 export const copy = networkCoursesCopy.player;
@@ -26,9 +26,24 @@ export function StepHeader({ badge, title }: { badge?: string; title: string }) 
   );
 }
 
+/**
+ * Props that make text hard to copy: the course wants commands typed by hand to build muscle memory.
+ * This blocks selecting, copying and dragging; it cannot stop screenshots or DevTools.
+ */
+export const noCopyProps = {
+  onCopy: (event: ClipboardEvent<HTMLElement>) => event.preventDefault(),
+  onCut: (event: ClipboardEvent<HTMLElement>) => event.preventDefault(),
+  onDragStart: (event: DragEvent<HTMLElement>) => event.preventDefault(),
+} as const;
+
+export const noCopyClass = "select-none [-webkit-touch-callout:none]";
+
 export function TerminalBlock({ lines }: { lines: readonly string[] }) {
   return (
-    <pre className="overflow-x-auto rounded-xl border border-line bg-surface p-4 font-mono text-xs leading-6 text-green-text sm:text-sm">
+    <pre
+      {...noCopyProps}
+      className={`overflow-x-auto rounded-xl border border-line bg-surface p-4 font-mono text-xs leading-6 text-green-text sm:text-sm ${noCopyClass}`}
+    >
       <code>{lines.join("\n")}</code>
     </pre>
   );

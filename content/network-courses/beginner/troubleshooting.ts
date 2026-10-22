@@ -105,7 +105,10 @@ export const troubleshooting: Lesson = {
       type: "type",
       title: "Qo'l xotirasi: yo'lni kuzatish",
       prompt: "example.com ga paket yo'lini ko'rsatadigan buyruqni yozing.",
-      accept: ["tracert example.com", "traceroute example.com"],
+      options: [
+        { command: "tracert example.com", os: "Windows" },
+        { command: "traceroute example.com", os: "Linux, macOS" },
+      ],
       reps: 3,
     },
     {
@@ -116,14 +119,17 @@ export const troubleshooting: Lesson = {
         "Qaysi qadam ishlamaganini yoki hamma qadam nimani tasdiqlaganini yozing.",
         "Natijani 1-darsda chizgan tarmoq rasmi bilan solishtiring.",
       ],
-      commands: [
-        "ipconfig /all",
-        "ping 127.0.0.1",
-        "ping <gateway IP>",
-        "ping 8.8.8.8",
-        "ping example.com",
-        "tracert example.com   (Linux: traceroute example.com)",
-      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ipconfig /all", note: "IP, maska, gateway va DNS to'g'riligini ko'rsatadi. Linux: ip a, macOS: ifconfig.", ifFails: "Manzil yo'q yoki 169.254.x.x: kabel/Wi-Fi yoki DHCP muammosi." },
+          { command: "ping 127.0.0.1", note: "Kompyuterning o'z tarmoq stekini tekshiradi.", ifFails: "Tarmoq steki yoki tarmoq kartasi drayveri buzilgan." },
+          { command: "ping <gateway IP>", note: "Routerga yetib borish mumkinligini tekshiradi. <gateway IP> — 1-darsdagi manzil.", ifFails: "Lokal tarmoqda muammo: kabel, Wi-Fi, IP sozlamasi yoki router." },
+          { command: "ping 8.8.8.8", note: "Internetga chiqishni tekshiradi (nom ishlatmasdan).", ifFails: "Router internetga chiqmayapti: provayder yoki router sozlamasi." },
+          { command: "ping example.com", note: "Nom orqali ishlashni, ya'ni DNS'ni tekshiradi.", ifFails: "8.8.8.8 ishlab, bu ishlamasa — DNS muammosi." },
+          { command: "tracert example.com", note: "Paket yo'lidagi har routerni ko'rsatadi. Linux/macOS: traceroute example.com." },
+        ],
+      },
       expected: "Barcha 6 qadam natijasi daftarda bor. Hamma narsa ishlasa, har qadamda aynan nima tasdiqlangani yozilgan.",
     },
     {

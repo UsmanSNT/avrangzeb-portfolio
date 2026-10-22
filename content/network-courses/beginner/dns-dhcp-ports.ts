@@ -116,7 +116,10 @@ export const dnsDhcpPorts: Lesson = {
       type: "type",
       title: "Qo'l xotirasi: DNS so'rovi",
       prompt: "example.com uchun DNS so'rovini yuboradigan buyruqni yozing.",
-      accept: ["nslookup example.com", "dig example.com"],
+      options: [
+        { command: "nslookup example.com", os: "Hamma tizimda" },
+        { command: "dig example.com", os: "Linux, macOS" },
+      ],
       reps: 3,
     },
     {
@@ -127,7 +130,13 @@ export const dnsDhcpPorts: Lesson = {
         "curl -I https://example.com bilan saytning sarlavhalarini so'rang.",
         "Birinchi qatordan HTTP status kodini toping (200, 301, 404 ...).",
       ],
-      commands: ["nslookup example.com", "curl -I https://example.com"],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "nslookup example.com", note: "DNS serverdan example.com ning IP manzilini so'raydi va qaysi server javob berganini ko'rsatadi." },
+          { command: "curl -I https://example.com", note: "Saytdan faqat HTTP sarlavhalarini so'raydi (-I). Birinchi qatorda status kodi bo'ladi." },
+        ],
+      },
       expected: "Domen uchun IP manzil va javob bergan DNS server hamda «HTTP/... 200» kabi status qatori ko'rinadi.",
     },
     {

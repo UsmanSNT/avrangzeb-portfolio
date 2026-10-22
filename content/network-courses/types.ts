@@ -37,21 +37,41 @@ export type QuizStep = {
   explanation: string;
 };
 
+export type LabCommand = {
+  command: string;
+  /** What the command does, in one short sentence. */
+  note: string;
+  /** Operating system or tool the command belongs to, e.g. "Windows". */
+  os?: string;
+  /** What a failure of this command usually means (used in diagnostic sequences). */
+  ifFails?: string;
+};
+
+/**
+ * `sequence`: run all commands in the listed order (numbered).
+ * `choose-one`: alternatives for different systems; run only the one that fits.
+ */
+export type LabCommands = {
+  mode: "sequence" | "choose-one";
+  items: readonly LabCommand[];
+};
+
 /** Hands-on task on a real machine or in Packet Tracer; each task is ticked off. */
 export type LabStep = {
   type: "lab";
   title: string;
   tasks: readonly string[];
-  commands?: readonly string[];
+  commands?: LabCommands;
   expected: string;
 };
 
-/** Typing drill: the learner types a command from memory `reps` times. */
+/** Typing drill: the learner types ONE of the listed commands from memory `reps` times. */
 export type TypeStep = {
   type: "type";
   title: string;
   prompt: string;
-  accept: readonly string[];
+  /** Equivalent commands (usually one per operating system); typing any one counts. */
+  options: readonly { command: string; os?: string }[];
   reps: number;
 };
 

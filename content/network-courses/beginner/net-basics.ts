@@ -107,14 +107,25 @@ export const netBasics: Lesson = {
         "Quyidagi buyruqlardan o'z tizimingizdagisini qo'lda yozing.",
         "IPv4 manzil, subnet mask va default gateway qiymatlarini daftarga yozib oling.",
       ],
-      commands: ["ipconfig /all   (Windows)", "ip a   (Linux)", "ifconfig   (macOS)"],
+      commands: {
+        mode: "choose-one",
+        items: [
+          { command: "ipconfig /all", note: "Barcha tarmoq sozlamalarini ko'rsatadi: IP, maska, gateway, DNS.", os: "Windows" },
+          { command: "ip a", note: "Tarmoq interfeyslari va ularning IP manzillarini ko'rsatadi.", os: "Linux" },
+          { command: "ifconfig", note: "Interfeys sozlamalarini ko'rsatadi.", os: "macOS" },
+        ],
+      },
       expected: "IPv4 manzilingiz (odatda 192.168.x.x yoki 10.x.x.x), subnet mask va gateway manzili ko'rinadi.",
     },
     {
       type: "type",
       title: "Qo'l xotirasi: tarmoq sozlamalari buyrug'i",
       prompt: "Tarmoq sozlamalarini ko'rsatadigan buyruqni yozing (o'z tizimingizdagisini).",
-      accept: ["ipconfig /all", "ip a", "ifconfig"],
+      options: [
+        { command: "ipconfig /all", os: "Windows" },
+        { command: "ip a", os: "Linux" },
+        { command: "ifconfig", os: "macOS" },
+      ],
       reps: 3,
     },
     {
