@@ -85,8 +85,11 @@ function computeLevels(nodes: readonly TopologyNode[], links: readonly (readonly
     degree.set(a, (degree.get(a) ?? 0) + 1);
     degree.set(b, (degree.get(b) ?? 0) + 1);
   });
+  // A simple chain (every node has at most two links) reads best as a straight vertical line.
+  const isChain = links.length === nodes.length - 1 && nodes.every((node) => (degree.get(node.id) ?? 0) <= 2);
   const root =
     nodes.find((node) => node.icon === "cloud") ??
+    (isChain ? nodes.find((node) => degree.get(node.id) === 1) : undefined) ??
     [...nodes].sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0))[0];
 
   const level = new Map<string, number>([[root.id, 0]]);

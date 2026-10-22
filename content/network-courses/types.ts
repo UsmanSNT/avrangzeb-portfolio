@@ -116,6 +116,30 @@ export type CidrStep = {
   prompt: string;
 };
 
+export type CliLine = {
+  /** Device prompt before the command, e.g. "Switch>" or "R1(config-if)#". */
+  prompt: string;
+  /** Plain-language description of what the learner must do now. */
+  task: string;
+  /**
+   * Accepted commands in full form; the first one is shown as the hint.
+   * IOS-style abbreviations of keywords (conf t, int g0/0, sh run) are accepted automatically.
+   */
+  accept: readonly string[];
+  /** What the command did, shown once it is entered. */
+  explain: string;
+  /** Simulated device output printed after the command. */
+  output?: readonly string[];
+};
+
+/** Simulated Cisco IOS terminal: the learner types each command in order. */
+export type CliStep = {
+  type: "cli";
+  title: string;
+  scenario: string;
+  lines: readonly CliLine[];
+};
+
 export type Step =
   | LearnStep
   | QuizStep
@@ -125,7 +149,8 @@ export type Step =
   | PracticeStep
   | BinaryStep
   | OrderStep
-  | CidrStep;
+  | CidrStep
+  | CliStep;
 
 export type Lesson = {
   id: string;

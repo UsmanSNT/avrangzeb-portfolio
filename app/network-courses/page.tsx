@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Logo } from "@/app/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SectionsDropdown } from "@/components/SectionsDropdown";
@@ -15,6 +16,9 @@ export default function NetworkCoursesPage() {
   const { completed, position } = useLessonProgress();
   const currentLesson = allLessons.find((lesson) => !completed.has(lesson.id));
   const hasStarted = completed.size > 0 || Object.keys(position).length > 0;
+  const currentLevelId = publishedLevels.find((level) => currentLesson && level.lessons.includes(currentLesson))?.id;
+  // Only the level the learner is working on starts expanded; explicit toggles override that default.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -64,6 +68,8 @@ export default function NetworkCoursesPage() {
             const totalMinutes = level.lessons.reduce((sum, lesson) => sum + lesson.estimatedMinutes, 0);
             const percent = Math.round((doneCount / level.lessons.length) * 100);
             const headingId = `level-${level.id}`;
+            const listId = `level-lessons-${level.id}`;
+            const isOpen = expanded[level.id] ?? level.id === (currentLevelId ?? publishedLevels[0].id);
 
             return (
               <section key={level.id} aria-labelledby={headingId} className="mb-16">
@@ -97,18 +103,39 @@ export default function NetworkCoursesPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-3">
-                  {level.lessons.map((lesson, index) => (
-                    <LessonItem
-                      key={lesson.id}
-                      lesson={lesson}
-                      number={index + 1}
-                      isDone={completed.has(lesson.id)}
-                      savedStep={position[lesson.id]}
-                      isCurrent={currentLesson?.id === lesson.id}
-                    />
-                  ))}
-                </div>
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={listId}
+                  onClick={() => setExpanded((prev) => ({ ...prev, [level.id]: !isOpen }))}
+                  className="mt-5 inline-flex items-center gap-2 rounded-lg border border-line bg-card px-4 py-2.5 text-sm font-bold text-foreground transition-colors hover:border-accent-cyan/50"
+                >
+                  {isOpen ? t.level.hideLessons : t.level.showLessons(level.lessons.length)}
+                  <svg
+                    className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isOpen && (
+                  <div id={listId} className="mt-5 space-y-3">
+                    {level.lessons.map((lesson, index) => (
+                      <LessonItem
+                        key={lesson.id}
+                        lesson={lesson}
+                        number={index + 1}
+                        isDone={completed.has(lesson.id)}
+                        savedStep={position[lesson.id]}
+                        isCurrent={currentLesson?.id === lesson.id}
+                      />
+                    ))}
+                  </div>
+                )}
               </section>
             );
           })}
@@ -128,7 +155,7 @@ export default function NetworkCoursesPage() {
             </ul>
           </section>
 
-          <section aria-label={t.level.soon} className="grid gap-4 sm:grid-cols-2">
+          <section aria-label={t.level.soon} className="grid gap-4">
             {upcomingLevels.map((level) => (
               <div key={level.id} className="rounded-2xl border border-dashed border-line bg-card/50 p-5">
                 <div className="flex items-center justify-between gap-3">
@@ -139,7 +166,7 @@ export default function NetworkCoursesPage() {
                 <p className="mt-2 text-sm leading-6 text-muted">{level.description}</p>
               </div>
             ))}
-            <p className="text-sm text-subtle sm:col-span-2">{t.level.soonNote}</p>
+            <p className="text-sm text-subtle">{t.level.soonNote}</p>
           </section>
         </div>
       </main>

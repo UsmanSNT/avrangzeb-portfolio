@@ -1,0 +1,155 @@
+import type { Lesson } from "../types";
+
+export const dhcpServer: Lesson = {
+  id: "dhcp-server",
+  title: "Routerda DHCP server va relay",
+  summary: "Router'ni DHCP serverga aylantirish va boshqa subnetdagi serverga so'rovlarni yo'naltirish.",
+  estimatedMinutes: 40,
+  goals: [
+    "Router'da DHCP pool'ni sozlaysiz",
+    "Qaysi manzillar istisno qilinishini tushuntirasiz",
+    "DHCP relay (ip helper-address) qachon kerakligini bilasiz",
+  ],
+  requires: "Cisco Packet Tracer; 4-darsdagi router-on-a-stick laboratoriyasi",
+  recap: [
+    "ip dhcp excluded-address — statik manzillarni (gateway, server, printer) pool'dan chiqaradi.",
+    "Pool: network, default-router, dns-server.",
+    "DHCP so'rovi broadcast; router uni o'tkazmaydi. Server boshqa subnetda bo'lsa — ip helper-address.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Router — DHCP server",
+      body: "Kichik ofisda alohida server shart emas: router o'zi kompyuterlarga IP, maska, gateway va DNS beradi. Jarayon 1-bosqichdagi DORA bilan bir xil: Discover, Offer, Request, Acknowledge.",
+    },
+    {
+      type: "learn",
+      title: "Sozlama qismlari",
+      body: "DHCP server uch qismdan iborat.",
+      points: [
+        "Istisnolar — qo'lda berilgan manzillar (gateway, server, printer) hech kimga berilmasligi uchun.",
+        "Pool — nom va tarmoq (network).",
+        "Parametrlar — default-router (gateway) va dns-server.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Nega 192.168.10.1 manzilini pool'dan istisno qilamiz?",
+      options: [
+        "U router interfeysida (gateway) qo'lda berilgan",
+        "Bu manzil ishlamaydi",
+        "Broadcast manzil bo'lgani uchun",
+        "Istisno qilish shart emas",
+      ],
+      answerIndex: 0,
+      explanation: "Agar gateway manzili kompyuterga berilib qolsa, IP to'qnashuvi (conflict) bo'ladi.",
+    },
+    {
+      type: "cli",
+      title: "VLAN 10 uchun DHCP pool",
+      scenario: "R1 VLAN 10 (192.168.10.0/24) uchun manzil tarqatsin. .1 dan .10 gacha — qurilmalar uchun zaxira. Gateway 192.168.10.1, DNS 8.8.8.8.",
+      lines: [
+        { prompt: "R1>", task: "Imtiyozli rejimga o'ting.", accept: ["enable"], explain: "R1#." },
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "192.168.10.1 dan 192.168.10.10 gacha manzillarni istisno qiling.", accept: ["ip dhcp excluded-address 192.168.10.1 192.168.10.10"], explain: "Bu 10 ta manzil hech qachon tarqatilmaydi." },
+        { prompt: "R1(config)#", task: "LAN10 nomli pool yarating.", accept: ["ip dhcp pool LAN10"], explain: "(dhcp-config)# — pool sozlamalari." },
+        { prompt: "R1(dhcp-config)#", task: "Pool tarmog'ini 192.168.10.0/24 qiling.", accept: ["network 192.168.10.0 255.255.255.0"], explain: "Manzillar shu tarmoqdan beriladi." },
+        { prompt: "R1(dhcp-config)#", task: "Gateway'ni 192.168.10.1 qiling.", accept: ["default-router 192.168.10.1"], explain: "Kompyuterlar shu manzilni default gateway sifatida oladi." },
+        { prompt: "R1(dhcp-config)#", task: "DNS server'ni 8.8.8.8 qiling.", accept: ["dns-server 8.8.8.8"], explain: "Kompyuterlar nomlarni shu server orqali aniqlaydi." },
+        { prompt: "R1(dhcp-config)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "Berilgan manzillar ro'yxatini ko'ring.",
+          accept: ["show ip dhcp binding"],
+          explain: "Qaysi MAC manzilga qaysi IP berilgani ko'rinadi.",
+          output: ["IP address      Client-ID/Hardware address  Lease expiration  Type", "192.168.10.11   0001.42A3.1B2C              --                Automatic"],
+        },
+      ],
+    },
+    {
+      type: "input",
+      question: "Yuqoridagi pool'da kompyuterga berilishi mumkin bo'lgan eng kichik manzil qaysi?",
+      answers: ["192.168.10.11"],
+      hint: ".1 dan .10 gacha istisno qilingan.",
+      explanation: "Istisnodan keyingi birinchi manzil — 192.168.10.11.",
+      placeholder: "Manzil",
+    },
+    {
+      type: "learn",
+      title: "Muammo: server boshqa subnetda",
+      body: "Katta tarmoqda DHCP server markazda, alohida subnetda turadi. Lekin kompyuterning Discover xabari broadcast, router esa broadcast'ni boshqa tarmoqqa o'tkazmaydi. Yechim — DHCP relay: router xabarni ushlab, serverga unicast qilib yuboradi.",
+      visual: {
+        kind: "sequence",
+        actors: ["Kompyuter", "R1 (relay)", "DHCP server"],
+        messages: [
+          { from: 0, to: 1, label: "Discover (broadcast)" },
+          { from: 1, to: 2, label: "Discover (unicast, relay orqali)" },
+          { from: 2, to: 1, label: "Offer" },
+          { from: 1, to: 0, label: "Offer" },
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "ip helper-address qaysi interfeysda sozlanadi?",
+      options: [
+        "DHCP server'ga qaragan interfeysda",
+        "Kompyuterlarga qaragan (ularning gateway'i bo'lgan) interfeysda",
+        "Barcha interfeyslarda",
+        "Faqat loopback'da",
+      ],
+      answerIndex: 1,
+      explanation: "Broadcast aynan kompyuterlar tomonidagi interfeysga keladi, shuning uchun relay shu yerda sozlanadi.",
+    },
+    {
+      type: "cli",
+      title: "DHCP relay'ni sozlang",
+      scenario: "DHCP server 10.0.0.100 manzilida, boshqa subnetda. R2 ning Gi0/0 interfeysi orqasidagi kompyuterlar undan manzil olsin.",
+      lines: [
+        { prompt: "R2#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R2(config)#." },
+        { prompt: "R2(config)#", task: "Kompyuterlarga qaragan Gi0/0 interfeysiga kiring.", accept: ["interface gigabitEthernet0/0"], explain: "Broadcast'lar shu interfeysga keladi." },
+        { prompt: "R2(config-if)#", task: "DHCP so'rovlarini 10.0.0.100 ga yo'naltiring.", accept: ["ip helper-address 10.0.0.100"], explain: "Discover endi unicast bo'lib serverga boradi." },
+        { prompt: "R2(config-if)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "Relay tayyor." },
+      ],
+    },
+    {
+      type: "learn",
+      title: "Kompyuter manzil olmasa",
+      body: "Kompyuter 169.254.x.x olsa, DHCP javob bermagan. Tekshirish tartibi:",
+      points: [
+        "Port to'g'ri VLAN'dami (show vlan brief)?",
+        "Pool shu VLAN subnetiga mosmi, istisnolar to'g'rimi?",
+        "Server boshqa subnetda bo'lsa, ip helper-address bormi?",
+        "show ip dhcp pool va show ip dhcp conflict natijalari.",
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: DHCP ijaralari",
+      prompt: "Router bergan IP manzillar ro'yxatini ko'rsatadigan buyruqni yozing.",
+      options: [{ command: "show ip dhcp binding", os: "Cisco IOS" }],
+      reps: 3,
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: har VLAN uchun DHCP",
+      tasks: [
+        "4-darsdagi router-on-a-stick laboratoriyasini oching.",
+        "R1 da VLAN 10 va VLAN 20 uchun ikkita pool yarating (LAN10, LAN20), har birida .1–.10 istisno.",
+        "PC'larni Desktop → IP Configuration → DHCP rejimiga o'tkazing.",
+        "PC'lar to'g'ri subnetdan manzil olganini va VLAN'lararo ping ishlashini tekshiring.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ip dhcp excluded-address 192.168.20.1 192.168.20.10", note: "VLAN 20 uchun istisno (VLAN 10 uchun mashqdagidek)." },
+          { command: "ip dhcp pool LAN20", note: "VLAN 20 pool'i." },
+          { command: "network 192.168.20.0 255.255.255.0", note: "Pool tarmog'i." },
+          { command: "default-router 192.168.20.1", note: "VLAN 20 gateway'i — Gi0/0.20 subinterfeysi." },
+          { command: "show ip dhcp binding", note: "Ikkala VLAN kompyuterlari ro'yxatda bo'lishi kerak." },
+        ],
+      },
+      expected: "VLAN 10 kompyuterlari 192.168.10.11+, VLAN 20 kompyuterlari 192.168.20.11+ manzil oladi.",
+    },
+  ],
+};

@@ -1,0 +1,180 @@
+import type { Lesson } from "../types";
+
+export const interVlan: Lesson = {
+  id: "inter-vlan",
+  title: "VLAN'lararo marshrutlash",
+  summary: "Turli VLAN'lar o'rtasida aloqa: router-on-a-stick va L3 switch usullari.",
+  estimatedMinutes: 45,
+  goals: [
+    "VLAN'lar o'rtasida nega router kerakligini tushuntirasiz",
+    "Router-on-a-stick'ni subinterfeyslar bilan sozlaysiz",
+    "L3 switch'dagi SVI usulini taniysiz",
+  ],
+  requires: "Cisco Packet Tracer; 3-darsdagi trunk laboratoriyasi",
+  recap: [
+    "Har VLAN — alohida subnet; ular o'rtasida 3-qatlam qurilmasi marshrutlaydi.",
+    "Router-on-a-stick: bitta trunk kabel, har VLAN uchun subinterfeys (encapsulation dot1Q N + IP).",
+    "L3 switch: ip routing + interface vlan N (SVI) — tezroq, yirik tarmoqlarda shu ishlatiladi.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "VLAN'lar devor bilan ajratilgan",
+      body: "VLAN 10 va VLAN 20 — turli subnet va turli broadcast domain. Ular o'rtasida paket o'tkazish — bu marshrutlash, ya'ni 3-qatlam ishi. Switch buni o'zi qila olmaydi (agar u L3 switch bo'lmasa).",
+    },
+    {
+      type: "learn",
+      title: "Uchta usul",
+      body: "Amalda uch xil yondashuv bor.",
+      points: [
+        "Har VLAN uchun router'ning alohida fizik porti — sodda, lekin portlar tez tugaydi.",
+        "Router-on-a-stick — bitta trunk kabel va har VLAN uchun subinterfeys.",
+        "L3 switch — switch'ning o'zi marshrutlaydi (SVI). Korxonalarda standart.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Router-on-a-stick",
+      body: "Switch va router orasida bitta trunk kabel bor. Router fizik portini mantiqiy subinterfeyslarga bo'ladi: Gi0/0.10 — VLAN 10 uchun, Gi0/0.20 — VLAN 20 uchun. Har subinterfeys IP'si — o'sha VLAN'ning default gateway'i.",
+      visual: {
+        kind: "topology",
+        nodes: [
+          { id: "r1", label: "R1 · Gi0/0.10 / .20", icon: "router" },
+          { id: "sw", label: "SW1 (trunk)", icon: "switch" },
+          { id: "a", label: "PC1 · VLAN 10", icon: "host" },
+          { id: "b", label: "PC3 · VLAN 20", icon: "host" },
+        ],
+        links: [
+          ["r1", "sw"],
+          ["sw", "a"],
+          ["sw", "b"],
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "Router-on-a-stick'da switch'ning router'ga qaragan porti qanday sozlanadi?",
+      options: ["Access, VLAN 10", "Trunk", "O'chirilgan", "Access, VLAN 1"],
+      answerIndex: 1,
+      explanation: "Bitta kabel orqali bir nechta VLAN o'tishi kerak, shuning uchun port trunk bo'ladi.",
+    },
+    {
+      type: "learn",
+      title: "Subinterfeys: tartib muhim",
+      body: "Subinterfeysga avval qaysi VLAN tegini qabul qilishini aytasiz (encapsulation dot1Q), keyin IP berasiz. IOS teg belgilanmagan subinterfeysga IP berishga ruxsat bermaydi. Fizik portni esa no shutdown bilan yoqish kerak.",
+      terminal: [
+        "R1(config)# interface gigabitEthernet0/0.10",
+        "R1(config-subif)# encapsulation dot1Q 10",
+        "R1(config-subif)# ip address 192.168.10.1 255.255.255.0",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Router-on-a-stick'ni sozlang",
+      scenario: "R1 ning Gi0/0 porti SW1 trunk portiga ulangan. VLAN 10 (192.168.10.0/24) va VLAN 20 (192.168.20.0/24) uchun gateway'larni sozlang.",
+      lines: [
+        { prompt: "R1>", task: "Imtiyozli rejimga o'ting.", accept: ["enable"], explain: "R1#." },
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "Fizik GigabitEthernet0/0 interfeysiga kiring.", accept: ["interface gigabitEthernet0/0"], explain: "Asosiy port tanlandi." },
+        { prompt: "R1(config-if)#", task: "Portni yoqing.", accept: ["no shutdown"], explain: "Fizik port yoqildi; subinterfeyslar unga bog'liq." },
+        { prompt: "R1(config-if)#", task: "VLAN 10 uchun 0/0.10 subinterfeysini yarating.", accept: ["interface gigabitEthernet0/0.10"], explain: "(config-subif)# — mantiqiy interfeys." },
+        { prompt: "R1(config-subif)#", task: "Subinterfeysni VLAN 10 tegiga bog'lang.", accept: ["encapsulation dot1Q 10"], explain: "VLAN 10 tegli kadrlar shu subinterfeysga tushadi." },
+        { prompt: "R1(config-subif)#", task: "Unga 192.168.10.1/24 manzilini bering.", accept: ["ip address 192.168.10.1 255.255.255.0"], explain: "Bu VLAN 10 dagi kompyuterlarning gateway'i." },
+        { prompt: "R1(config-subif)#", task: "VLAN 20 uchun 0/0.20 subinterfeysini yarating.", accept: ["interface gigabitEthernet0/0.20"], explain: "Ikkinchi mantiqiy interfeys." },
+        { prompt: "R1(config-subif)#", task: "Uni VLAN 20 tegiga bog'lang.", accept: ["encapsulation dot1Q 20"], explain: "VLAN 20 kadrlari shu yerga tushadi." },
+        { prompt: "R1(config-subif)#", task: "Unga 192.168.20.1/24 manzilini bering.", accept: ["ip address 192.168.20.1 255.255.255.0"], explain: "VLAN 20 gateway'i tayyor." },
+        { prompt: "R1(config-subif)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "Interfeyslarning qisqa holatini ko'ring.",
+          accept: ["show ip interface brief"],
+          explain: "Har subinterfeys IP'si va holati (up/up) ko'rinadi.",
+          output: [
+            "Interface              IP-Address      OK? Method Status  Protocol",
+            "GigabitEthernet0/0     unassigned      YES unset  up      up",
+            "GigabitEthernet0/0.10  192.168.10.1    YES manual up      up",
+            "GigabitEthernet0/0.20  192.168.20.1    YES manual up      up",
+          ],
+        },
+      ],
+    },
+    {
+      type: "input",
+      question: "VLAN 20 dagi kompyuterning default gateway manzili qanday bo'lishi kerak?",
+      answers: ["192.168.20.1"],
+      hint: "Gateway — router'ning shu VLAN'ga qaragan subinterfeysi.",
+      explanation: "VLAN 20 kompyuterlari Gi0/0.20 subinterfeysi manzilini, ya'ni 192.168.20.1 ni gateway qilib oladi.",
+      placeholder: "Manzil",
+    },
+    {
+      type: "order",
+      title: "Paketning yo'li",
+      prompt: "PC1 (VLAN 10) dan PC3 ga (VLAN 20) paket qanday borishini tartiblang.",
+      items: [
+        "PC1 paketni gateway 192.168.10.1 ga yuboradi",
+        "SW1 kadrni trunk orqali VLAN 10 tegi bilan R1 ga uzatadi",
+        "R1 Gi0/0.10 da qabul qilib, 192.168.20.0/24 yo'lini topadi",
+        "R1 paketni Gi0/0.20 orqali VLAN 20 tegi bilan qaytaradi",
+        "SW1 kadrni PC3 portiga yetkazadi",
+      ],
+    },
+    {
+      type: "learn",
+      title: "L3 switch usuli",
+      body: "Ko'p trafikli tarmoqda bitta trunk kabel tor joyga aylanadi. L3 switch marshrutlashni o'zi bajaradi: har VLAN uchun virtual interfeys (SVI) yaratiladi va marshrutlash yoqiladi.",
+      terminal: [
+        "SW-L3(config)# ip routing",
+        "SW-L3(config)# interface vlan 10",
+        "SW-L3(config-if)# ip address 192.168.10.1 255.255.255.0",
+        "SW-L3(config-if)# no shutdown",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "L3 switch'da VLAN'lar orasida marshrutlashni qaysi buyruq yoqadi?",
+      options: ["ip routing", "switchport mode trunk", "encapsulation dot1Q", "router ospf 1"],
+      answerIndex: 0,
+      explanation: "ip routing switch'ning marshrutlash funksiyasini yoqadi. Usiz SVI'lar faqat boshqaruv uchun ishlaydi.",
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: interfeyslar holati",
+      prompt: "Interfeyslar, IP manzillar va holatni qisqa jadvalda ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show ip interface brief", os: "To'liq" },
+        { command: "sh ip int br", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: VLAN'lar o'zaro gaplashadi",
+      tasks: [
+        "2-darsdagi switch'ga 2911 router qo'shing: router Gi0/0 → switch Gi0/1.",
+        "Switch'da Gi0/1 ni trunk qiling.",
+        "Router'da subinterfeyslarni sozlang (yuqoridagi terminal mashqi).",
+        "PC'larda gateway bering: VLAN 10 → 192.168.10.1, VLAN 20 → 192.168.20.1.",
+        "PC1 dan PC3 ga ping va tracert qiling.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "interface gigabitEthernet0/1", note: "Switch'da router'ga qaragan port." },
+          { command: "switchport mode trunk", note: "Switch tomonida trunk." },
+          { command: "show ip interface brief", note: "Router'da subinterfeyslar up/up ekanini tekshiradi." },
+          { command: "tracert 192.168.20.11", note: "PC1 dan: birinchi qadam 192.168.10.1 (router) bo'lishi kerak." },
+        ],
+      },
+      expected: "PC1 → PC3 ping ishlaydi. tracert natijasida birinchi qadam 192.168.10.1, ikkinchisi PC3.",
+    },
+    {
+      type: "practice",
+      title: "Gateway jadvali",
+      instructions: [
+        "2-darsda o'zingiz tuzgan ofis rejasini oling.",
+        "Har VLAN uchun subinterfeys nomi (Gi0/0.N), encapsulation buyrug'i va gateway IP'sini yozing.",
+        "Jadvalni yoddan, ekranga qaramay to'ldirib ko'ring.",
+      ],
+    },
+  ],
+};

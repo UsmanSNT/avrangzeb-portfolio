@@ -7,6 +7,7 @@ import { findLesson, type Lesson, type Step } from "@/content/network-courses";
 import { networkCoursesCopy } from "@/content/network-courses/copy";
 import { BinaryView } from "./steps/BinaryView";
 import { CidrView } from "./steps/CidrView";
+import { CliView } from "./steps/CliView";
 import { InputView } from "./steps/InputView";
 import { LabView } from "./steps/LabView";
 import { LearnView } from "./steps/LearnView";
@@ -39,15 +40,26 @@ function StepView({ step, onSolved }: { step: Step; onSolved: () => void }) {
       return <OrderView step={step} onSolved={onSolved} />;
     case "cidr":
       return <CidrView step={step} onSolved={onSolved} />;
+    case "cli":
+      return <CliView step={step} onSolved={onSolved} />;
   }
 }
 
-function IntroScreen({ lesson, savedStep, onStart }: { lesson: Lesson; savedStep: number; onStart: (from: number) => void }) {
+type IntroScreenProps = {
+  lesson: Lesson;
+  stage: number;
+  number: number;
+  savedStep: number;
+  onStart: (from: number) => void;
+};
+
+function IntroScreen({ lesson, stage, number, savedStep, onStart }: IntroScreenProps) {
   const resumable = savedStep > 0 && savedStep < lesson.steps.length;
   return (
     <div>
       <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-text">
-        {networkCoursesCopy.level.minutes(lesson.estimatedMinutes)} · {networkCoursesCopy.card.steps(lesson.steps.length)}
+        {t.lessonOf(stage, number)} · {networkCoursesCopy.level.minutes(lesson.estimatedMinutes)} ·{" "}
+        {networkCoursesCopy.card.steps(lesson.steps.length)}
       </p>
       <h1 className="text-3xl font-black leading-tight text-foreground sm:text-4xl">{lesson.title}</h1>
       <p className="mt-3 text-base leading-7 text-secondary sm:text-lg">{lesson.summary}</p>
@@ -127,7 +139,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const [solved, setSolved] = useState<ReadonlySet<number>>(new Set());
 
   if (!found) return null;
-  const { lesson, next } = found;
+  const { lesson, next, level, number } = found;
   const total = lesson.steps.length;
   const stepIndex = screen - 1;
   const isIntro = screen === 0;
@@ -198,7 +210,9 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-32 pt-8 sm:pt-12">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={screen} {...motionProps}>
-            {isIntro && <IntroScreen lesson={lesson} savedStep={position[lesson.id] ?? 0} onStart={start} />}
+            {isIntro && (
+              <IntroScreen lesson={lesson} stage={level.order} number={number} savedStep={position[lesson.id] ?? 0} onStart={start} />
+            )}
             {step && <StepView key={screen} step={step} onSolved={() => markSolved(stepIndex)} />}
             {isOutro && <OutroScreen lesson={lesson} next={next} />}
           </motion.div>

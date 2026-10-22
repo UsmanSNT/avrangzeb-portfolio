@@ -1,4 +1,5 @@
 import { beginnerLevel } from "./beginner";
+import { intermediateLevel } from "./intermediate";
 import type { CourseLevel, Lesson } from "./types";
 
 export type {
@@ -18,18 +19,14 @@ export type {
   BinaryStep,
   OrderStep,
   CidrStep,
+  CliStep,
+  CliLine,
 } from "./types";
 
-/** Levels with published lessons. Intermediate and advanced are appended as they are written. */
-export const publishedLevels: readonly CourseLevel[] = [beginnerLevel];
+/** Levels with published lessons. The advanced level is appended once it is written. */
+export const publishedLevels: readonly CourseLevel[] = [beginnerLevel, intermediateLevel];
 
 export const upcomingLevels = [
-  {
-    id: "intermediate",
-    order: 2,
-    title: "O'rta daraja",
-    description: "VLAN, trunk, OSPF, ACL, NAT, STP va tarmoqni loyihalash. Laboratoriyalar chuqurroq va ko'proq buyruqlarni qamrab oladi.",
-  },
   {
     id: "advanced",
     order: 3,
@@ -40,8 +37,19 @@ export const upcomingLevels = [
 
 export const allLessons: readonly Lesson[] = publishedLevels.flatMap((level) => level.lessons);
 
-export function findLesson(lessonId: string): { lesson: Lesson; next: Lesson | null } | null {
+export type LessonLocation = {
+  lesson: Lesson;
+  next: Lesson | null;
+  level: CourseLevel;
+  /** 1-based position of the lesson inside its level. */
+  number: number;
+};
+
+export function findLesson(lessonId: string): LessonLocation | null {
   const index = allLessons.findIndex((lesson) => lesson.id === lessonId);
   if (index === -1) return null;
-  return { lesson: allLessons[index], next: allLessons[index + 1] ?? null };
+  const lesson = allLessons[index];
+  const level = publishedLevels.find((candidate) => candidate.lessons.includes(lesson));
+  if (!level) return null;
+  return { lesson, next: allLessons[index + 1] ?? null, level, number: level.lessons.indexOf(lesson) + 1 };
 }

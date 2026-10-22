@@ -1,0 +1,193 @@
+import type { Lesson } from "../types";
+
+export const acl: Lesson = {
+  id: "acl",
+  title: "ACL: trafikni filtrlash",
+  summary: "Router'da kim, qayerga va qaysi xizmatga kira olishini qoidalar ro'yxati bilan boshqarish.",
+  estimatedMinutes: 50,
+  goals: [
+    "ACL qanday tekshirilishini (yuqoridan pastga, yashirin deny) tushuntirasiz",
+    "Standart va kengaytirilgan ACL farqini va joylashuv qoidasini bilasiz",
+    "Nomli kengaytirilgan ACL yozib, interfeysga qo'llaysiz",
+  ],
+  requires: "Cisco Packet Tracer; 4-darsdagi laboratoriya",
+  recap: [
+    "Qoidalar yuqoridan pastga tekshiriladi, birinchi mos kelgani bajariladi; oxirida yashirin deny any.",
+    "Standart ACL — faqat manba; kengaytirilgan — protokol, manba, manzil, port.",
+    "Kengaytirilganini manbaga yaqin, standartni manzilga yaqin qo'ying.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "ACL nima?",
+      body: "ACL (Access Control List) — router interfeysiga qo'yiladigan permit/deny qoidalar ro'yxati. Har paket ro'yxat bilan solishtiriladi va o'tkaziladi yoki tashlab yuboriladi. ACL tarmoqdagi birinchi himoya chizig'i.",
+    },
+    {
+      type: "learn",
+      title: "Tekshirish qoidalari",
+      body: "Uchta qoidani yod oling — ACL xatolarining aksariyati shulardan.",
+      points: [
+        "Yuqoridan pastga tekshiriladi.",
+        "Birinchi mos kelgan qator bajariladi, qolganlariga qaralmaydi.",
+        "Oxirida ko'rinmas «deny any» bor: hech biriga mos kelmagan paket tashlanadi.",
+      ],
+    },
+    {
+      type: "order",
+      title: "Paket ACL'dan qanday o'tadi",
+      prompt: "Jarayonni tartiblang.",
+      items: [
+        "Paket interfeysga keladi",
+        "1-qator bilan solishtiriladi",
+        "Mos kelmasa, keyingi qatorga o'tiladi",
+        "Mos kelsa, permit yoki deny bajariladi va tekshiruv to'xtaydi",
+        "Hech biri mos kelmasa, yashirin deny any ishlaydi",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "ACL'da faqat bitta qator bor: «deny host 192.168.20.5». Nima bo'ladi?",
+      options: [
+        "Faqat 192.168.20.5 bloklanadi",
+        "Barcha trafik bloklanadi",
+        "Hech narsa bloklanmaydi",
+        "Faqat 192.168.20.5 ga ruxsat beriladi",
+      ],
+      answerIndex: 1,
+      explanation: "Qolgan hamma paketlar oxiridagi yashirin deny any'ga tushadi. Shuning uchun kamida bitta permit qatori kerak.",
+    },
+    {
+      type: "learn",
+      title: "Standart va kengaytirilgan",
+      body: "ACL'lar raqam yoki nom bilan aniqlanadi.",
+      points: [
+        "Standart (1–99, 1300–1999): faqat manba IP'ni tekshiradi.",
+        "Kengaytirilgan (100–199, 2000–2699): protokol, manba, manzil va port.",
+        "Nomli ACL: raqam o'rniga ma'noli nom — o'qish va tahrirlash oson.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "access-list 110 ... qanday ACL?",
+      options: ["Standart", "Kengaytirilgan", "Nomli", "IPv6"],
+      answerIndex: 1,
+      explanation: "100–199 diapazoni kengaytirilgan ACL'larga tegishli.",
+    },
+    {
+      type: "learn",
+      title: "Wildcard: host va any",
+      body: "ACL ham wildcard maskadan foydalanadi. Ikki qisqartma ko'p ishlatiladi.",
+      terminal: [
+        "host 192.168.10.100  =  192.168.10.100 0.0.0.0        (bitta qurilma)",
+        "any                  =  0.0.0.0 255.255.255.255       (har qanday)",
+        "192.168.20.0 0.0.0.255                                 (butun /24 tarmoq)",
+      ],
+    },
+    {
+      type: "input",
+      question: "192.168.30.0/24 tarmog'ini butunlay tanlash uchun ACL'da qanday wildcard yoziladi?",
+      answers: ["0.0.0.255"],
+      hint: "/24 maska 255.255.255.0. Teskarisi?",
+      explanation: "0.0.0.255 — dastlabki uch oktet mos kelishi shart, oxirgisi farqi yo'q.",
+      placeholder: "Wildcard",
+    },
+    {
+      type: "learn",
+      title: "Qayerga qo'yish kerak?",
+      body: "ACL interfeysga yo'nalish bilan qo'llanadi: in — router'ga kirayotgan, out — chiqayotgan trafik. Har interfeysda har yo'nalish va protokol uchun bitta ACL.",
+      points: [
+        "Kengaytirilgan — manbaga yaqin: keraksiz trafik tarmoq bo'ylab yurmaydi.",
+        "Standart — manzilga yaqin: u faqat manbani biladi, erta qo'yilsa ortiqcha narsani bloklaydi.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Mehmonlar (VLAN 20) serverdagi saytga kirmasligi kerak. Kengaytirilgan ACL'ni qayerga qo'yasiz?",
+      options: [
+        "Server tomonidagi interfeysga, out",
+        "Mehmonlar subinterfeysiga (Gi0/0.20), in",
+        "ISP tomonga",
+        "Hamma interfeyslarga",
+      ],
+      answerIndex: 1,
+      explanation: "Kengaytirilgan ACL manbaga yaqin: mehmon trafigi router'ga kirgan zahoti filtrlanadi.",
+    },
+    {
+      type: "cli",
+      title: "Mehmonlarni serverdan ajrating",
+      scenario: "Mehmonlar (192.168.20.0/24) 192.168.10.100 serveridagi veb-saytga (HTTP, 80-port) kirmasligi kerak. Boshqa barcha trafik ruxsat.",
+      lines: [
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "GUEST-FILTER nomli kengaytirilgan ACL yarating.", accept: ["ip access-list extended GUEST-FILTER"], explain: "(config-ext-nacl)# — qoidalarni yozish rejimi." },
+        {
+          prompt: "R1(config-ext-nacl)#",
+          task: "Mehmonlar tarmog'idan 192.168.10.100 ning 80-portiga TCP'ni taqiqlang.",
+          accept: ["deny tcp 192.168.20.0 0.0.0.255 host 192.168.10.100 eq 80", "deny tcp 192.168.20.0 0.0.0.255 host 192.168.10.100 eq www"],
+          explain: "Protokol, manba, manzil va port — kengaytirilgan ACL'ning to'liq qatori.",
+        },
+        { prompt: "R1(config-ext-nacl)#", task: "Qolgan barcha IP trafikka ruxsat bering.", accept: ["permit ip any any"], explain: "Busiz yashirin deny any mehmonlarning hamma trafigini to'sib qo'yardi." },
+        { prompt: "R1(config-ext-nacl)#", task: "Global rejimga qayting.", accept: ["exit"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "Mehmonlar subinterfeysi Gi0/0.20 ga kiring.", accept: ["interface gigabitEthernet0/0.20"], explain: "Manbaga eng yaqin joy." },
+        { prompt: "R1(config-subif)#", task: "ACL'ni kiruvchi trafikka qo'llang.", accept: ["ip access-group GUEST-FILTER in"], explain: "Mehmonlardan router'ga kirayotgan har paket tekshiriladi." },
+        { prompt: "R1(config-subif)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "ACL'larni va mos kelishlar sonini ko'ring.",
+          accept: ["show access-lists"],
+          explain: "IOS 80-portni www deb ko'rsatadi. Qavsdagi son — qatorga mos kelgan paketlar.",
+          output: ["Extended IP access list GUEST-FILTER", "    10 deny tcp 192.168.20.0 0.0.0.255 host 192.168.10.100 eq www (12 match(es))", "    20 permit ip any any (48 match(es))"],
+        },
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Nega ACL oxiriga «permit ip any any» qo'shdik?",
+      options: [
+        "Router talab qiladi",
+        "Aks holda yashirin deny any mehmonlarning qolgan trafigini ham to'sardi",
+        "Tezlikni oshirish uchun",
+        "Bu qator ixtiyoriy va hech narsa qilmaydi",
+      ],
+      answerIndex: 1,
+      explanation: "Faqat deny qatori bo'lsa, qolgan barcha paketlar ham yashirin deny'ga tushadi.",
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: ACL'larni ko'rish",
+      prompt: "Router'dagi ACL'larni ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show access-lists", os: "To'liq" },
+        { command: "sh access-lists", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: mehmon filtrini sinang",
+      tasks: [
+        "4-darsdagi laboratoriyaga VLAN 10 da Server qo'shing: 192.168.10.100, gateway 192.168.10.1, HTTP yoqilgan.",
+        "Mehmon PC'dan (VLAN 20) brauzerda http://192.168.10.100 ni oching — ochilishi kerak.",
+        "R1 da GUEST-FILTER ACL'ni sozlang va qo'llang.",
+        "Mehmon PC'dan sayt va ping'ni qayta sinang.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "show access-lists", note: "Qoidalar va mos kelishlar sonini ko'rsatadi." },
+          { command: "ping 192.168.10.100", note: "Mehmon PC'dan: ICMP taqiqlanmagan, ishlashi kerak." },
+          { command: "http://192.168.10.100", note: "Mehmon PC brauzerida: endi ochilmasligi kerak." },
+        ],
+      },
+      expected: "Mehmon serverga ping qila oladi, lekin veb-saytni ocholmaydi. VLAN 10 kompyuterlari saytni ochadi.",
+    },
+    {
+      type: "practice",
+      title: "ACL'ni qog'ozda yozing",
+      instructions: [
+        "Vazifa: VLAN 30 (192.168.30.0/24) faqat internetga chiqsin, ichki 192.168.0.0/16 tarmoqlarga kira olmasin.",
+        "Nomli kengaytirilgan ACL qatorlarini va uni qayerga, qaysi yo'nalishda qo'yishni yozing.",
+        "Yashirin deny'ni unutmaganingizni tekshiring.",
+      ],
+    },
+  ],
+};
