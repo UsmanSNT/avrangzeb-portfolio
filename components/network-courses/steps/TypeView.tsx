@@ -6,6 +6,8 @@ import {
   copy,
   Feedback,
   inputClass,
+  noCopyClass,
+  noCopyProps,
   normalizeAnswer,
   primaryButtonClass,
   secondaryButtonClass,
@@ -30,7 +32,7 @@ export function TypeView({ step, onSolved }: StepViewProps<TypeStep>) {
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const typed = normalizeAnswer(value);
-    if (step.accept.some((accepted) => normalizeAnswer(accepted) === typed)) {
+    if (step.options.some((option) => normalizeAnswer(option.command) === typed)) {
       const nextDone = done + 1;
       setDone(nextDone);
       setValue("");
@@ -57,9 +59,17 @@ export function TypeView({ step, onSolved }: StepViewProps<TypeStep>) {
       {!finished && (
         <form onSubmit={submit} className="mt-5">
           {showCommand && (
-            <p className="mb-3 rounded-lg border border-line bg-surface px-3 py-2 font-mono text-sm text-green-text">
-              {step.accept.join("   |   ")}
-            </p>
+            <div className={`mb-3 rounded-lg border border-line bg-surface p-3 ${noCopyClass}`} {...noCopyProps}>
+              {step.options.length > 1 && <p className="mb-2 text-xs font-semibold text-muted">{copy.typePickOne}</p>}
+              <ul className="space-y-1.5">
+                {step.options.map((option) => (
+                  <li key={option.command} className="flex flex-wrap items-center gap-2">
+                    {option.os && <span className="rounded border border-line px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted">{option.os}</span>}
+                    <code data-command className="font-mono text-sm text-green-text">{option.command}</code>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           <input
             ref={inputRef}
@@ -70,6 +80,8 @@ export function TypeView({ step, onSolved }: StepViewProps<TypeStep>) {
             autoCorrect="off"
             autoComplete="off"
             spellCheck={false}
+            onPaste={(event) => event.preventDefault()}
+            onDrop={(event) => event.preventDefault()}
             aria-label={copy.typePlaceholder}
             className={inputClass}
           />

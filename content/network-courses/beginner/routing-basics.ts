@@ -102,7 +102,11 @@ export const routingBasics: Lesson = {
       type: "type",
       title: "Qo'l xotirasi: marshrut jadvali",
       prompt: "Marshrut jadvalini ko'rsatadigan buyruqni yozing (o'z tizimingizdagisini).",
-      accept: ["route print", "ip route", "ip route show", "netstat -rn", "netstat -r"],
+      options: [
+        { command: "route print", os: "Windows" },
+        { command: "ip route", os: "Linux" },
+        { command: "netstat -rn", os: "macOS" },
+      ],
       reps: 3,
     },
     {
@@ -113,7 +117,14 @@ export const routingBasics: Lesson = {
         "0.0.0.0 (default route) qatorini toping.",
         "Gateway manzilini 1-darsda yozib olgan qiymat bilan solishtiring.",
       ],
-      commands: ["route print   (Windows)", "ip route   (Linux)", "netstat -rn   (macOS)"],
+      commands: {
+        mode: "choose-one",
+        items: [
+          { command: "route print", note: "Marshrut jadvalini ko'rsatadi.", os: "Windows" },
+          { command: "ip route", note: "Marshrut jadvalini ko'rsatadi.", os: "Linux" },
+          { command: "netstat -rn", note: "Marshrut jadvalini ko'rsatadi.", os: "macOS" },
+        ],
+      },
       expected: "Default route (0.0.0.0/0 yoki «default via ...») routeringiz IP manziliga ishora qiladi.",
     },
     {
@@ -125,15 +136,18 @@ export const routingBasics: Lesson = {
         "Har PC'da default gateway'ni mos router interfeysiga sozlang.",
         "PC'lar orasida ping qiling va routerda show ip route ni ko'ring.",
       ],
-      commands: [
-        "enable",
-        "configure terminal",
-        "interface gigabitEthernet 0/0",
-        "ip address 192.168.1.1 255.255.255.0",
-        "no shutdown",
-        "end",
-        "show ip route",
-      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "enable", note: "Imtiyozli rejimga o'tadi (Router#)." },
+          { command: "configure terminal", note: "Sozlash rejimiga o'tadi: (config)#." },
+          { command: "interface gigabitEthernet 0/0", note: "Sozlanadigan interfeysni tanlaydi: (config-if)#." },
+          { command: "ip address 192.168.1.1 255.255.255.0", note: "Interfeysga IP manzil va maska beradi. Bu manzil shu tarmoqdagi PC'larning gateway'i bo'ladi." },
+          { command: "no shutdown", note: "Interfeysni yoqadi. Router interfeyslari standart holatda o'chiq turadi." },
+          { command: "end", note: "Sozlash rejimidan chiqib, imtiyozli rejimga qaytadi (Router#)." },
+          { command: "show ip route", note: "Marshrut jadvalini ko'rsatadi. Ikkala tarmoq «C» (connected) belgisi bilan chiqadi." },
+        ],
+      },
       expected: "Ikki tarmoq o'rtasida ping ishlaydi. Marshrut jadvalida ikkala tarmoq «C» (connected) sifatida ko'rinadi.",
     },
   ],

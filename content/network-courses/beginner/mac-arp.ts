@@ -73,7 +73,10 @@ export const macArp: Lesson = {
       type: "type",
       title: "Qo'l xotirasi: ARP jadvali",
       prompt: "ARP jadvalini ko'rsatadigan buyruqni yozing (Windows yoki Linux).",
-      accept: ["arp -a", "ip neigh", "ip neighbor", "ip neighbour"],
+      options: [
+        { command: "arp -a", os: "Windows, macOS, Linux" },
+        { command: "ip neigh", os: "Linux" },
+      ],
       reps: 3,
     },
     {
@@ -84,7 +87,14 @@ export const macArp: Lesson = {
         "Routeringizga ping qiling (gateway manzilini 1-darsdan oling).",
         "arp -a ni yana bajaring va gateway yozuvini toping.",
       ],
-      commands: ["arp -a", "ping <gateway IP>", "arp -a", "ip neigh   (Linux)"],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "arp -a", note: "ARP jadvalidagi hozirgi yozuvlarni ko'rsatadi. Linux'da muqobili: ip neigh." },
+          { command: "ping <gateway IP>", note: "Routerga paket yuboradi; shu paytda ARP jadvaliga router yozuvi tushadi. <gateway IP> o'rniga 1-darsdagi manzilni yozing." },
+          { command: "arp -a", note: "Jadvalni qayta ko'rsatadi. Endi gateway IP'si va uning MAC manzili ko'rinadi." },
+        ],
+      },
       expected: "Gateway IP manzili yonida uning MAC manzili paydo bo'ladi yoki yangilanadi.",
     },
     {
