@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { findLesson, type Lesson, type Step } from "@/content/network-courses";
+import { courseHref, findLesson, lessonHref, levelHref, type CourseLevel, type Lesson, type Step } from "@/content/network-courses";
 import { networkCoursesCopy } from "@/content/network-courses/copy";
 import { BinaryView } from "./steps/BinaryView";
 import { CidrView } from "./steps/CidrView";
@@ -95,7 +95,15 @@ function IntroScreen({ lesson, stage, number, savedStep, onStart }: IntroScreenP
   );
 }
 
-function OutroScreen({ lesson, next }: { lesson: Lesson; next: Lesson | null }) {
+type OutroScreenProps = {
+  lesson: Lesson;
+  level: CourseLevel;
+  next: Lesson | null;
+  nextLevel: CourseLevel | null;
+};
+
+function OutroScreen({ lesson, level, next, nextLevel }: OutroScreenProps) {
+  const levelFinished = next === null;
   return (
     <div>
       <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-green text-2xl font-black text-inverse" aria-hidden="true">
@@ -114,14 +122,26 @@ function OutroScreen({ lesson, next }: { lesson: Lesson; next: Lesson | null }) 
         ))}
       </ul>
 
+      {levelFinished && (
+        <div className="mt-8 rounded-2xl border border-accent-green/40 bg-accent-green/10 p-4 sm:p-5">
+          <p className="text-lg font-black text-foreground">{t.levelCompletedTitle(level.order)}</p>
+          <p className="mt-1 text-sm leading-6 text-secondary">{t.levelCompletedText}</p>
+        </div>
+      )}
+
       <div className="mt-8 flex flex-wrap gap-3">
         {next && (
-          <Link href={`/network-courses/${next.id}`} className={primaryButtonClass}>
+          <Link href={lessonHref(next.id)} className={primaryButtonClass}>
             {t.nextLesson}: {next.title}
           </Link>
         )}
-        <Link href="/network-courses" className={next ? secondaryButtonClass : primaryButtonClass}>
-          {t.toCourse}
+        {levelFinished && nextLevel && (
+          <Link href={levelHref(nextLevel.id)} className={primaryButtonClass}>
+            {t.nextLevelCta(nextLevel.title)}
+          </Link>
+        )}
+        <Link href={levelFinished ? courseHref : levelHref(level.id)} className={next || nextLevel ? secondaryButtonClass : primaryButtonClass}>
+          {levelFinished ? t.toRoadmap : t.toLevel}
         </Link>
       </div>
     </div>
@@ -139,7 +159,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const [solved, setSolved] = useState<ReadonlySet<number>>(new Set());
 
   if (!found) return null;
-  const { lesson, next, level, number } = found;
+  const { lesson, next, nextLevel, level, number } = found;
   const total = lesson.steps.length;
   const stepIndex = screen - 1;
   const isIntro = screen === 0;
@@ -177,7 +197,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       <header className="sticky top-0 z-40 border-b border-line bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
           <Link
-            href="/network-courses"
+            href={levelHref(level.id)}
             aria-label={t.exit}
             title={t.exit}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:border-accent-cyan/40 hover:text-foreground"
@@ -214,7 +234,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
               <IntroScreen lesson={lesson} stage={level.order} number={number} savedStep={position[lesson.id] ?? 0} onStart={start} />
             )}
             {step && <StepView key={screen} step={step} onSolved={() => markSolved(stepIndex)} />}
-            {isOutro && <OutroScreen lesson={lesson} next={next} />}
+            {isOutro && <OutroScreen lesson={lesson} level={level} next={next} nextLevel={nextLevel} />}
           </motion.div>
         </AnimatePresence>
       </main>

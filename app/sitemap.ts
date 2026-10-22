@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getHomeDictionary } from '@/content/locales'
 import { defaultLocale } from '@/lib/i18n/config'
-import { allLessons } from '@/content/network-courses'
+import { allLessons, publishedLevels } from '@/content/network-courses'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://avrangzebabdujalilov.com'
@@ -31,6 +31,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
+  const levelRoutes: MetadataRoute.Sitemap = publishedLevels.map((level) => ({
+    url: `${baseUrl}/network-courses/levels/${level.id}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }))
+
   const lessonRoutes: MetadataRoute.Sitemap = allLessons.map((lesson) => ({
     url: `${baseUrl}/network-courses/${lesson.id}`,
     lastModified: now,
@@ -38,5 +45,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }))
 
-  return [...staticRoutes, ...projectRoutes, ...lessonRoutes]
+  return [...staticRoutes, ...projectRoutes, ...levelRoutes, ...lessonRoutes]
 }
