@@ -1,0 +1,157 @@
+import type { Lesson } from "../types";
+
+export const ipv6Basics: Lesson = {
+  id: "ipv6-basics",
+  title: "IPv6 asoslari",
+  summary: "128 bitli manzillar: yozish va qisqartirish qoidalari, manzil turlari va router'da sozlash.",
+  estimatedMinutes: 45,
+  goals: [
+    "IPv6 manzilni to'g'ri qisqartirasiz",
+    "Global unicast, link-local va multicast manzillarni taniysiz",
+    "Router interfeysiga IPv6 manzil berib, tekshirasiz",
+  ],
+  requires: "Cisco Packet Tracer",
+  recap: [
+    "IPv6 — 128 bit, 8 guruh × 16 bit, o'n oltilik yozuv.",
+    "Qisqartirish: bosh nollarni tashlash; ketma-ket nol guruhlar o'rniga bir marta ::.",
+    "FE80::/10 — link-local (har interfeysda bor), 2000::/3 — global unicast. Broadcast yo'q.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Nega IPv6?",
+      body: "IPv4 da 4,3 milliard manzil bor va ular tugagan; NAT vaqtinchalik yechim. IPv6 128 bitli: taxminan 3,4 × 10^38 manzil — har qurilmaga NAT'siz o'z manzili yetadi. Provayderlar va mobil tarmoqlar allaqachon IPv6 da ishlaydi.",
+    },
+    {
+      type: "learn",
+      title: "Manzil ko'rinishi",
+      body: "128 bit 8 ta guruhga bo'linadi, har guruh 16 bit — 4 ta o'n oltilik raqam. Guruhlar ikki nuqta bilan ajratiladi.",
+      terminal: ["2001:0db8:0000:0000:0000:ff00:0042:8329", "|  8 guruh × 4 hex raqam = 128 bit  |"],
+    },
+    {
+      type: "learn",
+      title: "Qisqartirish qoidalari",
+      body: "Uzun manzilni ikki qoida bilan qisqartiramiz.",
+      points: [
+        "1. Har guruhdagi bosh nollarni tashlash: 0db8 → db8, 0042 → 42, 0000 → 0.",
+        "2. Ketma-ket nol guruhlarni bir marta :: bilan almashtirish.",
+      ],
+      terminal: [
+        "2001:0db8:0000:0000:0000:ff00:0042:8329",
+        "2001:db8:0:0:0:ff00:42:8329      (1-qoida)",
+        "2001:db8::ff00:42:8329           (2-qoida)",
+      ],
+    },
+    {
+      type: "input",
+      question: "Qisqartiring: 2001:0db8:0001:0000:0000:0000:0000:0001",
+      answers: ["2001:db8:1::1"],
+      hint: "Avval bosh nollarni tashlang, so'ng 4 ta ketma-ket 0 guruhni :: qiling.",
+      explanation: "2001:db8:1:0:0:0:0:1 → 2001:db8:1::1.",
+      placeholder: "Qisqa manzil",
+    },
+    {
+      type: "input",
+      question: "Qisqartiring: fe80:0000:0000:0000:0a00:27ff:fe4e:0001",
+      answers: ["fe80::a00:27ff:fe4e:1"],
+      hint: "0a00 → a00, 0001 → 1. Uchta nol guruh → ::.",
+      explanation: "fe80:0:0:0:a00:27ff:fe4e:1 → fe80::a00:27ff:fe4e:1.",
+      placeholder: "Qisqa manzil",
+    },
+    {
+      type: "quiz",
+      question: "Nega :: manzilda faqat bir marta ishlatiladi?",
+      options: [
+        "Router tezroq ishlashi uchun",
+        "Ikki marta bo'lsa, har birida nechta nol guruh borligini aniqlab bo'lmaydi",
+        "Standartda ikki nuqta taqiqlangan",
+        "Faqat link-local manzillarda qoida bor",
+      ],
+      answerIndex: 1,
+      explanation: "2001::1::2 da birinchi va ikkinchi :: o'rnida nechta guruh borligi noma'lum — manzil noaniq bo'ladi.",
+    },
+    {
+      type: "learn",
+      title: "Manzil turlari",
+      body: "IPv6 da broadcast yo'q — uning o'rnini multicast bajaradi.",
+      points: [
+        "Global unicast (2000::/3) — internetda marshrutlanadigan manzil.",
+        "Link-local (FE80::/10) — har interfeysda avtomatik bor, faqat shu kanalda ishlaydi; gateway sifatida ham ishlatiladi.",
+        "Loopback — ::1 (IPv4 dagi 127.0.0.1).",
+        "Multicast (FF00::/8) — guruhga yuborish.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "FE80 bilan boshlanadigan manzil qaysi tur?",
+      options: ["Global unicast", "Link-local", "Multicast", "Loopback"],
+      answerIndex: 1,
+      explanation: "FE80::/10 — link-local. U router'dan o'tmaydi va har IPv6 interfeysda avtomatik paydo bo'ladi.",
+    },
+    {
+      type: "learn",
+      title: "/64 va SLAAC",
+      body: "IPv6 da LAN subneti deyarli har doim /64: dastlabki 64 bit — tarmoq prefiksi, keyingi 64 bit — interfeys ID. Router prefiksni RA xabarlarida e'lon qiladi, kompyuter esa manzilini o'zi yaratadi (SLAAC) — DHCP'siz ham.",
+    },
+    {
+      type: "cli",
+      title: "R1 da IPv6'ni yoqing",
+      scenario: "R1 ning Gi0/0 LAN interfeysiga 2001:db8:1:1::1/64 manzilini bering va oson eslanadigan link-local FE80::1 ni qo'ying.",
+      lines: [
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "IPv6 marshrutlashni yoqing.", accept: ["ipv6 unicast-routing"], explain: "R1 endi IPv6 paketlarni marshrutlaydi va RA xabarlarini yuboradi." },
+        { prompt: "R1(config)#", task: "GigabitEthernet0/0 ga kiring.", accept: ["interface gigabitEthernet0/0"], explain: "LAN interfeysi." },
+        { prompt: "R1(config-if)#", task: "Global manzil 2001:db8:1:1::1/64 ni bering.", accept: ["ipv6 address 2001:db8:1:1::1/64"], explain: "IPv6 da maska prefiks uzunligi (/64) bilan yoziladi." },
+        { prompt: "R1(config-if)#", task: "Link-local manzilni FE80::1 qiling.", accept: ["ipv6 address fe80::1 link-local"], explain: "Avtomatik link-local o'rniga qisqa va eslanadigan manzil — kompyuterlar gateway sifatida shuni ko'radi." },
+        { prompt: "R1(config-if)#", task: "Interfeysni yoqing.", accept: ["no shutdown"], explain: "Interfeys ishga tushdi." },
+        { prompt: "R1(config-if)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "IPv6 interfeyslarning qisqa holatini ko'ring.",
+          accept: ["show ipv6 interface brief"],
+          explain: "Har interfeys ostida link-local va global manzillar ko'rinadi.",
+          output: ["GigabitEthernet0/0     [up/up]", "    FE80::1", "    2001:DB8:1:1::1"],
+        },
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: IPv6 interfeyslar",
+      prompt: "IPv6 interfeyslar holatini ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show ipv6 interface brief", os: "To'liq" },
+        { command: "sh ipv6 int br", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: SLAAC bilan manzil olish",
+      tasks: [
+        "Router, switch va 2 ta PC qo'ying. Router'da yuqoridagi IPv6 sozlamalarini bajaring.",
+        "PC → Desktop → IP Configuration → IPv6 bo'limida «Automatic» ni tanlang.",
+        "PC 2001:db8:1:1: bilan boshlanuvchi manzil va gateway FE80::1 olganini tekshiring.",
+        "PC'dan router'ga va ikkinchi PC'ga IPv6 ping qiling.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ipconfig", note: "PC'da: IPv6 manzil va default gateway (FE80::1) ko'rinadi." },
+          { command: "ping 2001:db8:1:1::1", note: "PC'dan router'ga IPv6 ping." },
+          { command: "ping ::1", note: "PC'ning o'z IPv6 stekini tekshiradi (loopback)." },
+        ],
+      },
+      expected: "PC'lar manzilni o'zi (SLAAC) oladi va IPv6 ping ishlaydi.",
+    },
+    {
+      type: "practice",
+      title: "Qisqartirish mashqi",
+      instructions: [
+        "Qog'ozda qisqartiring: 2001:0db8:0000:0001:0000:0000:0000:0010",
+        "fe80:0000:0000:0000:0000:0000:0000:0001 va 2001:0db8:abcd:0012:0000:0000:0000:0000",
+        "Javoblar: 2001:db8:0:1::10 · fe80::1 · 2001:db8:abcd:12::",
+      ],
+      seconds: 120,
+    },
+  ],
+};

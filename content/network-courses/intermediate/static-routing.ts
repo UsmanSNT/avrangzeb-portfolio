@@ -1,0 +1,165 @@
+import type { Lesson } from "../types";
+
+export const staticRouting: Lesson = {
+  id: "static-routing",
+  title: "Statik marshrutlash",
+  summary: "Router'ga uzoq tarmoqlarga yo'lni qo'lda o'rgatish: statik, default va zaxira marshrutlar.",
+  estimatedMinutes: 40,
+  goals: [
+    "ip route buyrug'ini to'g'ri yozasiz",
+    "Qaytish marshruti nega kerakligini tushuntirasiz",
+    "Administrative distance va zaxira (floating) marshrutni bilasiz",
+  ],
+  requires: "Cisco Packet Tracer",
+  recap: [
+    "ip route <tarmoq> <maska> <next-hop> — uzoq tarmoqqa yo'l.",
+    "Aloqa ikki tomonlama: har router'da qaytish marshruti bo'lishi kerak.",
+    "AD qanchalik kichik bo'lsa, manba shunchalik ishonchli: connected 0, static 1, OSPF 110.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Router faqat qo'shnilarini biladi",
+      body: "Router o'z interfeyslariga ulangan tarmoqlarni (connected) avtomatik biladi. Undan narigi tarmoqlarni bilmaydi va bunday paketni tashlab yuboradi. Unga yo'lni o'rgatish kerak: qo'lda (statik) yoki protokol bilan (dinamik).",
+      visual: {
+        kind: "topology",
+        nodes: [
+          { id: "lan1", label: "LAN1 · 192.168.1.0/24", icon: "host" },
+          { id: "r1", label: "R1 · 10.0.0.1", icon: "router" },
+          { id: "r2", label: "R2 · 10.0.0.2", icon: "router" },
+          { id: "lan2", label: "LAN2 · 192.168.2.0/24", icon: "host" },
+        ],
+        links: [
+          ["lan1", "r1"],
+          ["r1", "r2"],
+          ["r2", "lan2"],
+        ],
+      },
+    },
+    {
+      type: "learn",
+      title: "ip route buyrug'i",
+      body: "Statik marshrut uch qismdan iborat: qaysi tarmoqqa, uning maskasi va paketni kimga berish (next-hop — qo'shni router manzili).",
+      terminal: ["R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2", "                   |tarmoq     |maska         |next-hop"],
+    },
+    {
+      type: "quiz",
+      question: "R1 192.168.2.0/24 ga yo'l sifatida qaysi next-hop'ni ko'rsatadi?",
+      options: ["10.0.0.1", "10.0.0.2", "192.168.1.1", "192.168.2.1"],
+      answerIndex: 1,
+      explanation: "Next-hop — R1 to'g'ridan-to'g'ri yetib boradigan qo'shni router manzili, ya'ni R2 ning 10.0.0.2 manzili.",
+    },
+    {
+      type: "learn",
+      title: "Qaytish yo'li ham kerak",
+      body: "Eng ko'p uchraydigan xato: marshrut faqat bir tomonda sozlanadi. Ping so'rovi LAN2 ga yetib boradi, lekin javob qaytolmaydi, chunki R2 192.168.1.0/24 ga yo'lni bilmaydi.",
+      terminal: ["R2(config)# ip route 192.168.1.0 255.255.255.0 10.0.0.1"],
+    },
+    {
+      type: "quiz",
+      question: "R1 da LAN2 ga marshrut bor, lekin LAN1 dan LAN2 ga ping ishlamaydi. Eng ehtimoliy sabab?",
+      options: ["R2 da LAN1 ga qaytish marshruti yo'q", "R1 da hostname yo'q", "Kabel juda uzun", "DNS ishlamayapti"],
+      answerIndex: 0,
+      explanation: "Javob paketi R2 dan LAN1 ga qaytishi kerak. R2 bu yo'lni bilmasa, javob tashlab yuboriladi.",
+    },
+    {
+      type: "learn",
+      title: "Default marshrut",
+      body: "Internetdagi barcha tarmoqlarni yozib chiqib bo'lmaydi. Default marshrut «boshqa hamma narsa shu yoqqa» deydi. Ofis router'ida u odatda provayderga (ISP) qaraydi.",
+      terminal: ["R1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1"],
+    },
+    {
+      type: "learn",
+      title: "Administrative distance (AD)",
+      body: "Bitta tarmoqqa turli manbalardan yo'l bo'lsa, router eng ishonchli manbani tanlaydi. Ishonchlilik AD bilan o'lchanadi: qanchalik kichik, shunchalik yaxshi.",
+      points: ["Connected — 0", "Static — 1", "EIGRP — 90", "OSPF — 110", "RIP — 120"],
+    },
+    {
+      type: "quiz",
+      question: "Bitta tarmoqqa statik marshrut ham, OSPF marshruti ham bor. Router qaysi birini ishlatadi?",
+      options: ["OSPF, chunki u dinamik", "Statik, chunki AD 1 < 110", "Ikkalasini navbat bilan", "Hech birini"],
+      answerIndex: 1,
+      explanation: "Kichik AD yutadi: statik (1) OSPF (110) dan ishonchliroq hisoblanadi.",
+    },
+    {
+      type: "learn",
+      title: "Zaxira (floating) statik marshrut",
+      body: "Statik marshrutga ataylab katta AD bersangiz, u asosiy yo'l ishlaguncha «suzib» turadi va jadvalga kirmaydi. Asosiy yo'l yo'qolsa, zaxira avtomatik ishga tushadi.",
+      terminal: ["R1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1", "R1(config)# ip route 0.0.0.0 0.0.0.0 198.51.100.1 5", "                                              zaxira, AD = 5"],
+    },
+    {
+      type: "input",
+      question: "OSPF orqali o'rganilgan yo'lga zaxira bo'lishi uchun statik marshrutning AD qiymati kamida qancha bo'lishi kerak?",
+      answers: ["111"],
+      hint: "OSPF AD = 110. Zaxira undan kattaroq bo'lishi kerak.",
+      explanation: "AD 111 yoki undan katta bo'lsa, OSPF yo'li bor paytda statik marshrut ishlatilmaydi.",
+      placeholder: "Son",
+    },
+    {
+      type: "cli",
+      title: "R1 da marshrutlarni sozlang",
+      scenario: "R1 LAN2 (192.168.2.0/24) ga R2 orqali (10.0.0.2) yetishi kerak. Internetga yo'l esa ISP router (203.0.113.1) orqali.",
+      lines: [
+        { prompt: "R1>", task: "Imtiyozli rejimga o'ting.", accept: ["enable"], explain: "R1#." },
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "192.168.2.0/24 ga 10.0.0.2 orqali statik marshrut qo'shing.", accept: ["ip route 192.168.2.0 255.255.255.0 10.0.0.2"], explain: "LAN2 ga yo'l jadvalga «S» belgisi bilan qo'shildi." },
+        { prompt: "R1(config)#", task: "Default marshrutni 203.0.113.1 ga yo'naltiring.", accept: ["ip route 0.0.0.0 0.0.0.0 203.0.113.1"], explain: "Gateway of last resort — noma'lum tarmoqlar ISP'ga ketadi." },
+        { prompt: "R1(config)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "Marshrut jadvalini ko'ring.",
+          accept: ["show ip route"],
+          explain: "S — statik, S* — default statik, C — ulangan tarmoq, L — interfeysning o'z manzili. [1/0] — AD 1, metrika 0.",
+          output: [
+            "Gateway of last resort is 203.0.113.1 to network 0.0.0.0",
+            "C    10.0.0.0/30 is directly connected, GigabitEthernet0/1",
+            "L    10.0.0.1/32 is directly connected, GigabitEthernet0/1",
+            "C    192.168.1.0/24 is directly connected, GigabitEthernet0/0",
+            "L    192.168.1.1/32 is directly connected, GigabitEthernet0/0",
+            "S    192.168.2.0/24 [1/0] via 10.0.0.2",
+            "S*   0.0.0.0/0 [1/0] via 203.0.113.1",
+          ],
+        },
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: marshrut jadvali",
+      prompt: "Router marshrut jadvalini ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show ip route", os: "To'liq" },
+        { command: "sh ip ro", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: ikki router, ikki LAN",
+      tasks: [
+        "2 ta 2911 router, 2 ta switch va 2 ta PC qo'ying (topologiya yuqoridagi rasmdagidek).",
+        "R1 Gi0/0 = 192.168.1.1/24, R1 Gi0/1 = 10.0.0.1/30; R2 Gi0/1 = 10.0.0.2/30, R2 Gi0/0 = 192.168.2.1/24.",
+        "PC1 = 192.168.1.10 (gateway .1), PC2 = 192.168.2.10 (gateway .1).",
+        "Avval faqat R1 da marshrut qo'shib ping qiling, so'ng R2 da qaytish marshrutini qo'shing.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ip route 192.168.2.0 255.255.255.0 10.0.0.2", note: "R1 da: LAN2 ga yo'l." },
+          { command: "ping 192.168.2.10", note: "PC1 dan. Hali ishlamasligi kerak — nega? (javob qaytolmaydi)" },
+          { command: "ip route 192.168.1.0 255.255.255.0 10.0.0.1", note: "R2 da: LAN1 ga qaytish yo'li." },
+          { command: "ping 192.168.2.10", note: "PC1 dan qayta. Endi ishlaydi.", ifFails: "Interfeyslar no shutdown bilan yoqilganini va IP'larni tekshiring." },
+        ],
+      },
+      expected: "Bir tomonlama marshrut bilan ping ishlamaydi; qaytish marshruti qo'shilgach ishlaydi.",
+    },
+    {
+      type: "practice",
+      title: "Uch router'li zanjir",
+      instructions: [
+        "Qog'ozga R1 — R2 — R3 zanjirini chizing; har router'ga bitta LAN bering.",
+        "Har router uchun barcha uzoq LAN'larga statik marshrutlarni yozing.",
+        "Jami nechta ip route kerak bo'ldi? Nega dinamik protokollar o'ylab topilganini his qiling.",
+      ],
+    },
+  ],
+};

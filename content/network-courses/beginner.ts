@@ -16,6 +16,6 @@ export const beginnerLevel: CourseLevel = {
   description:
     "Tarmoq qanday ishlashini noldan tushunasiz: manzillar, qatlamlar, switch, router va asosiy protokollar. Har dars qisqa qadamlardan iborat va kompyuterda bajariladigan mashq bilan tugaydi.",
   outcome:
-    "Bosqich oxirida siz uy yoki kichik ofis tarmog'ida «internet ishlamayapti» muammosini ketma-ket tekshirib, sababni topa olasiz.",
+    "Uy yoki kichik ofis tarmog'ida «internet ishlamayapti» muammosini ketma-ket tekshirib, sababni topa olasiz.",
   lessons: [netBasics, osiTcpip, ipv4Binary, subnetCidr, macArp, switching, routingBasics, dnsDhcpPorts, troubleshooting],
 };
