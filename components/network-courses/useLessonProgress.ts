@@ -2,8 +2,14 @@
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
-const STORAGE_KEY = "network-courses:completed-lessons:v1";
-const EMPTY_SNAPSHOT = "[]";
+const STORAGE_KEY = "network-courses:progress:v2";
+const EMPTY_SNAPSHOT = JSON.stringify({ completed: [], position: {} });
+
+type StoredProgress = {
+  completed: string[];
+  /** Index of the step the learner was last on, per lesson id. */
+  position: Record<string, number>;
+};
 
 const listeners = new Set<() => void>();
 // Fallback used when localStorage is blocked, so progress still works for this visit.
@@ -36,26 +42,47 @@ function subscribe(listener: () => void) {
   };
 }
 
-function parseIds(snapshot: string): string[] {
+function parse(snapshot: string): StoredProgress {
   try {
-    const parsed: unknown = JSON.parse(snapshot);
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+    const raw: unknown = JSON.parse(snapshot);
+    if (typeof raw !== "object" || raw === null) return { completed: [], position: {} };
+    const { completed, position } = raw as Partial<StoredProgress>;
+    return {
+      completed: Array.isArray(completed) ? completed.filter((id): id is string => typeof id === "string") : [],
+      position:
+        typeof position === "object" && position !== null
+          ? Object.fromEntries(Object.entries(position).filter(([, value]) => Number.isInteger(value) && value >= 0))
+          : {},
+    };
   } catch {
-    return [];
+    return { completed: [], position: {} };
   }
 }
 
-/** Per-browser lesson completion, persisted in localStorage. */
+function update(mutate: (progress: StoredProgress) => void) {
+  const progress = parse(readSnapshot());
+  mutate(progress);
+  writeSnapshot(JSON.stringify(progress));
+}
+
+/** Per-browser lesson progress (completed lessons and last step), persisted in localStorage. */
 export function useLessonProgress() {
   const snapshot = useSyncExternalStore(subscribe, readSnapshot, () => EMPTY_SNAPSHOT);
-  const completed = useMemo<ReadonlySet<string>>(() => new Set(parseIds(snapshot)), [snapshot]);
+  const progress = useMemo(() => parse(snapshot), [snapshot]);
+  const completed = useMemo<ReadonlySet<string>>(() => new Set(progress.completed), [progress]);
 
-  const toggle = useCallback((lessonId: string) => {
-    const next = new Set(parseIds(readSnapshot()));
-    if (next.has(lessonId)) next.delete(lessonId);
-    else next.add(lessonId);
-    writeSnapshot(JSON.stringify([...next]));
+  const setPosition = useCallback((lessonId: string, step: number) => {
+    update((p) => {
+      p.position[lessonId] = step;
+    });
   }, []);
 
-  return { completed, toggle };
+  const markCompleted = useCallback((lessonId: string) => {
+    update((p) => {
+      if (!p.completed.includes(lessonId)) p.completed.push(lessonId);
+      delete p.position[lessonId];
+    });
+  }, []);
+
+  return { completed, position: progress.position, setPosition, markCompleted };
 }
