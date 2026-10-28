@@ -4,7 +4,7 @@ export const natPat: Lesson = {
   id: "nat-pat",
   title: "NAT va PAT: internetga chiqish",
   summary: "Private manzilli ofis bitta ommaviy manzil orqali internetga qanday chiqadi.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 60,
   goals: [
     "NAT nega kerakligini va inside/outside atamalarini tushuntirasiz",
     "Static NAT va PAT (overload) farqini bilasiz",
@@ -125,6 +125,30 @@ export const natPat: Lesson = {
       title: "Static NAT: serverni tashqariga ochish",
       body: "Ofis veb-serveri internetdan ochilishi kerak bo'lsa, unga doimiy ommaviy manzil beriladi. Bunda tashqaridan kelgan ulanishlar ham ichkariga o'tadi.",
       terminal: ["R1(config)# ip nat inside source static 192.168.1.100 203.0.113.10"],
+    },
+    {
+      type: "learn",
+      title: "Dynamic NAT va port forwarding",
+      body: "Provayder sizga bir nechta ommaviy manzil bergan bo'lsa, dynamic NAT ulardan pool tuzadi. Ichkaridagi serverning bitta portini tashqariga ochish uchun esa statik PAT (port forwarding) ishlatiladi.",
+      terminal: [
+        "ip nat pool PUBLIC 203.0.113.10 203.0.113.20 netmask 255.255.255.0",
+        "ip nat inside source list 1 pool PUBLIC",
+        "",
+        "ip nat inside source static tcp 192.168.1.100 80 203.0.113.2 8080",
+        "  → tashqaridan 203.0.113.2:8080 ga kelgan so'rov ichki serverning 80-portiga",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Dynamic NAT pool'ida 11 ta manzil bor va overload yo'q. 12-kompyuter internetga chiqmoqchi. Nima bo'ladi?",
+      options: ["Chiqadi", "Pool'da bo'sh manzil yo'q — tarjima bo'lmaydi va paket tashlanadi", "Avtomatik PAT'ga o'tadi", "Router qayta yuklanadi"],
+      answerIndex: 1,
+      explanation: "Overload'siz dynamic NAT 1:1 ishlaydi. Pool tugasa, yangi ulanishlar tarjima qilinmaydi.",
+    },
+    {
+      type: "learn",
+      title: "NAT'ni tekshirish va tozalash",
+      body: "show ip nat statistics — tarjimalar soni, inside/outside interfeyslar va pool holati. clear ip nat translation * — dinamik tarjimalarni tozalaydi (sozlama o'zgargandan keyin eski yozuvlar xalaqit bermasligi uchun).",
     },
     {
       type: "type",

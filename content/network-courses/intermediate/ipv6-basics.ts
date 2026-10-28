@@ -4,7 +4,7 @@ export const ipv6Basics: Lesson = {
   id: "ipv6-basics",
   title: "IPv6 asoslari",
   summary: "128 bitli manzillar: yozish va qisqartirish qoidalari, manzil turlari va router'da sozlash.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 60,
   goals: [
     "IPv6 manzilni to'g'ri qisqartirasiz",
     "Global unicast, link-local va multicast manzillarni taniysiz",
@@ -92,6 +92,36 @@ export const ipv6Basics: Lesson = {
       type: "learn",
       title: "/64 va SLAAC",
       body: "IPv6 da LAN subneti deyarli har doim /64: dastlabki 64 bit — tarmoq prefiksi, keyingi 64 bit — interfeys ID. Router prefiksni RA xabarlarida e'lon qiladi, kompyuter esa manzilini o'zi yaratadi (SLAAC) — DHCP'siz ham.",
+    },
+    {
+      type: "learn",
+      title: "NDP: IPv6'da ARP o'rnini nima egallaydi",
+      body: "IPv6'da ARP yo'q. Uning vazifasini ICMPv6 asosidagi Neighbor Discovery (NDP) bajaradi.",
+      points: [
+        "NS / NA (Neighbor Solicitation / Advertisement) — IPv6 manzil uchun MAC'ni topish (ARP o'rniga).",
+        "RS / RA (Router Solicitation / Advertisement) — router'ni va tarmoq prefiksini topish (SLAAC uchun).",
+        "RA'dagi bayroqlar klientga aytadi: manzilni o'zi yaratsinmi (SLAAC) yoki DHCPv6'dan olsinmi.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "EUI-64: MAC'dan interfeys ID",
+      body: "SLAAC'da interfeys ID MAC manzildan yasalishi mumkin: MAC o'rtasiga FFFE qo'shiladi va birinchi baytdagi 7-bit teskarisiga o'zgartiriladi.",
+      terminal: [
+        "MAC:          00:1A:2B:3C:4D:5E",
+        "Ikkiga bo'lish: 001A2B | 3C4D5E",
+        "FFFE qo'shish: 001A2B FFFE 3C4D5E",
+        "7-bitni almashtirish: 00 → 02",
+        "Interfeys ID: 021A:2BFF:FE3C:4D5E",
+      ],
+    },
+    {
+      type: "input",
+      question: "MAC 00:50:56:AB:CD:EF bo'lsa, EUI-64 interfeys ID qanday bo'ladi? (4 ta guruh, : bilan)",
+      answers: ["0250:56ff:feab:cdef", "250:56ff:feab:cdef"],
+      hint: "00 → 02; o'rtaga FFFE: 0250:56FF:FEAB:CDEF.",
+      explanation: "005056 | ABCDEF → 005056FFFEABCDEF, birinchi bayt 00 → 02: 0250:56FF:FEAB:CDEF.",
+      placeholder: "Masalan: 021a:2bff:fe3c:4d5e",
     },
     {
       type: "cli",

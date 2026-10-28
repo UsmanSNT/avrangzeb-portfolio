@@ -4,7 +4,7 @@ export const staticRouting: Lesson = {
   id: "static-routing",
   title: "Statik marshrutlash",
   summary: "Router'ga uzoq tarmoqlarga yo'lni qo'lda o'rgatish: statik, default va zaxira marshrutlar.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 55,
   goals: [
     "ip route buyrug'ini to'g'ri yozasiz",
     "Qaytish marshruti nega kerakligini tushuntirasiz",
@@ -121,6 +121,25 @@ export const staticRouting: Lesson = {
           ],
         },
       ],
+    },
+    {
+      type: "learn",
+      title: "Statik marshrut turlari va IPv6",
+      body: "Statik marshrut uch xil yozilishi mumkin. IPv6 uchun ham xuddi shu g'oya.",
+      terminal: [
+        "ip route 192.168.2.0 255.255.255.0 10.0.0.2                    next-hop",
+        "ip route 192.168.2.0 255.255.255.0 gigabitEthernet0/1          chiqish interfeysi (faqat point-to-point uchun)",
+        "ip route 192.168.2.0 255.255.255.0 gigabitEthernet0/1 10.0.0.2 to'liq ko'rsatilgan",
+        "ipv6 route 2001:db8:2::/64 2001:db8:12::2                       IPv6 statik marshrut",
+        "ipv6 route ::/0 2001:db8:12::2                                  IPv6 default",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "IPv6 default statik marshrut qanday yoziladi?",
+      options: ["ipv6 route 0.0.0.0 0.0.0.0 ...", "ipv6 route ::/0 <next-hop>", "ipv6 route default <next-hop>", "ip route ::/0 <next-hop>"],
+      answerIndex: 1,
+      explanation: "::/0 — IPv6'dagi «hamma manzillar», xuddi IPv4'dagi 0.0.0.0/0.",
     },
     {
       type: "type",

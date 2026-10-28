@@ -4,7 +4,7 @@ export const trunking: Lesson = {
   id: "trunking",
   title: "Trunk va 802.1Q",
   summary: "Bir nechta VLAN'ni bitta kabel orqali switch'lar orasida tashish. Native VLAN va xavfsizlik.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 50,
   goals: [
     "Trunk nima uchun kerakligini va 802.1Q tegi qanday ishlashini tushuntirasiz",
     "Trunk port, native VLAN va ruxsat etilgan VLAN'larni sozlaysiz",
@@ -137,6 +137,19 @@ export const trunking: Lesson = {
       ],
       answerIndex: 1,
       explanation: "Tegsiz kadr SW1 da VLAN 99 ga, SW2 da VLAN 1 ga tegishli deb hisoblanadi. Bu ulanish xatolariga va xavfsizlik muammosiga olib keladi; IOS ogohlantirish chiqaradi.",
+    },
+    {
+      type: "learn",
+      title: "VTP: qulay, lekin xavfli",
+      body: "VTP bitta switch'da yaratilgan VLAN'larni boshqalarga avtomatik tarqatadi. Muammo: tarmoqqa yuqoriroq revision raqamli eski switch ulansa, u butun tarmoqdagi VLAN ro'yxatini o'ziniki bilan almashtirib yuborishi mumkin. Ko'p kompaniyalar shuning uchun VTP'ni transparent rejimda ishlatadi yoki o'chiradi.",
+      points: ["Server — VLAN yaratadi va tarqatadi.", "Client — qabul qiladi, o'zi yarata olmaydi.", "Transparent — tarqatishda qatnashmaydi, VLAN'larni lokal saqlaydi."],
+    },
+    {
+      type: "quiz",
+      question: "Omborxonadan olingan eski switch tarmoqqa ulandi va barcha switch'lardagi VLAN'lar yo'qoldi. Eng ehtimoliy sabab?",
+      options: ["STP", "VTP: eski switch'ning revision raqami yuqoriroq edi", "DHCP snooping", "Native VLAN"],
+      answerIndex: 1,
+      explanation: "VTP eng katta revision raqamli bazani to'g'ri deb qabul qiladi. Yangi switch'ni ulashdan oldin uni transparent qiling yoki revision'ni nolga tushiring.",
     },
     {
       type: "type",

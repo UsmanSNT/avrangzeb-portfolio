@@ -4,7 +4,7 @@ export const vlanBasics: Lesson = {
   id: "vlan-basics",
   title: "VLAN asoslari",
   summary: "Bitta switch'ni bir nechta mantiqiy tarmoqqa bo'lish. VLAN yaratib, portlarni biriktirasiz.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 55,
   goals: [
     "VLAN nima uchun kerakligini tushuntirib bera olasiz",
     "VLAN yaratib, access portlarni biriktirasiz",
@@ -133,6 +133,36 @@ export const vlanBasics: Lesson = {
       options: ["show ip route", "show vlan brief", "show interfaces trunk", "show mac address-table"],
       answerIndex: 1,
       explanation: "show vlan brief — VLAN ID, nomi, holati va access portlari jadvali.",
+    },
+    {
+      type: "learn",
+      title: "Voice VLAN: telefon va kompyuter bitta portda",
+      body: "Ofislarda kompyuter ko'pincha IP telefon orqali switch'ga ulanadi. Telefon trafigi alohida VLAN'da (sifat va xavfsizlik uchun), kompyuter trafigi esa oddiy access VLAN'da yuradi — bitta port orqali.",
+      terminal: [
+        "SW1(config)# interface fastEthernet0/6",
+        "SW1(config-if)# switchport mode access",
+        "SW1(config-if)# switchport access vlan 10",
+        "SW1(config-if)# switchport voice vlan 150",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Fa0/6 ga IP telefon, uning orqasiga kompyuter ulangan. Kompyuter VLAN 10 da, telefon VLAN 150 da bo'lishi uchun nima yetishmaydi: switchport access vlan 10 berilgan.",
+      options: ["switchport mode trunk", "switchport voice vlan 150", "vlan 150 name PC", "switchport access vlan 150"],
+      answerIndex: 1,
+      explanation: "Voice VLAN telefonga o'z VLAN'ini (CDP/LLDP orqali) bildiradi; kompyuter access VLAN 10 da qoladi.",
+    },
+    {
+      type: "learn",
+      title: "Port sozlamasini tekshirish",
+      body: "Bitta port haqida to'liq ma'lumot kerak bo'lsa, show vlan brief yetmaydi.",
+      terminal: [
+        "SW1# show interfaces fastEthernet0/6 switchport",
+        "Administrative Mode: static access",
+        "Operational Mode: static access",
+        "Access Mode VLAN: 10 (SALES)",
+        "Voice VLAN: 150 (VOICE)",
+      ],
     },
     {
       type: "type",

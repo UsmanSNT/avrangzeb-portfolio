@@ -4,7 +4,7 @@ export const stp: Lesson = {
   id: "stp",
   title: "STP: halqalardan himoya",
   summary: "Zaxira kabellar halqa hosil qilganda nima bo'ladi va Spanning Tree uni qanday to'xtatadi.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 60,
   goals: [
     "Kommutatsiya halqasi va broadcast bo'ronini tushuntirasiz",
     "Root bridge saylovi va port rollarini aniqlaysiz",
@@ -101,6 +101,20 @@ export const stp: Lesson = {
     },
     {
       type: "learn",
+      title: "Root port'ni hisoblash",
+      body: "Root bo'lmagan switch root'gacha bo'lgan barcha yo'llar narxini yig'adi va eng arzonini root port qiladi. Misol: SW3 root'ga bevosita 100 Mbit/s kanal bilan (19) ulangan, shuningdek SW2 orqali ikkita 1 Gbit/s kanal bilan (4 + 4).",
+      terminal: ["Bevosita:      19", "SW2 orqali:    4 + 4 = 8   ← arzonroq", "Root port — SW2 tomonga qaragan port"],
+    },
+    {
+      type: "input",
+      question: "SW4 root'ga ikki yo'l bilan bog'langan: A — uchta 1 Gbit/s kanal orqali, B — bitta 100 Mbit/s kanal orqali. A yo'lining umumiy narxi qancha?",
+      answers: ["12"],
+      hint: "1 Gbit/s narxi 4.",
+      explanation: "4 + 4 + 4 = 12 — bu B yo'lidan (19) arzon, shuning uchun root port A tomonda.",
+      placeholder: "Son",
+    },
+    {
+      type: "learn",
       title: "Port holatlari",
       body: "Klassik STP (802.1D) da port forwarding'gacha bir necha bosqichdan o'tadi — bu 30–50 soniyagacha cho'ziladi. Rapid PVST+ (802.1w) buni bir necha soniyagacha qisqartiradi.",
       visual: {
@@ -118,6 +132,15 @@ export const stp: Lesson = {
       title: "Holatlarni tartiblang",
       prompt: "Klassik STP port holatlarini yoqilgandan forwarding'gacha tartiblang.",
       items: ["Blocking", "Listening", "Learning", "Forwarding"],
+    },
+    {
+      type: "learn",
+      title: "Rapid PVST+ rollari va qo'shimcha himoya",
+      body: "Zamonaviy tarmoqlarda RSTP (Rapid PVST+) ishlatiladi. Unda holatlar uchta: discarding, learning, forwarding. Rollar: root, designated, alternate (root'ga zaxira yo'l) va backup.",
+      points: [
+        "Root Guard — taqsimlovchi switch'ning pastga qaragan portlariga: u yerdan «yaxshiroq» BPDU kelsa, port bloklanadi va root o'z joyida qoladi.",
+        "Loop Guard — BPDU kelishi to'xtagan bloklangan port o'z-o'zidan forwarding'ga o'tib ketmasligi uchun.",
+      ],
     },
     {
       type: "learn",

@@ -4,7 +4,7 @@ export const ospf: Lesson = {
   id: "ospf",
   title: "OSPF: dinamik marshrutlash",
   summary: "Router'lar yo'llarni o'zlari o'rganadi: qo'shnichilik, router ID, wildcard maska va xarajat.",
-  estimatedMinutes: 55,
+  estimatedMinutes: 65,
   goals: [
     "OSPF qanday ishlashini va qo'shnichilik shartlarini tushuntirasiz",
     "Wildcard maskani hisoblaysiz",
@@ -74,6 +74,13 @@ export const ospf: Lesson = {
       hint: "255 − 192 = ?",
       explanation: "255 − 192 = 63, demak 0.0.0.63.",
       placeholder: "Masalan: 0.0.0.255",
+    },
+    {
+      type: "trainer",
+      title: "Wildcard trenajyori",
+      prompt: "OSPF va ACL'da wildcard'ni xatosiz yozish shart. Ketma-ket 8 ta to'g'ri javob bering.",
+      kind: "wildcard",
+      goal: 8,
     },
     {
       type: "learn",
