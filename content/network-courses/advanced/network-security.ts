@@ -1,0 +1,176 @@
+import type { Lesson } from "../types";
+
+export const networkSecurity: Lesson = {
+  id: "network-security",
+  title: "2-qatlam xavfsizligi",
+  summary: "Tarmoq ichidan bo'ladigan hujumlar va switch'ni himoyalash: port security, DHCP snooping, DAI.",
+  estimatedMinutes: 50,
+  goals: [
+    "MAC flooding, DHCP spoofing va ARP spoofing hujumlarini tushuntirasiz",
+    "Port security va DHCP snooping'ni sozlaysiz",
+    "Switch uchun xavfsizlik nazorat ro'yxatini tuzasiz",
+  ],
+  requires: "Cisco Packet Tracer",
+  recap: [
+    "Port security — portdagi MAC'lar sonini cheklaydi; standart buzilish rejimi shutdown.",
+    "DHCP snooping — faqat ishonchli portdan DHCP javobiga ruxsat beradi.",
+    "Ishlatilmaydigan portlar: shutdown + alohida «to'xtash» VLAN'i.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Xavf ichkaridan ham keladi",
+      body: "Firewall tashqi hujumlardan himoya qiladi. Lekin ofisdagi har bir rozetka — tarmoqqa kirish nuqtasi. Kimdir o'z noutbukini yoki kichik router'ini ulasa, 2-qatlam himoyasisiz u ko'p narsa qila oladi.",
+    },
+    {
+      type: "learn",
+      title: "Asosiy hujumlar",
+      body: "To'rtta klassik 2-qatlam hujumi.",
+      points: [
+        "MAC flooding — switch'ning MAC jadvalini soxta manzillar bilan to'ldirish; switch hamma portga kadr yubora boshlaydi.",
+        "DHCP spoofing — soxta DHCP server o'zini gateway qilib beradi va trafikni o'zi orqali o'tkazadi.",
+        "ARP spoofing — soxta ARP javoblari bilan gateway'ning MAC manzilini almashtirish.",
+        "VLAN hopping — DTP yoki native VLAN orqali boshqa VLAN'ga o'tish.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Tarmoqda soxta DHCP server paydo bo'ldi. Eng xavfli oqibat nima?",
+      options: [
+        "Kompyuterlar soxta gateway oladi va trafik hujumchi orqali o'tadi",
+        "Switch o'chib qoladi",
+        "Wi-Fi tezligi oshadi",
+        "Hech narsa bo'lmaydi",
+      ],
+      answerIndex: 0,
+      explanation: "Hujumchi o'zini gateway qilib bersa, barcha trafik u orqali o'tadi (man-in-the-middle). DHCP snooping aynan shuning oldini oladi.",
+    },
+    {
+      type: "learn",
+      title: "Port security",
+      body: "Port security portda nechta va qaysi MAC manzil bo'lishi mumkinligini cheklaydi. Sticky rejimida switch birinchi ulangan qurilmalarni o'zi eslab qoladi.",
+      points: [
+        "protect — begona kadrni jim tashlaydi.",
+        "restrict — tashlaydi, logga yozadi va hisoblagichni oshiradi.",
+        "shutdown — portni err-disabled holatiga o'tkazadi (standart).",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Port security'ning standart buzilish rejimi qaysi?",
+      options: ["protect", "restrict", "shutdown", "Rejim yo'q"],
+      answerIndex: 2,
+      explanation: "Standart rejim shutdown: port err-disabled bo'ladi va uni administrator qayta yoqishi kerak.",
+    },
+    {
+      type: "cli",
+      title: "Port security'ni sozlang",
+      scenario: "SW1 ning Fa0/5 portiga xodim kompyuteri va IP telefon ulanadi. Portda 2 tadan ortiq qurilma bo'lmasin; begona qurilma logga yozilsin, lekin port o'chmasin.",
+      lines: [
+        { prompt: "SW1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "SW1(config)#." },
+        { prompt: "SW1(config)#", task: "Fa0/5 interfeysiga kiring.", accept: ["interface fastEthernet0/5"], explain: "(config-if)#." },
+        { prompt: "SW1(config-if)#", task: "Portni access rejimiga o'tkazing.", accept: ["switchport mode access"], explain: "Port security faqat access yoki trunk rejimi aniq belgilangan portda yoqiladi." },
+        { prompt: "SW1(config-if)#", task: "Port security'ni yoqing.", accept: ["switchport port-security"], explain: "Standart: 1 ta MAC, buzilishda shutdown." },
+        { prompt: "SW1(config-if)#", task: "Maksimal MAC sonini 2 qiling.", accept: ["switchport port-security maximum 2"], explain: "Kompyuter va IP telefon uchun." },
+        { prompt: "SW1(config-if)#", task: "Ulangan MAC'larni avtomatik eslab qolishni (sticky) yoqing.", accept: ["switchport port-security mac-address sticky"], explain: "Birinchi 2 ta MAC running-config'ga yoziladi." },
+        { prompt: "SW1(config-if)#", task: "Buzilish rejimini restrict qiling.", accept: ["switchport port-security violation restrict"], explain: "Begona kadrlar tashlanadi va logga yoziladi, port esa ishlashda davom etadi." },
+        { prompt: "SW1(config-if)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "SW1#." },
+        {
+          prompt: "SW1#",
+          task: "Fa0/5 port security holatini ko'ring.",
+          accept: ["show port-security interface fastEthernet0/5"],
+          explain: "Secure-up — port himoyalangan va ishlamoqda.",
+          output: [
+            "Port Security              : Enabled",
+            "Port Status                : Secure-up",
+            "Violation Mode             : Restrict",
+            "Maximum MAC Addresses      : 2",
+            "Sticky MAC Addresses       : 1",
+            "Security Violation Count   : 0",
+          ],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "DHCP snooping",
+      body: "Switch portlarni ikki turga bo'ladi: ishonchli (haqiqiy DHCP serverga yoki router'ga qaragan uplink) va ishonchsiz (foydalanuvchilar). Ishonchsiz portdan kelgan DHCP Offer/Ack tashlanadi. Shu bilan birga switch «qaysi MAC qaysi IP oldi» jadvalini tuzadi.",
+    },
+    {
+      type: "cli",
+      title: "DHCP snooping'ni yoqing",
+      scenario: "SW1 da VLAN 10 va 20 uchun DHCP snooping yoqing. Haqiqiy DHCP server (R1) Gi0/1 uplink orqasida.",
+      lines: [
+        { prompt: "SW1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "SW1(config)#." },
+        { prompt: "SW1(config)#", task: "DHCP snooping'ni global yoqing.", accept: ["ip dhcp snooping"], explain: "Funksiya yoqildi, lekin hali hech bir VLAN'da ishlamaydi." },
+        { prompt: "SW1(config)#", task: "Uni VLAN 10 va 20 da yoqing.", accept: ["ip dhcp snooping vlan 10,20"], explain: "Endi shu VLAN'larda barcha portlar ishonchsiz." },
+        {
+          prompt: "SW1(config)#",
+          task: "Switch DHCP so'rovlariga option 82 qo'shmasin.",
+          accept: ["no ip dhcp snooping information option"],
+          explain: "DHCP server Cisco router bo'lsa, option 82 qo'shilgan so'rovlarni rad etishi mumkin — bu ko'p uchraydigan amaliy muammo.",
+        },
+        { prompt: "SW1(config)#", task: "Uplink Gi0/1 ga kiring.", accept: ["interface gigabitEthernet0/1"], explain: "Haqiqiy DHCP server shu tomonda." },
+        { prompt: "SW1(config-if)#", task: "Portni ishonchli deb belgilang.", accept: ["ip dhcp snooping trust"], explain: "Faqat shu portdan kelgan DHCP javoblari o'tkaziladi." },
+        { prompt: "SW1(config-if)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "SW1#." },
+        {
+          prompt: "SW1#",
+          task: "DHCP snooping holatini ko'ring.",
+          accept: ["show ip dhcp snooping"],
+          explain: "VLAN'lar va ishonchli port ro'yxatda.",
+          output: [
+            "Switch DHCP snooping is enabled",
+            "DHCP snooping is configured on following VLANs:",
+            "10,20",
+            "Interface              Trusted    Rate limit (pps)",
+            "GigabitEthernet0/1     yes        unlimited",
+          ],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "DAI va qolgan himoya",
+      body: "Dynamic ARP Inspection (ip arp inspection vlan 10,20) ARP javoblarini DHCP snooping jadvali bilan solishtiradi va soxtalarini tashlaydi. Uplink'larda ip arp inspection trust beriladi.",
+      points: [
+        "Ishlatilmaydigan portlar: shutdown va alohida VLAN (masalan, 999).",
+        "Foydalanuvchi portlari: switchport mode access va switchport nonegotiate.",
+        "Native VLAN — ishlatilmaydigan VLAN; VLAN 1 foydalanuvchilarga berilmaydi.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Dynamic ARP Inspection ARP javobining haqiqiyligini qaysi ma'lumot bo'yicha tekshiradi?",
+      options: ["DNS yozuvlari", "DHCP snooping jadvali", "OSPF marshrutlari", "NAT jadvali"],
+      answerIndex: 1,
+      explanation: "DAI DHCP snooping yig'gan «MAC ↔ IP ↔ port» jadvalidan foydalanadi. Shuning uchun DAI'dan oldin DHCP snooping yoqilishi kerak.",
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: soxta DHCP serverni to'xtating",
+      tasks: [
+        "2-bosqich ofis laboratoriyasini oching. Foydalanuvchi portiga ikkinchi router ulang va unda boshqa tarmoq bilan DHCP pool yarating — bu «hujumchi».",
+        "PC'da DHCP'ni yangilang: u qaysi serverdan manzil oldi?",
+        "SW1 da DHCP snooping'ni sozlang (uplink — trust).",
+        "PC'da DHCP'ni qayta yangilang va natijani solishtiring.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ipconfig /renew", note: "PC'da: manzilni qayta so'raydi. Hujumdan oldin soxta gateway kelishi mumkin." },
+          { command: "show ip dhcp snooping binding", note: "Switch'da: qaysi MAC qaysi IP olganini ko'rsatadi." },
+        ],
+      },
+      expected: "Snooping yoqilgach, PC faqat haqiqiy R1 dan manzil oladi; soxta server javoblari switch'da tashlanadi.",
+    },
+    {
+      type: "practice",
+      title: "Switch xavfsizlik ro'yxati",
+      instructions: [
+        "Har yangi switch uchun 10 bandli nazorat ro'yxatini yozing (SSH, parollar, ishlatilmaydigan portlar, port security, DHCP snooping, DAI, native VLAN, CDP, saqlash...).",
+        "Har band yoniga uni tekshiradigan show buyrug'ini yozing.",
+        "Ro'yxatni 2-bosqich ofis laboratoriyangizga qo'llab chiqing.",
+      ],
+    },
+  ],
+};

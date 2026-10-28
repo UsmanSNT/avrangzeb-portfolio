@@ -44,6 +44,8 @@ export const networkCoursesCopy = {
     previousLink: (order: number) => `${order}-bosqichga o'tish`,
     nextLevelTitle: "Keyingi bosqich",
     levelDone: "Bosqich yakunlandi! Keyingisiga o'ting.",
+    finalTitle: "Yo'l oxiri",
+    finalText: "Bu so'nggi bosqich. Uni tugatgach, siz junior tarmoq muhandisi lavozimiga tayyor bo'lasiz.",
   },
   card: {
     start: "Boshlash",
@@ -74,6 +76,8 @@ export const networkCoursesCopy = {
     toLevel: "Bosqich darslari",
     levelCompletedTitle: (order: number) => `${order}-bosqich yakunlandi!`,
     levelCompletedText: "Barcha darslarni tugatdingiz. Keyingi bosqich alohida sahifada sizni kutmoqda.",
+    courseCompletedTitle: "Butun kursni yakunladingiz!",
+    courseCompletedText: "Uchala bosqich ortda. Endi o'z-o'zini baholash ro'yxati bo'yicha bo'shliqlarni to'ldiring va junior lavozimlarga topshiring.",
     nextLevelCta: (title: string) => `Keyingi bosqich: ${title}`,
     toRoadmap: "Yo'l xaritasi",
     expected: "Kutilgan natija",
@@ -115,6 +119,7 @@ export const networkCoursesCopy = {
     cliWrong: "Bu buyruq vazifaga mos kelmadi. Promptga (qaysi rejimda turganingizga) qarang yoki maslahatni oching.",
     cliDone: "Barcha buyruqlar to'g'ri bajarildi!",
     cliAbbrevNote: "Qisqartmalar ham qabul qilinadi, xuddi haqiqiy qurilmadagidek: conf t, int g0/0, sh run.",
+    cliLinuxNote: "Linux qisqartmalarni tanimaydi: buyruqni to'liq va aniq yozing.",
     lessonOf: (stage: number, lesson: number) => `${stage}-bosqich · ${lesson}-dars`,
   },
 } as const;

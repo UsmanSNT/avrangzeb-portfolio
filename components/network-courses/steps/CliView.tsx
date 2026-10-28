@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CliStep } from "@/content/network-courses";
-import { matchesAnyIosCommand } from "./iosMatch";
+import { matchesAnyExactCommand, matchesAnyIosCommand } from "./iosMatch";
 import {
   copy,
   Feedback,
@@ -37,7 +37,8 @@ export function CliView({ step, onSolved }: StepViewProps<CliStep>) {
   const submit = (event: { preventDefault: () => void }) => {
     event.preventDefault();
     if (!line) return;
-    if (matchesAnyIosCommand(value, line.accept)) {
+    const matches = step.shell === "linux" ? matchesAnyExactCommand : matchesAnyIosCommand;
+    if (matches(value, line.accept)) {
       setEntered((prev) => [...prev, value.trim()]);
       setValue("");
       setFailed(false);
@@ -146,7 +147,9 @@ export function CliView({ step, onSolved }: StepViewProps<CliStep>) {
       {failed && <Feedback kind="bad">{copy.cliWrong}</Feedback>}
 
       {finished && <Feedback kind="ok">{copy.cliDone}</Feedback>}
-      {index === 0 && <p className="mt-3 text-xs leading-5 text-muted">{copy.cliAbbrevNote}</p>}
+      {index === 0 && (
+        <p className="mt-3 text-xs leading-5 text-muted">{step.shell === "linux" ? copy.cliLinuxNote : copy.cliAbbrevNote}</p>
+      )}
     </div>
   );
 }

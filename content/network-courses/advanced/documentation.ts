@@ -1,0 +1,152 @@
+import type { Lesson } from "../types";
+
+export const documentation: Lesson = {
+  id: "documentation",
+  title: "Hujjatlashtirish va o'zgarishlarni boshqarish",
+  summary: "Professional jamoada qanday ishlanadi: diagrammalar, nomlash qoidalari, port tavsiflari, o'zgarish so'rovi va rollback.",
+  estimatedMinutes: 45,
+  goals: [
+    "Tarmoq hujjatlari to'plamida nima bo'lishi kerakligini bilasiz",
+    "Qurilma va portlarni tushunarli nomlaysiz",
+    "Rollback rejasi bilan o'zgarish so'rovini yozasiz",
+  ],
+  requires: "Cisco Packet Tracer; draw.io (diagrams.net, bepul)",
+  recap: [
+    "Hujjatlar: fizik va mantiqiy diagramma, IP reja, qurilmalar ro'yxati, zaxira nusxalar.",
+    "Har port tavsifi bor: description Uplink to ...",
+    "Har o'zgarish: reja → tasdiq → bajarish → tekshirish → kerak bo'lsa rollback → hujjatni yangilash.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Nega hujjat kerak?",
+      body: "Tungi soat 3 da tarmoq to'xtadi. Navbatchi muhandis bu tarmoqni birinchi marta ko'ryapti. Diagramma va IP reja bo'lsa, u 10 daqiqada muammoni topadi; bo'lmasa — soatlab kabel kuzatadi. Yaxshi hujjat — jamoaga hurmat.",
+    },
+    {
+      type: "learn",
+      title: "Hujjatlar to'plami",
+      body: "Har tarmoq uchun quyidagilar bo'lishi kerak.",
+      points: [
+        "Fizik diagramma — shkaflar, qurilmalar, qaysi port qaysi portga ulangan.",
+        "Mantiqiy diagramma — VLAN'lar, subnetlar, marshrutlash.",
+        "IP reja (IPAM) — har subnet, gateway, statik manzillar.",
+        "Qurilmalar ro'yxati — model, seriya raqami, IOS versiyasi, joylashuvi.",
+        "Konfiguratsiya zaxiralari va o'zgarishlar tarixi.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Qurilmalar parollari qayerda saqlanishi kerak?",
+      options: ["Diagramma ustida", "Excel jadvalda", "Parollar menejerida (vault)", "Port tavsifida"],
+      answerIndex: 2,
+      explanation: "Parollar faqat himoyalangan parollar menejerida, kirish huquqlari bilan saqlanadi. Hujjatlarda ular bo'lmaydi.",
+    },
+    {
+      type: "learn",
+      title: "Nomlash qoidasi",
+      body: "Qurilma nomidan uning qayerda va nima ekani darhol bilinishi kerak. Masalan: shahar — bino — vazifa — raqam.",
+      terminal: ["TAS-HQ-R01     Toshkent, bosh ofis, router 1", "TAS-HQ-SW02    Toshkent, bosh ofis, switch 2", "SAM-BR-R01     Samarqand, filial, router 1"],
+    },
+    {
+      type: "cli",
+      title: "Port tavsiflarini yozing",
+      scenario: "TAS-HQ-SW01 da uplink va buxgalteriya kompyuteri portiga tavsif bering, so'ng natijani tekshiring.",
+      lines: [
+        { prompt: "TAS-HQ-SW01#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "(config)#." },
+        { prompt: "TAS-HQ-SW01(config)#", task: "Gi0/1 interfeysiga kiring.", accept: ["interface gigabitEthernet0/1"], explain: "Router'ga qaragan port." },
+        {
+          prompt: "TAS-HQ-SW01(config-if)#",
+          task: "Tavsif: Uplink to TAS-HQ-R01 Gi0/0",
+          accept: ["description Uplink to TAS-HQ-R01 Gi0/0"],
+          explain: "Endi port qayerga ulanganini har kim show buyrug'ida ko'radi.",
+        },
+        { prompt: "TAS-HQ-SW01(config-if)#", task: "Fa0/10 interfeysiga o'ting.", accept: ["interface fastEthernet0/10"], explain: "Foydalanuvchi porti." },
+        { prompt: "TAS-HQ-SW01(config-if)#", task: "Tavsif: Buxgalteriya PC-12", accept: ["description Buxgalteriya PC-12"], explain: "Rozetka yoki kompyuter raqamini yozish qulay." },
+        { prompt: "TAS-HQ-SW01(config-if)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "(config)# dan chiqdingiz." },
+        {
+          prompt: "TAS-HQ-SW01#",
+          task: "Barcha interfeyslar tavsifini ko'ring.",
+          accept: ["show interfaces description"],
+          explain: "Portlar va tavsiflar bitta jadvalda.",
+          output: ["Interface  Status  Protocol  Description", "Gi0/1      up      up        Uplink to TAS-HQ-R01 Gi0/0", "Fa0/10     up      up        Buxgalteriya PC-12"],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "Konfiguratsiyadan kerakli qismni topish",
+      body: "Katta konfiguratsiyada kerakli qatorni izlash uchun filtrlar ishlatiladi.",
+      terminal: [
+        "show running-config | include ip route        faqat shu so'z bor qatorlar",
+        "show running-config | section router ospf     faqat OSPF bo'limi",
+        "show running-config | begin interface         shu joydan boshlab",
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: konfiguratsiya filtri",
+      prompt: "running-config'dan faqat OSPF bo'limini ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show running-config | section router ospf", os: "To'liq" },
+        { command: "sh run | sec router ospf", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "learn",
+      title: "O'zgarishlarni boshqarish",
+      body: "Ko'p uzilishlar rejasiz o'zgarishdan keyin yuz beradi. Shuning uchun har o'zgarish uchun so'rov (change request) yoziladi.",
+      points: [
+        "Nima va nega o'zgaradi, kimga ta'sir qiladi.",
+        "Xavf darajasi va bajarish vaqti (texnik oyna).",
+        "Qadamma-qadam reja va tekshirish usuli.",
+        "Rollback rejasi — muvaffaqiyatsiz bo'lsa, qanday qaytariladi.",
+      ],
+    },
+    {
+      type: "order",
+      title: "O'zgarish jarayoni",
+      prompt: "Bosqichlarni tartiblang.",
+      items: [
+        "O'zgarish so'rovini yozish",
+        "Xavf va ta'sirni baholash",
+        "Tasdiq olish",
+        "Texnik oynada bajarish",
+        "Natijani tekshirish",
+        "Hujjat va diagrammani yangilash",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "O'zgarishdan keyin tekshiruv muvaffaqiyatsiz bo'ldi va texnik oyna tugayapti. Nima qilasiz?",
+      options: [
+        "Tuzatishga urinishda davom etaman",
+        "Rollback rejasini bajarib, oldingi holatga qaytaraman va hisobot yozaman",
+        "Hech kimga aytmayman",
+        "Router'ni o'chirib qo'yaman",
+      ],
+      answerIndex: 1,
+      explanation: "Rollback rejasi aynan shu holat uchun. Ishlaydigan tarmoq birinchi o'rinda; tahlil keyin qilinadi.",
+    },
+    {
+      type: "practice",
+      title: "O'zgarish so'rovi yozing",
+      instructions: [
+        "Vazifa: ofis tarmog'iga VLAN 40 (Printerlar) qo'shish.",
+        "So'rov yozing: maqsad, ta'sir, xavf, vaqt, qadamlar (buyruqlar bilan), tekshirish, rollback.",
+        "Rollback qadamlarini ham buyruqlar bilan yozing (masalan: no vlan 40).",
+      ],
+    },
+    {
+      type: "lab",
+      title: "Hujjatlar to'plamini tayyorlang",
+      tasks: [
+        "2-bosqich ofis loyihangizni oching.",
+        "draw.io'da fizik va mantiqiy diagramma chizing.",
+        "IP reja va qurilmalar ro'yxati jadvalini tuzing.",
+        "Har qurilmaga nomlash qoidasi bo'yicha nom va har portga tavsif bering, konfiguratsiyalarni saqlang.",
+      ],
+      expected: "Tayyor to'plam: 2 ta diagramma, IP reja, qurilmalar ro'yxati va har qurilma konfiguratsiyasi. Bu sizning portfolio materialingiz.",
+    },
+  ],
+};

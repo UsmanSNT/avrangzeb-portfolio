@@ -1,0 +1,189 @@
+import type { Lesson } from "../types";
+
+export const troubleshootingMethod: Lesson = {
+  id: "troubleshooting-method",
+  title: "Professional nosozlik izlash",
+  summary: "Ish joyida qanday ishlanadi: tizimli usul, interfeys holatlarini o'qish, xato hisoblagichlari va hisobot.",
+  estimatedMinutes: 50,
+  goals: [
+    "Nosozlikni 7 bosqichli usul bilan tizimli izlaysiz",
+    "show ip interface brief holatlaridan muammo qatlamini aniqlaysiz",
+    "Xato hisoblagichlari (CRC, late collision) nimani bildirishini bilasiz",
+  ],
+  requires: "Cisco Packet Tracer",
+  recap: [
+    "Aniqlash → ma'lumot yig'ish → gipoteza → sinash → tuzatish → tekshirish → hujjatlash.",
+    "administratively down — shutdown; down/down — 1-qatlam; up/down — 2-qatlam.",
+    "Har nosozlikdan keyin qisqa hisobot yoziladi: belgi, ta'sir, sabab, yechim, oldini olish.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Tasodifiy emas — tizimli",
+      body: "Junior va tajribali muhandisning farqi bilimda emas, usulda. Tajribali muhandis taxmin bilan buyruq yozmaydi: u muammoni aniqlaydi, dalil yig'adi va gipotezani bittalab tekshiradi. Har bir o'zgarishdan keyin natijani tekshiradi.",
+    },
+    {
+      type: "learn",
+      title: "7 bosqich",
+      body: "Har qanday nosozlikda shu tartib ishlaydi.",
+      points: [
+        "1. Muammoni aniqlash: kim, nima, qachondan beri, qancha foydalanuvchi.",
+        "2. Ma'lumot yig'ish: show buyruqlari, loglar, oxirgi o'zgarishlar.",
+        "3. Gipoteza: eng ehtimoliy sabab.",
+        "4. Sinash: gipotezani tasdiqlash yoki rad etish.",
+        "5. Tuzatish: rollback rejasi bilan.",
+        "6. Tekshirish: foydalanuvchi bilan birga.",
+        "7. Hujjatlash: nima bo'ldi va qanday hal qilindi.",
+      ],
+    },
+    {
+      type: "order",
+      title: "Bosqichlarni tartiblang",
+      prompt: "Nosozlik izlash bosqichlarini to'g'ri tartibda bosing.",
+      items: ["Muammoni aniqlash", "Ma'lumot yig'ish", "Gipoteza tuzish", "Gipotezani sinash", "Tuzatish", "Natijani tekshirish", "Hujjatlash"],
+    },
+    {
+      type: "learn",
+      title: "Qayerdan boshlash?",
+      body: "1-bosqichda bottom-up usulini o'rgandingiz. Ish joyida yana uchtasi qo'llanadi.",
+      points: [
+        "Divide and conquer — o'rtadan, 3-qatlamdan (ping) boshlab, natijaga qarab pastga yoki yuqoriga.",
+        "Follow the path — paket yo'li bo'ylab qurilmama-qurilma.",
+        "Taqqoslash — ishlayotgan qurilma konfiguratsiyasi bilan solishtirish.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Interfeys holatlarini o'qish",
+      body: "show ip interface brief dagi Status/Protocol juftligi muammo qaysi qatlamdaligini darhol aytadi.",
+      visual: {
+        kind: "stack",
+        layers: [
+          { label: "up / up", note: "Ishlayapti" },
+          { label: "up / down", note: "2-qatlam: inkapsulyatsiya yoki keepalive mos emas", accent: true },
+          { label: "down / down", note: "1-qatlam: kabel, qarshi tomon o'chiq", accent: true },
+          { label: "administratively down / down", note: "shutdown qilingan", accent: true },
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "Interfeys «administratively down / down» holatida. Birinchi qadamingiz?",
+      options: ["Kabelni almashtirish", "Interfeysda no shutdown", "Router'ni qayta yuklash", "IP manzilni o'zgartirish"],
+      answerIndex: 1,
+      explanation: "administratively down — interfeys qo'lda o'chirilgan. Kimdir shutdown qilgan: avval nega ekanini aniqlang, so'ng no shutdown.",
+    },
+    {
+      type: "quiz",
+      question: "Ikki router orasidagi serial kanal «up / down». Eng ehtimoliy sabab?",
+      options: [
+        "Kabel ulanmagan",
+        "Ikki tomondagi inkapsulyatsiya mos emas (masalan, HDLC va PPP)",
+        "Interfeys shutdown qilingan",
+        "DNS ishlamayapti",
+      ],
+      answerIndex: 1,
+      explanation: "Fizik signal bor (up), lekin 2-qatlam protokoli kelishmayapti (down). Ikki tomonda inkapsulyatsiya bir xil bo'lishi kerak.",
+    },
+    {
+      type: "learn",
+      title: "Xato hisoblagichlari",
+      body: "show interfaces da xatolar soni ko'rinadi. Raqam o'sib borayotgan bo'lsa, muammo hozir ham bor.",
+      points: [
+        "CRC xatolari — kabel shikastlangan, shovqin yoki duplex mos emas.",
+        "Late collision — duplex mismatch: bir tomon full, ikkinchisi half.",
+        "Input errors o'smoqda — 1-qatlamni tekshiring: kabel, port, SFP.",
+      ],
+      terminal: [
+        "R1# show interfaces gigabitEthernet0/1",
+        "GigabitEthernet0/1 is up, line protocol is up",
+        "  Full-duplex, 1000Mb/s",
+        "  152 input errors, 152 CRC, 0 frame, 0 overrun",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Switch portida late collision soni doimiy o'smoqda. Eng ehtimoliy sabab?",
+      options: ["Duplex mismatch", "VLAN noto'g'ri", "DNS xatosi", "OSPF qo'shnisi yo'q"],
+      answerIndex: 0,
+      explanation: "Full-duplex'da kolliziya umuman bo'lmaydi. Late collision — bir tomon half-duplex ishlayotganining belgisi.",
+    },
+    {
+      type: "learn",
+      title: "Qo'shnilarni topish: CDP va LLDP",
+      body: "Notanish tarmoqqa kelganda, qaysi port qaysi qurilmaga ulanganini CDP (Cisco) yoki LLDP (standart) ko'rsatadi. Xavfsizlik uchun foydalanuvchi portlarida ular o'chiriladi.",
+      terminal: [
+        "R1# show cdp neighbors",
+        "Device ID  Local Intrfce  Holdtme  Capability  Platform  Port ID",
+        "SW1        Gig 0/0        152      S I         2960      Gig 0/1",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Tiket: VLAN 20 da tarmoq yo'q",
+      scenario: "Tiket: «Kadrlar bo'limida (VLAN 20) ertalabdan beri tarmoq ishlamayapti, savdo bo'limi (VLAN 10) ishlayapti». R1 — router-on-a-stick.",
+      lines: [
+        {
+          prompt: "R1#",
+          task: "Interfeyslarning qisqa holatini ko'ring.",
+          accept: ["show ip interface brief"],
+          explain: "Gi0/0.20 — administratively down. Kimdir subinterfeysni o'chirgan. Avval bu qachon bo'lganini loglardan ko'ramiz.",
+          output: [
+            "Interface              IP-Address    OK? Method Status                Protocol",
+            "GigabitEthernet0/0     unassigned    YES unset  up                    up",
+            "GigabitEthernet0/0.10  192.168.10.1  YES manual up                    up",
+            "GigabitEthernet0/0.20  192.168.20.1  YES manual administratively down down",
+          ],
+        },
+        {
+          prompt: "R1#",
+          task: "Loglarni ko'ring.",
+          accept: ["show logging"],
+          explain: "Log interfeys qo'lda o'chirilganini tasdiqlaydi. Kim qilganini o'zgarishlar jurnalidan yoki AAA loglaridan aniqlash kerak; hozir esa tuzatamiz.",
+          output: ["%LINK-5-CHANGED: Interface GigabitEthernet0/0.20, changed state to administratively down"],
+        },
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "Gi0/0.20 subinterfeysiga kiring.", accept: ["interface gigabitEthernet0/0.20"], explain: "(config-subif)#." },
+        { prompt: "R1(config-subif)#", task: "Subinterfeysni yoqing.", accept: ["no shutdown"], explain: "Subinterfeys yoqildi." },
+        { prompt: "R1(config-subif)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "VLAN 20 dagi 192.168.20.11 kompyuteriga ping qiling.",
+          accept: ["ping 192.168.20.11"],
+          explain: "Birinchi nuqta (.) — xato emas: router avval ARP bilan MAC manzilni topdi. Qolganlari muvaffaqiyatli.",
+          output: [
+            "Sending 5, 100-byte ICMP Echos to 192.168.20.11, timeout is 2 seconds:",
+            ".!!!!",
+            "Success rate is 80 percent (4/5), round-trip min/avg/max = 0/0/1 ms",
+          ],
+        },
+        {
+          prompt: "R1#",
+          task: "Tuzatishni saqlang.",
+          accept: ["copy running-config startup-config", "write memory"],
+          explain: "Saqlandi. Endi tiketni yopishdan oldin foydalanuvchi bilan tekshiring va hisobot yozing.",
+          output: ["Building configuration...", "[OK]"],
+        },
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: interfeys tafsilotlari",
+      prompt: "Interfeyslarning to'liq holati va xato hisoblagichlarini ko'rsatadigan buyruqni yozing.",
+      options: [
+        { command: "show interfaces", os: "To'liq" },
+        { command: "sh int", os: "Qisqa" },
+      ],
+      reps: 3,
+    },
+    {
+      type: "practice",
+      title: "Nosozlik hisoboti",
+      instructions: [
+        "Yuqoridagi tiket uchun qisqa hisobot yozing: belgi, ta'sir (kim va qancha vaqt), asosiy sabab, yechim, oldini olish choralari.",
+        "«Oldini olish» qismida o'ylang: o'zgarishlar jurnali, ruxsatlar, monitoring ogohlantirishi.",
+        "Hisobot 6–8 jumladan oshmasin — rahbar uni 1 daqiqada o'qishi kerak.",
+      ],
+    },
+  ],
+};
