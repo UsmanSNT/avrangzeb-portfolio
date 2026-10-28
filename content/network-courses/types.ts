@@ -208,7 +208,7 @@ export type Lesson = {
 export type CourseLevelId = "beginner" | "intermediate" | "advanced";
 
 export type CourseLevel = {
-  id: CourseLevelId;
+  id: string;
   order: number;
   title: string;
   description: string;

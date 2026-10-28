@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { courseHref, findLesson, lessonHref, levelHref, type CourseLevel, type Lesson, type Step } from "@/content/network-courses";
-import { networkCoursesCopy } from "@/content/network-courses/copy";
+import { courseHref, findLesson, lessonHref, levelHref } from "@/content/courses";
+import type { CourseLevel, Lesson, Step } from "@/content/network-courses";
 import { BinaryView } from "./steps/BinaryView";
 import { CidrView } from "./steps/CidrView";
 import { CliView } from "./steps/CliView";
@@ -18,9 +18,8 @@ import { QuizView } from "./steps/QuizView";
 import { TrainerView } from "./steps/TrainerView";
 import { TypeView } from "./steps/TypeView";
 import { primaryButtonClass, secondaryButtonClass } from "./steps/shared";
+import { useCourse } from "./CourseProvider";
 import { useLessonProgress } from "./useLessonProgress";
-
-const t = networkCoursesCopy.player;
 
 function StepView({ step, onSolved }: { step: Step; onSolved: () => void }) {
   switch (step.type) {
@@ -60,12 +59,14 @@ type IntroScreenProps = {
 };
 
 function IntroScreen({ lesson, stage, number, savedStep, onStart }: IntroScreenProps) {
+  const course = useCourse();
+  const t = course.copy.player;
   const resumable = savedStep > 0 && savedStep < lesson.steps.length;
   return (
     <div>
       <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-text">
-        {t.lessonOf(stage, number)} · {networkCoursesCopy.level.minutes(lesson.estimatedMinutes)} ·{" "}
-        {networkCoursesCopy.card.steps(lesson.steps.length)}
+        {t.lessonOf(stage, number)} · {course.copy.level.minutes(lesson.estimatedMinutes)} ·{" "}
+        {course.copy.card.steps(lesson.steps.length)}
       </p>
       <h1 className="text-3xl font-black leading-tight text-foreground sm:text-4xl">{lesson.title}</h1>
       <p className="mt-3 text-base leading-7 text-secondary sm:text-lg">{lesson.summary}</p>
@@ -89,7 +90,7 @@ function IntroScreen({ lesson, stage, number, savedStep, onStart }: IntroScreenP
 
       <div className="mt-8 flex flex-wrap gap-3">
         <button type="button" className={primaryButtonClass} onClick={() => onStart(resumable ? savedStep : 0)}>
-          {resumable ? networkCoursesCopy.card.resume(savedStep + 1, lesson.steps.length) : t.start}
+          {resumable ? course.copy.card.resume(savedStep + 1, lesson.steps.length) : t.start}
         </button>
         {resumable && (
           <button type="button" className={secondaryButtonClass} onClick={() => onStart(0)}>
@@ -109,6 +110,8 @@ type OutroScreenProps = {
 };
 
 function OutroScreen({ lesson, level, next, nextLevel }: OutroScreenProps) {
+  const course = useCourse();
+  const t = course.copy.player;
   const levelFinished = next === null;
   return (
     <div>
@@ -137,16 +140,16 @@ function OutroScreen({ lesson, level, next, nextLevel }: OutroScreenProps) {
 
       <div className="mt-8 flex flex-wrap gap-3">
         {next && (
-          <Link href={lessonHref(next.id)} className={primaryButtonClass}>
+          <Link href={lessonHref(course, next.id)} className={primaryButtonClass}>
             {t.nextLesson}: {next.title}
           </Link>
         )}
         {levelFinished && nextLevel && (
-          <Link href={levelHref(nextLevel.id)} className={primaryButtonClass}>
+          <Link href={levelHref(course, nextLevel.id)} className={primaryButtonClass}>
             {t.nextLevelCta(nextLevel.title)}
           </Link>
         )}
-        <Link href={levelFinished ? courseHref : levelHref(level.id)} className={next || nextLevel ? secondaryButtonClass : primaryButtonClass}>
+        <Link href={levelFinished ? courseHref(course) : levelHref(course, level.id)} className={next || nextLevel ? secondaryButtonClass : primaryButtonClass}>
           {levelFinished ? t.toRoadmap : t.toLevel}
         </Link>
       </div>
@@ -155,7 +158,9 @@ function OutroScreen({ lesson, level, next, nextLevel }: OutroScreenProps) {
 }
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
-  const found = findLesson(lessonId);
+  const course = useCourse();
+  const t = course.copy.player;
+  const found = findLesson(course, lessonId);
   const reduceMotion = useReducedMotion();
   const { completed, position, setPosition, markCompleted } = useLessonProgress();
 
@@ -203,7 +208,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       <header className="sticky top-0 z-40 border-b border-line bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
           <Link
-            href={levelHref(level.id)}
+            href={levelHref(course, level.id)}
             aria-label={t.exit}
             title={t.exit}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:border-accent-cyan/40 hover:text-foreground"

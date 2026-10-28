@@ -14,9 +14,11 @@ import {
   StepHeader,
   type StepViewProps,
 } from "./shared";
+import { useCourse } from "../CourseProvider";
 
 /** Muscle-memory drill: the learner types the command from memory several times. */
 export function TypeView({ step, onSolved }: StepViewProps<TypeStep>) {
+  const course = useCourse();
   const [done, setDone] = useState(0);
   const [value, setValue] = useState("");
   const [failed, setFailed] = useState(false);
@@ -75,14 +77,14 @@ export function TypeView({ step, onSolved }: StepViewProps<TypeStep>) {
             ref={inputRef}
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            placeholder={copy.typePlaceholder}
+            placeholder={course.copy.player.typePlaceholder}
             autoCapitalize="off"
             autoCorrect="off"
             autoComplete="off"
             spellCheck={false}
             onPaste={(event) => event.preventDefault()}
             onDrop={(event) => event.preventDefault()}
-            aria-label={copy.typePlaceholder}
+            aria-label={course.copy.player.typePlaceholder}
             className={inputClass}
           />
           <p className="mt-2 text-xs text-muted">{done === 0 ? copy.typeCopyHint : copy.typeMemoryHint}</p>

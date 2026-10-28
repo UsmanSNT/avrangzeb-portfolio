@@ -1,4 +1,4 @@
-import type { EnglishLevel } from "../types";
+import type { CourseLevel } from "../../network-courses/types";
 import {
   articlesLesson,
   courseHowItWorks,
@@ -15,7 +15,7 @@ import {
   whQuestionsLesson,
 } from "./daily-english";
 
-export const englishBeginnerLevel: EnglishLevel = {
+export const englishBeginnerLevel: CourseLevel = {
   id: "english-beginner",
   order: 1,
   title: "Boshlang'ich: 0 dan birinchi gaplargacha",
