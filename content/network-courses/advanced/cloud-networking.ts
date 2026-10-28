@@ -1,0 +1,223 @@
+import type { Lesson } from "../types";
+
+export const cloudNetworking: Lesson = {
+  id: "cloud-networking",
+  title: "Bulut tarmoqlari: VPC asoslari",
+  summary: "AWS misolida bulutdagi tarmoq: VPC, subnetlar, marshrut jadvallari, Internet va NAT Gateway, Security Group va NACL hamda ofis bilan bog'lanish.",
+  estimatedMinutes: 60,
+  goals: [
+    "VPC'ni CIDR rejasi, public va private subnetlar bilan loyihalaysiz",
+    "Internet Gateway va NAT Gateway farqini tushuntirasiz",
+    "Security Group va NACL bilan trafikni nazorat qilasiz",
+  ],
+  requires: "Ixtiyoriy: AWS Free Tier hisobi (laboratoriyadan keyin resurslarni o'chiring)",
+  recap: [
+    "VPC — bulutdagi o'z tarmog'ingiz; har subnet bitta Availability Zone'da joylashadi.",
+    "Public subnet: marshrut jadvalida 0.0.0.0/0 → Internet Gateway. Private: 0.0.0.0/0 → NAT Gateway.",
+    "Security Group — stateful, faqat allow, instansiya darajasida; NACL — stateless, allow va deny, subnet darajasida.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Nega bulut tarmog'ini bilish kerak?",
+      body: "Kompaniyalar serverlarining katta qismini AWS, Azure yoki Google Cloud'ga ko'chirmoqda. Bulutda ham subnet, marshrut, NAT va firewall bor — faqat ular veb-panel yoki API orqali sozlanadi. Kursda o'rganganlaringiz bu yerda to'liq ishlaydi, faqat atamalar boshqacha.",
+      points: [
+        "AWS: VPC, Security Group, Route Table.",
+        "Azure: VNet, Network Security Group (NSG).",
+        "Google Cloud: VPC, firewall rules.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "VPC va subnetlar",
+      body: "VPC — bulutdagi izolyatsiyalangan tarmog'ingiz. Unga private CIDR blok beriladi va u subnetlarga bo'linadi. Har subnet bitta Availability Zone (AZ) — alohida ma'lumotlar markazi — ichida bo'ladi. Uzluksizlik uchun serverlar kamida ikki AZ'ga tarqatiladi.",
+      points: [
+        "VPC: 10.50.0.0/16.",
+        "public-a 10.50.1.0/24 va public-b 10.50.2.0/24 — yuklama muvozanatlagich, NAT Gateway.",
+        "private-a 10.50.11.0/24 va private-b 10.50.12.0/24 — ilova va ma'lumotlar bazasi serverlari.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Nega VPC CIDR'i ofis tarmog'i (10.10.0.0/16) bilan kesishmasligi kerak?",
+      options: [
+        "Bulut buni hech qachon tekshirmaydi",
+        "Keyinchalik ofis bilan VPN yoki peering orqali bog'langanda bir xil manzillar ikki joyda bo'lsa, marshrutlash ishlamaydi",
+        "Tezlik uchun",
+        "Narx arzonroq bo'lishi uchun",
+      ],
+      answerIndex: 1,
+      explanation: "10.10.5.0/24 ham ofisda, ham VPC'da bo'lsa, router paketni qayerga yuborishni bilmaydi. Manzillarni boshidanoq bitta IP reja asosida taqsimlang.",
+    },
+    {
+      type: "learn",
+      title: "Bulut zaxiralagan manzillar",
+      body: "AWS har subnetda 5 ta manzilni o'zi uchun saqlaydi: tarmoq manzili, keyingi uchtasi (VPC router'i, DNS va kelajak uchun) hamda oxirgi manzil. Demak /24 subnetda serverlar uchun 256 − 5 = 251 manzil qoladi.",
+    },
+    {
+      type: "input",
+      question: "AWS'da 10.50.1.0/26 subnetida nechta manzil serverlarga berilishi mumkin?",
+      answers: ["59"],
+      hint: "/26 — 64 manzil; AWS 5 tasini saqlaydi.",
+      explanation: "64 − 5 = 59. Oddiy tarmoqdagi 62 ta hostdan 3 ta kam.",
+      placeholder: "Son",
+    },
+    {
+      type: "learn",
+      title: "Internetga chiqish: IGW va NAT Gateway",
+      body: "Subnetni «public» yoki «private» qiladigan narsa — uning marshrut jadvali.",
+      points: [
+        "Internet Gateway (IGW) — VPC'ni internetga ulaydi, ikki tomonlama. Ommaviy IP'li server to'g'ridan-to'g'ri chiqadi va unga tashqaridan ulanish mumkin.",
+        "NAT Gateway — public subnetda turadi. Private subnetdagi serverlar u orqali internetga chiqadi (yangilanishlar uchun), lekin tashqaridan ularga ulanib bo'lmaydi — bu 2-bosqichdagi PAT'ning bulutdagi ko'rinishi.",
+        "NAT Gateway soatbay va trafik uchun pullik — laboratoriyada ehtiyot bo'ling.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Marshrut jadvallari",
+      body: "Har subnet bitta marshrut jadvaliga bog'lanadi. VPC ichidagi yo'l (local) avtomatik qo'shiladi.",
+      terminal: ["public jadval:", "  10.50.0.0/16  local", "  0.0.0.0/0     igw-0a1b", "", "private jadval:", "  10.50.0.0/16  local", "  0.0.0.0/0     nat-0c2d"],
+    },
+    {
+      type: "order",
+      title: "Private serverdan internetga",
+      prompt: "Paket yo'lini boshidan oxirigacha bosing.",
+      items: [
+        "Private subnetdagi server (10.50.11.20)",
+        "Private jadval: 0.0.0.0/0 → NAT Gateway",
+        "NAT Gateway manbani o'z ommaviy IP'siga almashtiradi",
+        "Public jadval: 0.0.0.0/0 → Internet Gateway",
+        "Internet",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Private subnetdagi server yangilanishlarni yuklay olmayapti. Security Group'da chiquvchi trafik ochiq. Birinchi nimani tekshirasiz?",
+      options: [
+        "Serverga ommaviy IP berishni",
+        "Private subnet marshrut jadvalida 0.0.0.0/0 → NAT Gateway borligini va NAT Gateway public subnetda ekanini",
+        "DNS nomini",
+        "Serverni boshqa AZ'ga ko'chirishni",
+      ],
+      answerIndex: 1,
+      explanation: "Private server ommaviy IP'siz chiqishi uchun yo'l NAT Gateway orqali o'tishi, NAT Gateway esa IGW'ga yo'li bor public subnetda turishi kerak.",
+    },
+    {
+      type: "learn",
+      title: "Security Group va NACL",
+      body: "Bulutda trafikni ikki qatlam filtrlaydi.",
+      points: [
+        "Security Group (SG) — server tarmoq interfeysi darajasidagi stateful firewall: faqat allow qoidalari, javob trafigi avtomatik o'tadi.",
+        "NACL — subnet darajasida, stateless: allow va deny, qoidalar raqam tartibida; javob uchun ham qoida kerak (klient portlari 1024–65535).",
+        "SG manba sifatida boshqa SG'ni ko'rsata oladi: «faqat app-sg dagi serverlardan 5432-port» — IP manzillarsiz qoida.",
+        "Amalda asosiy himoya — SG'lar; NACL qo'shimcha qo'pol filtr sifatida.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "NACL'da kiruvchi 443 ruxsat etilgan, chiquvchi qoidalarda ham faqat 443 ruxsat. Sayt ochilmayapti. Nega?",
+      options: [
+        "NACL stateless: server javobi klientning vaqtinchalik portiga (1024–65535) boradi va chiquvchi qoida uni to'smoqda",
+        "Security Group yo'q",
+        "Internet Gateway yo'q",
+        "DNS ishlamayapti",
+      ],
+      answerIndex: 0,
+      explanation: "SG'dan farqli, NACL javobni eslab qolmaydi. Javob 443-portdan klientning tasodifiy portiga ketadi — chiquvchi tomonda ham shu portlarga ruxsat kerak.",
+    },
+    {
+      type: "quiz",
+      question: "Ma'lumotlar bazasiga faqat ilova serverlari ulanishi kerak. Eng toza yechim?",
+      options: [
+        "DB SG'da 5432 ni 0.0.0.0/0 ga ochish",
+        "DB SG'da 5432 ni manba sifatida app-sg (ilova serverlari SG'si) bilan ochish",
+        "NACL'da hamma narsani ochish",
+        "DB'ni public subnetga ko'chirish",
+      ],
+      answerIndex: 1,
+      explanation: "SG havolasi bilan qoida ilova serverlari soni yoki IP'lari o'zgarsa ham to'g'ri ishlaydi va boshqa hech kimga ruxsat bermaydi.",
+    },
+    {
+      type: "learn",
+      title: "Ofis va VPC'larni bog'lash",
+      body: "Gibrid tarmoqda ofis va bulut bitta tarmoqdek ishlaydi.",
+      points: [
+        "Site-to-site VPN — internet orqali IPsec tunnel (WAN darsidagi kabi); tez sozlanadi.",
+        "Direct Connect (Azure'da ExpressRoute) — provayder orqali ajratilgan kanal: barqaror va tez, lekin qimmat va ulanishi uzoq.",
+        "VPC peering yoki Transit Gateway — VPC'larni o'zaro bog'lash; VPC'lar ko'p bo'lsa, markaziy Transit Gateway.",
+        "Hamma usulda bitta shart: manzil bloklari kesishmasligi kerak.",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Tiket: private subnet internetsiz",
+      shell: "linux",
+      scenario: "private-a subnetidagi (subnet-0aa11) serverlar internetga chiqolmayapti. AWS CLI bilan marshrut jadvalini tekshirib, tuzating. NAT Gateway (nat-0cc33) public-a da tayyor.",
+      lines: [
+        {
+          prompt: "admin@ops:~$ ",
+          task: "subnet-0aa11 ga bog'langan marshrut jadvalini ko'ring.",
+          accept: ["aws ec2 describe-route-tables --filters Name=association.subnet-id,Values=subnet-0aa11"],
+          explain: "Jadvalda faqat local marshrut bor — default route (0.0.0.0/0) yo'q.",
+          output: [
+            "{",
+            "  \"RouteTables\": [{",
+            "    \"RouteTableId\": \"rtb-0bb22\",",
+            "    \"Routes\": [",
+            "      { \"DestinationCidrBlock\": \"10.50.0.0/16\", \"GatewayId\": \"local\", \"State\": \"active\" }",
+            "    ]",
+            "  }]",
+            "}",
+          ],
+        },
+        {
+          prompt: "admin@ops:~$ ",
+          task: "rtb-0bb22 ga 0.0.0.0/0 → nat-0cc33 marshrutini qo'shing.",
+          accept: ["aws ec2 create-route --route-table-id rtb-0bb22 --destination-cidr-block 0.0.0.0/0 --nat-gateway-id nat-0cc33"],
+          explain: "Default route qo'shildi. Endi private serverlar NAT Gateway orqali chiqadi.",
+          output: ["{", "  \"Return\": true", "}"],
+        },
+        {
+          prompt: "admin@ops:~$ ",
+          task: "Jadvalni qayta tekshiring.",
+          accept: ["aws ec2 describe-route-tables --filters Name=association.subnet-id,Values=subnet-0aa11"],
+          explain: "Ikkala marshrut ham active. Tiketga sabab: subnet uchun yangi jadval yaratilgan, lekin unga default route qo'shilmagan.",
+          output: [
+            "    \"Routes\": [",
+            "      { \"DestinationCidrBlock\": \"10.50.0.0/16\", \"GatewayId\": \"local\", \"State\": \"active\" },",
+            "      { \"DestinationCidrBlock\": \"0.0.0.0/0\", \"NatGatewayId\": \"nat-0cc33\", \"State\": \"active\" }",
+            "    ]",
+          ],
+        },
+      ],
+    },
+    {
+      type: "lab",
+      title: "AWS Free Tier: birinchi VPC'ingiz",
+      tasks: [
+        "AWS Console → VPC → Create VPC → «VPC and more»: 10.50.0.0/16, 2 AZ, 2 public va 2 private subnet, NAT gateways: None (bepul bo'lishi uchun).",
+        "Public subnetda Free Tier doirasidagi kichik instansiya yarating; uning SG'sida 22-portni faqat o'z IP'ingizdan oching.",
+        "Instansiyaga SSH bilan ulanib, quyidagi buyruqlarni bajaring.",
+        "Laboratoriya tugagach, instansiya va VPC'ni o'chiring — keraksiz resurslar pul talab qilishi mumkin.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ip a", note: "Instansiyada: faqat private manzil (10.50.1.x) ko'rinadi." },
+          { command: "ip r", note: "default via 10.50.1.1 — subnetning birinchi manzili, ya'ni VPC router'i." },
+          { command: "curl -s https://checkip.amazonaws.com", note: "Instansiyaning ommaviy IP'si: u ip a da yo'q, chunki AWS uni chegarada 1:1 NAT qiladi." },
+        ],
+      },
+      expected: "SSH faqat sizning IP'ingizdan ishlaydi; instansiya ichida private manzil, tashqaridan esa ommaviy IP ko'rinadi.",
+    },
+    {
+      type: "practice",
+      title: "Gibrid tarmoq rejasi",
+      instructions: [
+        "Korxona loyihangizga bulut qo'shing: VPC CIDR (ofis manzillari bilan kesishmasin), 2 AZ, public va private subnetlar.",
+        "Har subnet uchun marshrut jadvali va SG qoidalarini yozing.",
+        "Ofis bilan qaysi usulda (VPN yoki Direct Connect) bog'lanishini va nega ekanini yozing.",
+      ],
+    },
+  ],
+};

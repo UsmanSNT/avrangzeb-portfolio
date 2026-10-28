@@ -4,7 +4,7 @@ export const documentation: Lesson = {
   id: "documentation",
   title: "Hujjatlashtirish va o'zgarishlarni boshqarish",
   summary: "Professional jamoada qanday ishlanadi: diagrammalar, nomlash qoidalari, port tavsiflari, o'zgarish so'rovi va rollback.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 55,
   goals: [
     "Tarmoq hujjatlari to'plamida nima bo'lishi kerakligini bilasiz",
     "Qurilma va portlarni tushunarli nomlaysiz",
@@ -76,10 +76,10 @@ export const documentation: Lesson = {
       type: "learn",
       title: "Konfiguratsiyadan kerakli qismni topish",
       body: "Katta konfiguratsiyada kerakli qatorni izlash uchun filtrlar ishlatiladi.",
-      terminal: [
-        "show running-config | include ip route        faqat shu so'z bor qatorlar",
-        "show running-config | section router ospf     faqat OSPF bo'limi",
-        "show running-config | begin interface         shu joydan boshlab",
+      points: [
+        "show running-config | include ip route — faqat shu so'zlar bor qatorlar.",
+        "show running-config | section router ospf — faqat OSPF bo'limi.",
+        "show running-config | begin interface — birinchi interface qatoridan boshlab.",
       ],
     },
     {
@@ -91,6 +91,34 @@ export const documentation: Lesson = {
         { command: "sh run | sec router ospf", os: "Qisqa" },
       ],
       reps: 3,
+    },
+    {
+      type: "cli",
+      title: "Kim nimani o'zgartirdi?",
+      scenario: "Oddiy log interfeys qachon o'chganini ko'rsatadi, lekin kim buyruq berganini emas. TAS-HQ-R01 da har bir sozlash buyrug'ini foydalanuvchi nomi bilan yozib boradigan jurnalni yoqing.",
+      lines: [
+        { prompt: "TAS-HQ-R01#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "(config)#." },
+        { prompt: "TAS-HQ-R01(config)#", task: "archive rejimiga kiring.", accept: ["archive"], explain: "(config-archive)#." },
+        { prompt: "TAS-HQ-R01(config-archive)#", task: "Buyruqlar jurnali bo'limiga kiring.", accept: ["log config"], explain: "(config-archive-log-cfg)#." },
+        { prompt: "TAS-HQ-R01(config-archive-log-cfg)#", task: "Jurnalni yoqing.", accept: ["logging enable"], explain: "Endi har sozlash buyrug'i yoziladi." },
+        { prompt: "TAS-HQ-R01(config-archive-log-cfg)#", task: "Parollar jurnalda yashirilsin.", accept: ["hidekeys"], explain: "Parol va kalitlar jurnalda ko'rinmaydi." },
+        { prompt: "TAS-HQ-R01(config-archive-log-cfg)#", task: "Buyruqlar Syslog'ga ham yuborilsin.", accept: ["notify syslog"], explain: "Buyruqlar markaziy Syslog serverda ham saqlanadi — router qayta yonsa ham yo'qolmaydi." },
+        { prompt: "TAS-HQ-R01(config-archive-log-cfg)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "TAS-HQ-R01#." },
+        {
+          prompt: "TAS-HQ-R01#",
+          task: "Jurnaldagi barcha yozuvlarni ko'ring.",
+          accept: ["show archive log config all"],
+          explain: "Kim (admin, vty0 orqali) va qaysi buyruqni berganini ko'rasiz.",
+          output: ["idx   sess           user@line      Logged command", "    1     3        admin@vty0     |interface GigabitEthernet0/0.20", "    2     3        admin@vty0     | shutdown"],
+        },
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Kecha interfeys o'chirilgan. Kim o'chirganini aniqlash uchun oldindan nima sozlangan bo'lishi kerak edi?",
+      options: ["NTP", "archive log config yoki TACACS+ accounting", "CDP", "Port security"],
+      answerIndex: 1,
+      explanation: "Oddiy Syslog faqat hodisani yozadi. Buyruq va foydalanuvchini archive log yoki AAA accounting yozib boradi.",
     },
     {
       type: "learn",

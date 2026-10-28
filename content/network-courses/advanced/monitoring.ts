@@ -3,12 +3,12 @@ import type { Lesson } from "../types";
 export const monitoring: Lesson = {
   id: "monitoring",
   title: "Monitoring, loglar va vaqt",
-  summary: "Muammoni foydalanuvchidan oldin bilish: Syslog, NTP, SNMP va monitoring tizimlari.",
-  estimatedMinutes: 45,
+  summary: "Muammoni foydalanuvchidan oldin bilish: Syslog, NTP, SNMPv3, baseline, CPU tahlili va NetFlow.",
+  estimatedMinutes: 65,
   goals: [
     "Syslog darajalarini yoddan bilasiz",
     "Qurilmani markaziy Syslog va NTP serverga ulaysiz",
-    "SNMP versiyalari va monitoring vositalarini taniysiz",
+    "SNMPv3'ni sozlab, CPU va kanal yuklamasini tahlil qilasiz",
   ],
   requires: "Cisco Packet Tracer",
   recap: [
@@ -118,6 +118,65 @@ export const monitoring: Lesson = {
       options: ["SNMPv1", "SNMPv2c", "SNMPv3", "Hech biri"],
       answerIndex: 2,
       explanation: "Faqat SNMPv3 autentifikatsiya va shifrlash beradi.",
+    },
+    {
+      type: "cli",
+      title: "SNMPv3 sozlang",
+      scenario: "Monitoring serveri (192.168.1.50, Zabbix) R1 ni faqat SNMPv3 authPriv orqali so'rasin va trap'larni qabul qilsin.",
+      lines: [
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        { prompt: "R1(config)#", task: "NMS nomli v3 guruh yarating (autentifikatsiya va shifrlash bilan).", accept: ["snmp-server group NMS v3 priv"], explain: "priv — authPriv darajasi: parolsiz yoki shifrlashsiz so'rovlar rad etiladi." },
+        {
+          prompt: "R1(config)#",
+          task: "zabbix foydalanuvchisi: SHA bilan Auth2026Key, AES 128 bilan Priv2026Key.",
+          accept: ["snmp-server user zabbix NMS v3 auth sha Auth2026Key priv aes 128 Priv2026Key"],
+          explain: "Foydalanuvchi NMS guruhiga qo'shildi. Eslatma: v3 foydalanuvchilari running-config'da ko'rinmaydi.",
+        },
+        { prompt: "R1(config)#", task: "Trap'larni 192.168.1.50 ga v3 priv bilan yuboring.", accept: ["snmp-server host 192.168.1.50 version 3 priv zabbix"], explain: "Muhim hodisalar serverga shifrlangan holda yuboriladi." },
+        { prompt: "R1(config)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "SNMP foydalanuvchilarini ko'ring.",
+          accept: ["show snmp user"],
+          explain: "SHA autentifikatsiya va AES-128 shifrlash — monitoring xavfsiz.",
+          output: ["User name: zabbix", "Engine ID: 800000090300001A2B3C4D5E", "storage-type: nonvolatile        active", "Authentication Protocol: SHA", "Privacy Protocol: AES128", "Group-name: NMS"],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "Baseline va resurslar",
+      body: "Ogohlantirish chegarasini to'g'ri qo'yish uchun avval «normal» holatni (baseline) bilish kerak: odatdagi CPU, xotira, kanal yuklamasi va xatolar soni. Normaldan keskin chetlanish — muammo belgisi.",
+      points: [
+        "show processes cpu sorted — CPU'ni eng ko'p sarflayotgan jarayonlar.",
+        "show processes cpu history — oxirgi 60 soniya, 60 daqiqa va 72 soat grafigi.",
+        "show memory statistics — bo'sh va band xotira.",
+        "Odatiy chegaralar: CPU 5 daqiqa davomida 80% dan yuqori, kanal yuklamasi 70–80%, xatolar soni o'smoqda.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Router CPU'si har kecha soat 2:00 da 95% ga chiqadi, kunduzi esa 10%. Birinchi qadamingiz?",
+      options: [
+        "Router'ni almashtirish",
+        "Shu vaqtda show processes cpu sorted natijasini olish va o'sha paytdagi rejali ishlarni (zaxira, skriptlar) tekshirish",
+        "CPU monitoringini o'chirish",
+        "IOS'ni darhol yangilash",
+      ],
+      answerIndex: 1,
+      explanation: "Muntazam takrorlanadigan cho'qqi ko'pincha rejali ishdan. Avval dalil: qaysi jarayon va qachon.",
+    },
+    {
+      type: "learn",
+      title: "NetFlow: kanalni kim band qilmoqda?",
+      body: "SNMP «kanal 95% band» deydi, lekin kim tomonidan ekanini aytmaydi. NetFlow har oqim haqida yozuv yuboradi: manba, manzil, portlar va baytlar soni. Kollektor (masalan, ntopng yoki Elastic) undan «eng ko'p trafik yaratganlar» ro'yxatini tuzadi.",
+    },
+    {
+      type: "quiz",
+      question: "WAN kanali har kuni soat 14:00 da to'lib qoladi. Qaysi vosita aybdor kompyuter va ilovani ko'rsatadi?",
+      options: ["Syslog", "NetFlow yoki sFlow", "NTP", "CDP"],
+      answerIndex: 1,
+      explanation: "NetFlow oqimlar darajasida ko'rsatadi: kim, kimga, qaysi port orqali va qancha.",
     },
     {
       type: "learn",
