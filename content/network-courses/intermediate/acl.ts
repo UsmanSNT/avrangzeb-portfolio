@@ -4,7 +4,7 @@ export const acl: Lesson = {
   id: "acl",
   title: "ACL: trafikni filtrlash",
   summary: "Router'da kim, qayerga va qaysi xizmatga kira olishini qoidalar ro'yxati bilan boshqarish.",
-  estimatedMinutes: 50,
+  estimatedMinutes: 65,
   goals: [
     "ACL qanday tekshirilishini (yuqoridan pastga, yashirin deny) tushuntirasiz",
     "Standart va kengaytirilgan ACL farqini va joylashuv qoidasini bilasiz",
@@ -150,6 +150,36 @@ export const acl: Lesson = {
       ],
       answerIndex: 1,
       explanation: "Faqat deny qatori bo'lsa, qolgan barcha paketlar ham yashirin deny'ga tushadi.",
+    },
+    {
+      type: "learn",
+      title: "Nomli ACL'ni tahrirlash",
+      body: "Nomli ACL'da har qatorning tartib raqami bor (10, 20, 30...). Shuning uchun o'rtaga yangi qator qo'shish yoki bitta qatorni o'chirish mumkin — butun ACL'ni qayta yozish shart emas.",
+      terminal: [
+        "R1(config)# ip access-list extended GUEST-FILTER",
+        "R1(config-ext-nacl)# 15 deny tcp 192.168.20.0 0.0.0.255 host 192.168.10.100 eq 22",
+        "R1(config-ext-nacl)# no 20",
+        "R1(config-ext-nacl)# remark Mehmonlar uchun filtr — 2026-10",
+      ],
+    },
+    {
+      type: "cli",
+      title: "SSH'ni faqat administratorga oching",
+      scenario: "R1 ga SSH orqali faqat administrator kompyuteri (192.168.10.50) kira olsin. Buning uchun VTY liniyalariga standart ACL qo'yiladi.",
+      lines: [
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "(config)#." },
+        { prompt: "R1(config)#", task: "5-raqamli standart ACL bilan faqat 192.168.10.50 ga ruxsat bering.", accept: ["access-list 5 permit host 192.168.10.50", "access-list 5 permit 192.168.10.50 0.0.0.0", "access-list 5 permit 192.168.10.50"], explain: "Qolganlar yashirin deny'ga tushadi." },
+        { prompt: "R1(config)#", task: "VTY liniyalariga o'ting.", accept: ["line vty 0 4"], explain: "(config-line)#." },
+        { prompt: "R1(config-line)#", task: "ACL 5 ni kiruvchi ulanishlarga qo'llang.", accept: ["access-class 5 in"], explain: "Interfeyslarda ip access-group, VTY liniyalarida esa access-class ishlatiladi." },
+        { prompt: "R1(config-line)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "Endi boshqa manzildan SSH ulanish rad etiladi." },
+      ],
+    },
+    {
+      type: "trainer",
+      title: "Wildcard trenajyori",
+      prompt: "ACL yozishda eng ko'p xato — wildcard. Ketma-ket 8 ta to'g'ri javob bering.",
+      kind: "wildcard",
+      goal: 8,
     },
     {
       type: "type",

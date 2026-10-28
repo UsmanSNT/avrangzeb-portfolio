@@ -4,7 +4,7 @@ export const dhcpServer: Lesson = {
   id: "dhcp-server",
   title: "Routerda DHCP server va relay",
   summary: "Router'ni DHCP serverga aylantirish va boshqa subnetdagi serverga so'rovlarni yo'naltirish.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 50,
   goals: [
     "Router'da DHCP pool'ni sozlaysiz",
     "Qaysi manzillar istisno qilinishini tushuntirasiz",
@@ -122,6 +122,25 @@ export const dhcpServer: Lesson = {
         "Server boshqa subnetda bo'lsa, ip helper-address bormi?",
         "show ip dhcp pool va show ip dhcp conflict natijalari.",
       ],
+    },
+    {
+      type: "learn",
+      title: "Pool'ni boshqarish",
+      body: "Ish joyida kerak bo'ladigan qo'shimcha buyruqlar.",
+      points: [
+        "lease 7 — pool rejimida: ijara muddati 7 kun (standart 1 kun).",
+        "show ip dhcp pool — pool'dagi manzillar soni, band va bo'shlari.",
+        "show ip dhcp conflict — server aniqlagan IP to'qnashuvlari.",
+        "clear ip dhcp binding * — barcha ijaralarni tozalash (ehtiyot bo'ling).",
+        "IPv6 uchun DHCPv6 bor: stateless (faqat DNS kabi qo'shimcha ma'lumot) va stateful (manzilning o'zini ham beradi).",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Pool to'lib qoldi: yangi kompyuterlar manzil ololmayapti. Qaysi buyruq band va bo'sh manzillar sonini ko'rsatadi?",
+      options: ["show ip dhcp pool", "show ip route", "show vlan brief", "show ip nat translations"],
+      answerIndex: 0,
+      explanation: "show ip dhcp pool — pool hajmi va band manzillar. Yechim: pool'ni kengaytirish yoki ijara muddatini qisqartirish.",
     },
     {
       type: "type",

@@ -4,7 +4,7 @@ export const iosCli: Lesson = {
   id: "ios-cli",
   title: "Cisco IOS CLI va qurilmani himoyalash",
   summary: "Router va switch'ni buyruqlar qatori orqali boshqarish: rejimlar, parollar, SSH va konfiguratsiyani saqlash.",
-  estimatedMinutes: 45,
+  estimatedMinutes: 60,
   goals: [
     "IOS rejimlari o'rtasida erkin harakatlanasiz",
     "Qurilmaga nom, parol va SSH sozlaysiz",
@@ -167,6 +167,35 @@ export const iosCli: Lesson = {
         { prompt: "R1(config-line)#", task: "Lokal foydalanuvchilar bazasi bilan kirishni yoqing.", accept: ["login local"], explain: "Kirishda foydalanuvchi nomi va parol so'raladi." },
         { prompt: "R1(config-line)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "Sozlash tugadi. Saqlashni unutmang!" },
       ],
+    },
+    {
+      type: "learn",
+      title: "Ish joyidagi foydali sozlamalar",
+      body: "Har kuni ishlatiladigan bir nechta qo'shimcha buyruq.",
+      points: [
+        "do show ip interface brief — sozlash rejimidan chiqmasdan show buyrug'ini bajarish.",
+        "exec-timeout 5 0 — line rejimida: 5 daqiqa faoliyatsizlikdan keyin seans yopiladi.",
+        "login block-for 120 attempts 3 within 60 — 60 soniyada 3 marta xato kirishdan keyin 120 soniya bloklash.",
+        "banner motd #Faqat ruxsat etilgan foydalanuvchilar uchun# — kirishda ogohlantirish.",
+        "show version — IOS versiyasi, ish vaqti (uptime), xotira va config-register.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Yuklanish va parolni tiklash",
+      body: "Router yonganda ROM'dagi dastur IOS'ni flash'dan yuklaydi, so'ng NVRAM'dagi startup-config'ni o'qiydi. Qaysi yo'l bilan yuklanishni config-register qiymati belgilaydi.",
+      points: [
+        "0x2102 — oddiy yuklanish: startup-config o'qiladi.",
+        "0x2142 — startup-config e'tiborsiz qoldiriladi. Parol unutilganda ROMMON'da (yoqilganda Break) confreg 0x2142 berib, parolsiz kiriladi, so'ng konfiguratsiya tiklanib, parol almashtiriladi va qiymat 0x2102 ga qaytariladi.",
+        "Shuning uchun konsol portiga jismoniy kirish = to'liq nazorat: qurilmalar qulflangan shkafda turishi kerak.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Router'ning enable paroli unutilgan. Parolni tiklash jarayonida qaysi config-register qiymati vaqtincha qo'yiladi?",
+      options: ["0x2102", "0x2142", "0x0102", "0xFFFF"],
+      answerIndex: 1,
+      explanation: "0x2142 startup-config'ni o'tkazib yuboradi. Ish tugagach qiymat 0x2102 ga qaytariladi, aks holda keyingi yuklanishda ham konfiguratsiya o'qilmaydi.",
     },
     {
       type: "type",
