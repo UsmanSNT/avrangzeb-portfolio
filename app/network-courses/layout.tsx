@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { CourseProvider } from "@/components/courses/CourseProvider";
 
 export const metadata: Metadata = {
   title: "Tarmoq darslari | Avrangzeb Abdujalilov",
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function NetworkCoursesLayout({ children }: { children: ReactNode }) {
-  return children;
+  return <CourseProvider courseId="network">{children}</CourseProvider>;
 }

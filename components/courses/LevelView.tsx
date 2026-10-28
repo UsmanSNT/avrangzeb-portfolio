@@ -1,30 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { courseHref, findLevel, lessonHref, levelHref, upcomingLevels } from "@/content/network-courses";
-import { networkCoursesCopy } from "@/content/network-courses/copy";
+import { courseHref, findLevel, lessonHref, levelHref } from "@/content/courses";
 import { CourseShell } from "./CourseShell";
 import { LessonItem } from "./LessonItem";
 import { getLevelProgress } from "./levelProgress";
 import { primaryButtonClass } from "./steps/shared";
+import { useCourse } from "./CourseProvider";
 import { useLessonProgress } from "./useLessonProgress";
-
-const t = networkCoursesCopy;
 
 /** A single level on its own page: overview, progress and the ordered lesson path. */
 export function LevelView({ levelId }: { levelId: string }) {
+  const course = useCourse();
+  const t = course.copy;
   const { completed, position } = useLessonProgress();
-  const found = findLevel(levelId);
+  const found = findLevel(course, levelId);
   if (!found) return null;
 
   const { level, previous, next } = found;
   const progress = getLevelProgress(level, completed, position);
   const previousProgress = previous ? getLevelProgress(previous, completed, position) : null;
-  const upcoming = !next ? (upcomingLevels.find((candidate) => candidate.order === level.order + 1) ?? null) : null;
+  const upcoming = !next ? (course.upcomingLevels.find((candidate) => candidate.order === level.order + 1) ?? null) : null;
 
   return (
     <CourseShell>
-      <Link href={courseHref} className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-cyan-text">
+      <Link href={courseHref(course)} className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-cyan-text">
         <span aria-hidden="true">←</span>
         {t.level.backToRoadmap}
       </Link>
@@ -45,7 +45,7 @@ export function LevelView({ levelId }: { levelId: string }) {
       {previous && previousProgress && previousProgress.status !== "done" && (
         <div className="mt-6 rounded-2xl border border-accent-cyan/40 bg-accent-cyan/10 p-4 text-sm leading-6 text-foreground sm:p-5">
           <p>{t.level.previousNotice(previous.order, previous.title)}</p>
-          <Link href={levelHref(previous.id)} className="mt-2 inline-flex font-bold text-cyan-text underline underline-offset-4">
+          <Link href={levelHref(course, previous.id)} className="mt-2 inline-flex font-bold text-cyan-text underline underline-offset-4">
             {t.level.previousLink(previous.order)}
           </Link>
         </div>
@@ -69,7 +69,7 @@ export function LevelView({ levelId }: { levelId: string }) {
       </div>
 
       {progress.currentLesson && (
-        <Link href={lessonHref(progress.currentLesson.id)} className={`${primaryButtonClass} mt-6 w-full sm:w-auto`}>
+        <Link href={lessonHref(course, progress.currentLesson.id)} className={`${primaryButtonClass} mt-6 w-full sm:w-auto`}>
           {progress.status === "not-started" ? t.level.startLevel(progress.currentLesson.title) : t.level.continueLevel(progress.currentLesson.title)}
         </Link>
       )}
@@ -100,7 +100,7 @@ export function LevelView({ levelId }: { levelId: string }) {
         {progress.status === "done" && next && <p className="mb-3 text-sm font-bold text-green-text">{t.level.levelDone}</p>}
         {next ? (
           <Link
-            href={levelHref(next.id)}
+            href={levelHref(course, next.id)}
             className="group flex items-center justify-between gap-4 rounded-2xl border border-line bg-card p-4 transition-colors hover:border-accent-cyan/60 sm:p-5"
           >
             <span className="min-w-0">

@@ -1,19 +1,22 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/app/components/Logo";
 import { SectionsDropdown } from "@/components/SectionsDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { networkCoursesCopy } from "@/content/network-courses/copy";
+import { useCourse } from "./CourseProvider";
 
 /** Site navigation and background shared by the course roadmap and level pages. */
 export function CourseShell({ children }: { children: ReactNode }) {
+  const { copy } = useCourse();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="sticky top-0 z-50 border-b border-line bg-background/78 shadow-2xl shadow-elevation/20 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
             <Logo />
-            <span className="text-lg font-bold sm:text-xl">{networkCoursesCopy.nav.brand}</span>
+            <span className="text-lg font-bold sm:text-xl">{copy.nav.brand}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <SectionsDropdown locale="uz" />

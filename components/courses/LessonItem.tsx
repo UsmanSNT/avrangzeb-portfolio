@@ -1,8 +1,7 @@
 import Link from "next/link";
+import { lessonHref } from "@/content/courses";
 import type { Lesson } from "@/content/network-courses";
-import { networkCoursesCopy } from "@/content/network-courses/copy";
-
-const t = networkCoursesCopy;
+import { useCourse } from "./CourseProvider";
 
 interface LessonItemProps {
   lesson: Lesson;
@@ -15,12 +14,14 @@ interface LessonItemProps {
 
 /** One lesson on the course roadmap; opens the step-by-step player. */
 export function LessonItem({ lesson, number, isDone, savedStep, isCurrent }: LessonItemProps) {
+  const course = useCourse();
+  const t = course.copy;
   const started = !isDone && savedStep !== undefined && savedStep > 0;
   const cta = isDone ? t.card.review : started ? t.card.resume(savedStep + 1, lesson.steps.length) : t.card.start;
 
   return (
     <Link
-      href={`/network-courses/${lesson.id}`}
+      href={lessonHref(course, lesson.id)}
       className={`group flex items-start gap-3 rounded-2xl border bg-card p-4 shadow-lg shadow-elevation/10 transition-colors hover:border-accent-cyan/50 sm:gap-4 sm:p-5 ${
         isCurrent ? "border-accent-cyan/60" : "border-line"
       }`}
