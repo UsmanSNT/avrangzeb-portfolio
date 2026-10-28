@@ -64,3 +64,10 @@ export function matchesIosCommand(typed: string, canonical: string): boolean {
 export function matchesAnyIosCommand(typed: string, accepted: readonly string[]): boolean {
   return accepted.some((canonical) => matchesIosCommand(typed, canonical));
 }
+
+/** Shells without abbreviations (Linux): the whole command must match, ignoring extra whitespace and case. */
+export function matchesAnyExactCommand(typed: string, accepted: readonly string[]): boolean {
+  const normalize = (command: string) => tokenize(command).join(" ").toLowerCase();
+  const target = normalize(typed);
+  return target.length > 0 && accepted.some((canonical) => normalize(canonical) === target);
+}

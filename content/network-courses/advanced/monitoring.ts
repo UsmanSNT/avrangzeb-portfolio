@@ -1,0 +1,153 @@
+import type { Lesson } from "../types";
+
+export const monitoring: Lesson = {
+  id: "monitoring",
+  title: "Monitoring, loglar va vaqt",
+  summary: "Muammoni foydalanuvchidan oldin bilish: Syslog, NTP, SNMP va monitoring tizimlari.",
+  estimatedMinutes: 45,
+  goals: [
+    "Syslog darajalarini yoddan bilasiz",
+    "Qurilmani markaziy Syslog va NTP serverga ulaysiz",
+    "SNMP versiyalari va monitoring vositalarini taniysiz",
+  ],
+  requires: "Cisco Packet Tracer",
+  recap: [
+    "Syslog darajalari 0–7: Emergency, Alert, Critical, Error, Warning, Notification, Informational, Debugging.",
+    "To'g'ri vaqt (NTP)siz loglarni solishtirib bo'lmaydi.",
+    "SNMPv2c paroli ochiq; SNMPv3 autentifikatsiya va shifrlash beradi.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Foydalanuvchidan oldin bilish",
+      body: "Yaxshi tarmoq jamoasi muammoni foydalanuvchi qo'ng'iroq qilishidan oldin biladi. Buning uchun qurilmalar o'z hodisalarini markaziy serverga yuboradi, monitoring tizimi esa ularning holatini doimiy so'rab turadi.",
+    },
+    {
+      type: "learn",
+      title: "Syslog darajalari",
+      body: "Har log xabarining 0 dan 7 gacha darajasi bor. Raqam qanchalik kichik bo'lsa, xabar shunchalik jiddiy. Yodlash uchun ibora: «Every Awesome Cisco Engineer Will Need Ice cream Daily».",
+      visual: {
+        kind: "stack",
+        layers: [
+          { label: "0 · Emergency", note: "Tizim ishlamaydi", accent: true },
+          { label: "1 · Alert", note: "Darhol chora kerak", accent: true },
+          { label: "2 · Critical", note: "Jiddiy holat", accent: true },
+          { label: "3 · Error", note: "Xato" },
+          { label: "4 · Warning", note: "Ogohlantirish" },
+          { label: "5 · Notification", note: "Oddiy, lekin muhim (interfeys up/down)" },
+          { label: "6 · Informational", note: "Ma'lumot" },
+          { label: "7 · Debugging", note: "Nosozlik tuzatish xabarlari" },
+        ],
+      },
+    },
+    {
+      type: "order",
+      title: "Darajalarni tartiblang",
+      prompt: "0 dan 7 gacha tartibda bosing.",
+      items: ["Emergency", "Alert", "Critical", "Error", "Warning", "Notification", "Informational", "Debugging"],
+    },
+    {
+      type: "input",
+      question: "logging trap warnings sozlansa, serverga eng ko'pi bilan qaysi darajagacha (raqam) xabarlar yuboriladi?",
+      answers: ["4"],
+      hint: "Tanlangan daraja va undan jiddiyroqlari (kichik raqamlar) yuboriladi.",
+      explanation: "warnings = 4, demak 0–4 darajadagi xabarlar yuboriladi.",
+      placeholder: "Raqam",
+    },
+    {
+      type: "learn",
+      title: "Vaqt — hamma narsaning asosi",
+      body: "Nosozlik paytida bir nechta qurilma loglarini solishtirasiz. Agar soatlar har xil bo'lsa, voqealar ketma-ketligini tiklab bo'lmaydi. NTP barcha qurilmalarni bitta vaqt manbaiga moslaydi. Sertifikatlar va autentifikatsiya ham to'g'ri vaqtni talab qiladi.",
+    },
+    {
+      type: "quiz",
+      question: "Nega barcha tarmoq qurilmalarida NTP sozlanadi?",
+      options: [
+        "Internet tezligi oshishi uchun",
+        "Turli qurilmalar loglarini aniq vaqt bo'yicha solishtirish uchun",
+        "DHCP ishlashi uchun",
+        "VLAN yaratish uchun",
+      ],
+      answerIndex: 1,
+      explanation: "Bir xil vaqt bo'lmasa, qaysi hodisa birinchi bo'lganini aniqlab bo'lmaydi.",
+    },
+    {
+      type: "cli",
+      title: "R1 ni Syslog va NTP serverga ulang",
+      scenario: "Monitoring serveri 192.168.1.50 (Syslog), vaqt serveri 192.168.1.10 (NTP). Serverga faqat warning va jiddiyroq xabarlar ketsin.",
+      lines: [
+        { prompt: "R1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "R1(config)#." },
+        {
+          prompt: "R1(config)#",
+          task: "Loglarga millisekundgacha aniq sana va vaqt qo'shilsin.",
+          accept: ["service timestamps log datetime msec"],
+          explain: "Har log qatori aniq vaqt bilan boshlanadi.",
+        },
+        { prompt: "R1(config)#", task: "NTP server sifatida 192.168.1.10 ni ko'rsating.", accept: ["ntp server 192.168.1.10"], explain: "R1 soati shu serverga moslanadi." },
+        { prompt: "R1(config)#", task: "Loglarni 192.168.1.50 serveriga yuboring.", accept: ["logging host 192.168.1.50", "logging 192.168.1.50"], explain: "Endi xabarlar markaziy serverda saqlanadi — router qayta yonsa ham yo'qolmaydi." },
+        { prompt: "R1(config)#", task: "Serverga faqat warning (4) va jiddiyroq xabarlar ketsin.", accept: ["logging trap warnings", "logging trap 4"], explain: "0–4 darajalar yuboriladi." },
+        { prompt: "R1(config)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "R1#." },
+        {
+          prompt: "R1#",
+          task: "NTP holatini tekshiring.",
+          accept: ["show ntp status"],
+          explain: "Soat sinxronlangan. Stratum — vaqt manbaigacha bo'lgan «qadamlar» soni.",
+          output: ["Clock is synchronized, stratum 3, reference is 192.168.1.10"],
+        },
+        {
+          prompt: "R1#",
+          task: "Logging sozlamalarini ko'ring.",
+          accept: ["show logging"],
+          explain: "Trap darajasi va server manzili ko'rinadi.",
+          output: ["Syslog logging: enabled", "    Trap logging: level warnings", "        Logging to 192.168.1.50 (udp port 514)"],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "SNMP",
+      body: "Monitoring tizimi qurilmalardan CPU, xotira, interfeys trafigi kabi ko'rsatkichlarni SNMP orqali so'raydi (UDP 161). Qurilma o'zi muhim hodisani trap sifatida yuborishi ham mumkin (UDP 162).",
+      points: [
+        "SNMPv2c — «community» paroli ochiq matnda yuboriladi.",
+        "SNMPv3 — foydalanuvchi, autentifikatsiya va shifrlash (authPriv). Yangi tarmoqlarda faqat shu.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Qaysi SNMP versiyasi shifrlashni qo'llab-quvvatlaydi?",
+      options: ["SNMPv1", "SNMPv2c", "SNMPv3", "Hech biri"],
+      answerIndex: 2,
+      explanation: "Faqat SNMPv3 autentifikatsiya va shifrlash beradi.",
+    },
+    {
+      type: "learn",
+      title: "Monitoring vositalari",
+      body: "Ish joyida quyidagilardan biriga duch kelasiz. Ularning g'oyasi bir xil: qurilmalarni so'rash, grafik chizish va chegara oshganda ogohlantirish.",
+      points: [
+        "Zabbix, LibreNMS, PRTG — tarmoq monitoringi.",
+        "Grafana + Prometheus — grafik va panellar.",
+        "NetFlow/sFlow — kanalni kim va nima bilan band qilayotganini ko'rsatadi.",
+      ],
+    },
+    {
+      type: "lab",
+      title: "Packet Tracer: markaziy loglar",
+      tasks: [
+        "Tarmoqqa Server qo'shing (192.168.1.50); Services bo'limida SYSLOG va NTP'ni yoqing.",
+        "Router'da yuqoridagi terminal mashqidagi sozlamalarni bajaring (NTP server ham shu server bo'lishi mumkin).",
+        "Router'da biror interfeysni shutdown/no shutdown qiling.",
+        "Server'ning SYSLOG bo'limida xabarlar paydo bo'lganini tekshiring.",
+      ],
+      expected: "Interfeys holati o'zgarganda server'da vaqt belgisi bilan xabar paydo bo'ladi.",
+    },
+    {
+      type: "practice",
+      title: "Ogohlantirish qoidalari",
+      instructions: [
+        "Kichik ofis uchun 6 ta ogohlantirish qoidasini yozing: nima kuzatiladi, chegara, kimga xabar boradi.",
+        "Masalan: «Uplink interfeysi down — darhol, navbatchi muhandisga SMS».",
+        "Har qoida yoniga uni yoqmaslik xavfini yozing (yolg'on ogohlantirishlar ham zararli).",
+      ],
+    },
+  ],
+};

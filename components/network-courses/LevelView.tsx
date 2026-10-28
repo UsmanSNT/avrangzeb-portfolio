@@ -114,7 +114,7 @@ export function LevelView({ levelId }: { levelId: string }) {
             </span>
           </Link>
         ) : (
-          upcoming && (
+          upcoming ? (
             <div className="rounded-2xl border border-dashed border-line bg-card/50 p-4 sm:p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-subtle">
@@ -124,6 +124,11 @@ export function LevelView({ levelId }: { levelId: string }) {
               </div>
               <p className="mt-1 text-lg font-black text-foreground">{upcoming.title}</p>
               <p className="mt-1 text-sm leading-6 text-muted">{upcoming.description}</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-accent-cyan/40 bg-accent-cyan/10 p-4 sm:p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-text">{t.level.finalTitle}</p>
+              <p className="mt-1 text-sm leading-6 text-foreground">{t.level.finalText}</p>
             </div>
           )
         )}

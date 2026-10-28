@@ -132,11 +132,16 @@ export type CliLine = {
   output?: readonly string[];
 };
 
-/** Simulated Cisco IOS terminal: the learner types each command in order. */
+/** Simulated terminal: the learner types each command in order. */
 export type CliStep = {
   type: "cli";
   title: string;
   scenario: string;
+  /**
+   * "ios" (default): Cisco IOS, keyword and interface abbreviations are accepted.
+   * "linux": a Linux shell, commands must be typed in full (whitespace and case are normalized).
+   */
+  shell?: "ios" | "linux";
   lines: readonly CliLine[];
 };
 

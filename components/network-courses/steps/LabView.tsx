@@ -66,7 +66,7 @@ export function LabView({ step, onSolved }: StepViewProps<LabStep>) {
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2">
-                      <code className="break-words font-mono text-sm font-bold text-green-text">{item.command}</code>
+                      <code className="whitespace-pre-wrap break-words font-mono text-sm font-bold text-green-text">{item.command}</code>
                       {item.os && <span className="rounded border border-line px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted">{item.os}</span>}
                     </p>
                     <p className="mt-1 text-sm leading-6 text-secondary">{item.note}</p>

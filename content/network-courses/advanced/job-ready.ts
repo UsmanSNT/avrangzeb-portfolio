@@ -1,0 +1,160 @@
+import type { Lesson } from "../types";
+
+export const jobReady: Lesson = {
+  id: "job-ready",
+  title: "Ishga tayyormisiz? Intervyu va birinchi ish",
+  summary: "Junior lavozimlar, ishga tayyorlik mezonlari, portfolio, intervyu savollari va birinchi 90 kun.",
+  estimatedMinutes: 60,
+  goals: [
+    "Ishga tayyorligingizni aniq mezonlar bo'yicha baholaysiz",
+    "Portfolio va rezyume tayyorlaysiz",
+    "Texnik intervyuning asosiy savollariga javob berishni mashq qilasiz",
+  ],
+  requires: "Telefon (ovozni yozib olish uchun)",
+  recap: [
+    "Ishga tayyorlik — mezonlarni bajara olish, sertifikat emas.",
+    "Portfolio: loyiha fayllari, diagrammalar, konfiguratsiyalar va hisobotlar.",
+    "Intervyuda bilmagan narsani yashirmang: qanday aniqlashingizni ayting.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Qaysi lavozimlardan boshlanadi",
+      body: "Birinchi ish odatda shulardan biri. Har biri katta tajriba beradi.",
+      points: [
+        "NOC muhandisi — tarmoqni 24/7 kuzatish va tiketlar bilan ishlash.",
+        "Network support / helpdesk L2 — foydalanuvchi muammolarini hal qilish.",
+        "Junior network engineer — sozlash va o'zgarishlarni bajarish.",
+        "Montaj (field) muhandisi — joyida qurilmalarni o'rnatish va ulash.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Ishga tayyorlik mezonlari",
+      body: "Kursning eng boshidagi savolga javob: «Qachon ishga tayyorman?». Sertifikat emas, quyidagilarni yordamsiz bajara olishingiz hal qiladi.",
+      points: [
+        "Subnetting'ni kalkulyatorsiz, bir daqiqadan kam vaqtda.",
+        "2-bosqich ofis tarmog'ini yozuvlarsiz, 2 soat ichida noldan qurish.",
+        "Nosozlikni 7 bosqichli usul va show buyruqlari bilan topish.",
+        "OSI qatlamlari bo'ylab istalgan protokolni oddiy tilda tushuntirish.",
+        "Linux'da tarmoqni tekshirish va Wireshark'da paket o'qish.",
+        "O'zgarish so'rovi va nosozlik hisobotini yozish.",
+        "Kamida 2–3 ta portfolio loyihasi.",
+      ],
+    },
+    {
+      type: "lab",
+      title: "O'z-o'zini baholash",
+      tasks: [
+        "Subnetting: 10 ta savolni 10 daqiqada xatosiz yechdim.",
+        "Ofis tarmog'ini (VLAN, trunk, router-on-a-stick, DHCP, NAT, ACL) yozuvlarsiz qurdim.",
+        "Buzilgan laboratoriyada 3 ta nosozlikni o'zim topdim.",
+        "OSPF va STP qanday ishlashini do'stimga tushuntirib berdim.",
+        "Linux'da ip, ss, dig va tcpdump buyruqlarini erkin ishlataman.",
+        "Korxona loyihasining diagrammasi, IP rejasi va hisobotlari tayyor.",
+        "CCNA amaliy testlarida barqaror 80% dan yuqori natija olaman.",
+      ],
+      expected: "Hammasini halol belgilay olsangiz — junior lavozimlarga topshiring. Belgilanmaganlari — keyingi haftalar rejangiz.",
+    },
+    {
+      type: "learn",
+      title: "Portfolio va rezyume",
+      body: "Tajribasiz nomzodning eng kuchli quroli — ko'rsatsa bo'ladigan ish.",
+      points: [
+        "GitHub: har loyiha uchun Packet Tracer fayli, diagramma, IP reja, konfiguratsiyalar va README.",
+        "Rezyumeda: «Ko'p filialli korxona tarmog'ini loyihaladim: OSPF, GRE, DHCP relay, PAT, L2 xavfsizlik».",
+        "LinkedIn profili; CCNA tayyorgarligi yoki sertifikati.",
+        "Haqiqiy tajriba uchun: amaliyot (internship), ko'ngilli yordam, kichik ofislarga xizmat.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Intervyu qanday o'tadi",
+      body: "Odatda bir necha bosqich bo'ladi.",
+      points: [
+        "HR suhbati — motivatsiya va muloqot.",
+        "Texnik savollar — protokollar, subnetting, ssenariylar.",
+        "Amaliy topshiriq — CLI'da sozlash yoki nosozlikni topish.",
+        "Xulq-atvor savollari — «Qiyin vaziyatda nima qildingiz?» (STAR usuli: Vaziyat, Vazifa, Harakat, Natija).",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Intervyu: «Brauzerga example.com yozilganda nima bo'ladi?» Eng to'liq javob qaysi?",
+      options: [
+        "Sayt ochiladi",
+        "DNS nomni IP'ga aylantiradi → TCP ulanish (handshake) → HTTPS uchun TLS → HTTP so'rov va javob → sahifa chiziladi",
+        "Router saytni yuklab beradi",
+        "DHCP sayt manzilini beradi",
+      ],
+      answerIndex: 1,
+      explanation: "Intervyuer qatlamlar bo'ylab ketma-ket fikrlashni kutadi. Har qadamda bitta jumla qo'shsangiz, kuchli javob bo'ladi.",
+    },
+    {
+      type: "quiz",
+      question: "Intervyu: «Foydalanuvchi internetga chiqa olmayapti. Birinchi nima qilasiz?»",
+      options: [
+        "Router'ni qayta yuklayman",
+        "Muammoni aniqlashtiraman (kim, qachondan, qancha odam), so'ng pastdan yuqoriga: ulanish, ipconfig, gateway'ga ping, 8.8.8.8, DNS",
+        "Provayderga qo'ng'iroq qilaman",
+        "Kompyuterni almashtiraman",
+      ],
+      answerIndex: 1,
+      explanation: "Intervyuer javobdan ko'ra usulni baholaydi: avval ma'lumot, keyin tizimli tekshiruv.",
+    },
+    {
+      type: "quiz",
+      question: "Intervyu: siz bilmagan savol berildi. Eng yaxshi javob?",
+      options: [
+        "Taxmin qilib, ishonch bilan javob beraman",
+        "Jim turaman",
+        "«Aniq bilmayman, lekin shunday tekshirgan bo'lardim: ...» deb fikrlash yo'limni aytaman",
+        "Savolni o'zgartirishni so'rayman",
+      ],
+      answerIndex: 2,
+      explanation: "Halollik va izlanish yo'li ish beruvchi uchun noto'g'ri, lekin ishonchli javobdan ancha qimmatroq.",
+    },
+    {
+      type: "quiz",
+      question: "Intervyu: «VLAN va subnet o'rtasidagi bog'liqlik qanday?»",
+      options: [
+        "Ular bir xil narsa",
+        "VLAN — 2-qatlam broadcast domeni; odatda har VLAN'ga bitta 3-qatlam subneti beriladi va ular o'rtasida router marshrutlaydi",
+        "Subnet faqat Wi-Fi'da ishlatiladi",
+        "VLAN IP manzil beradi",
+      ],
+      answerIndex: 1,
+      explanation: "Qatlamlarni ajratib tushuntirish — senior muhandislar kutadigan javob.",
+    },
+    {
+      type: "practice",
+      title: "Ovoz chiqarib intervyu mashqi",
+      instructions: [
+        "Har savolga 2 daqiqada javob bering va telefonda yozib oling: TCP va UDP farqi; DHCP qanday ishlaydi; STP nima uchun kerak; OSPF qo'shnichiligi qanday quriladi; NAT nima; trunk va access port farqi.",
+        "Yozuvni tinglab, noaniq joylarni belgilang.",
+        "Ertaga shu savollarga qayta javob bering — ikkinchi yozuv birinchisidan aniqroq bo'lishi kerak.",
+      ],
+      seconds: 120,
+    },
+    {
+      type: "learn",
+      title: "Birinchi 90 kun",
+      body: "Ishga kirgandan keyin ham o'rganish davom etadi.",
+      points: [
+        "Tarmoq hujjatlari va diagrammalarini o'qing; bo'lmasa — chizishni taklif qiling.",
+        "Tajribali hamkasblar yonida ishlang va savol bering.",
+        "Tasdiqsiz hech qanday o'zgarish qilmang; har ishni yozib boring.",
+        "Har hafta o'rganganlaringizni qisqa qaydlarga yozing — bu keyingi lavozimga yo'l.",
+      ],
+    },
+    {
+      type: "practice",
+      title: "Shaxsiy reja",
+      instructions: [
+        "O'z-o'zini baholashda belgilanmagan bandlar uchun har biriga muddat qo'ying.",
+        "Portfolio uchun 2 ta loyihani tanlang va GitHub'ga joylash sanasini belgilang.",
+        "Bir oy ichida kamida 10 ta junior vakansiyaga topshirishni rejalashtiring.",
+      ],
+    },
+  ],
+};

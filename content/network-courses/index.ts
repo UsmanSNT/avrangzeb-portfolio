@@ -1,3 +1,4 @@
+import { advancedLevel } from "./advanced";
 import { beginnerLevel } from "./beginner";
 import { intermediateLevel } from "./intermediate";
 import type { CourseLevel, Lesson } from "./types";
@@ -23,17 +24,13 @@ export type {
   CliLine,
 } from "./types";
 
-/** Levels with published lessons. The advanced level is appended once it is written. */
-export const publishedLevels: readonly CourseLevel[] = [beginnerLevel, intermediateLevel];
+/** Levels with published lessons, in learning order. */
+export const publishedLevels: readonly CourseLevel[] = [beginnerLevel, intermediateLevel, advancedLevel];
 
-export const upcomingLevels = [
-  {
-    id: "advanced",
-    order: 3,
-    title: "Real tajriba va ishga tayyorgarlik",
-    description: "To'liq tarmoq loyihalari, xavfsizlik, monitoring, hujjatlashtirish, CCNA'ga tayyorgarlik va intervyu mashqlari.",
-  },
-] as const;
+export type UpcomingLevel = { id: string; order: number; title: string; description: string };
+
+/** Levels announced on the roadmap but not written yet. */
+export const upcomingLevels: readonly UpcomingLevel[] = [];
 
 export const allLessons: readonly Lesson[] = publishedLevels.flatMap((level) => level.lessons);
 

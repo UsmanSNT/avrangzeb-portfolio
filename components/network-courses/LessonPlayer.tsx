@@ -124,8 +124,8 @@ function OutroScreen({ lesson, level, next, nextLevel }: OutroScreenProps) {
 
       {levelFinished && (
         <div className="mt-8 rounded-2xl border border-accent-green/40 bg-accent-green/10 p-4 sm:p-5">
-          <p className="text-lg font-black text-foreground">{t.levelCompletedTitle(level.order)}</p>
-          <p className="mt-1 text-sm leading-6 text-secondary">{t.levelCompletedText}</p>
+          <p className="text-lg font-black text-foreground">{nextLevel ? t.levelCompletedTitle(level.order) : t.courseCompletedTitle}</p>
+          <p className="mt-1 text-sm leading-6 text-secondary">{nextLevel ? t.levelCompletedText : t.courseCompletedText}</p>
         </div>
       )}
 
