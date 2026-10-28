@@ -4,7 +4,7 @@ export const macArp: Lesson = {
   id: "mac-arp",
   title: "MAC manzil, Ethernet va ARP",
   summary: "Bir tarmoq ichida qurilmalar bir-birini qanday topadi. ARP jadvalini o'z ko'zingiz bilan ko'rasiz.",
-  estimatedMinutes: 25,
+  estimatedMinutes: 50,
   goals: [
     "MAC manzil nima ekanini va qanday ko'rinishini bilasiz",
     "ARP so'rov va javobining ishlashini tushuntirib bera olasiz",
@@ -68,6 +68,45 @@ export const macArp: Lesson = {
       hint: "Har bayt 11111111 = FF. Jami 6 bayt.",
       explanation: "FF:FF:FF:FF:FF:FF — broadcast: kadr tarmoqdagi barcha hostlarga yuboriladi.",
       placeholder: "Masalan: 00:11:22:33:44:55",
+    },
+    {
+      type: "learn",
+      title: "Boshqa tarmoqqa: gateway'ning MAC'i",
+      body: "Nishon boshqa subnetda bo'lsa, kompyuter uning MAC manzilini so'ramaydi — u boshqa tarmoqda va ARP broadcast u yerga yetmaydi. Kompyuter default gateway'ning MAC manzilini so'raydi va kadrni router'ga yuboradi. Paketdagi manzil IP esa serverniki bo'lib qoladi.",
+      visual: {
+        kind: "sequence",
+        actors: ["PC 192.168.1.20", "Router 192.168.1.1"],
+        messages: [
+          { from: 0, to: 1, label: "ARP: 192.168.1.1 kimniki? (8.8.8.8 ga borish uchun)" },
+          { from: 1, to: 0, label: "ARP javob: men, MAC = aa:bb:cc:11:22:33" },
+          { from: 0, to: 1, label: "Kadr: dst MAC = router, paket ichida dst IP = 8.8.8.8" },
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "PC 192.168.1.20/24 dan 8.8.8.8 ga ping qilinmoqda. PC'ning ARP jadvalida qaysi IP uchun yozuv paydo bo'ladi?",
+      options: ["8.8.8.8", "192.168.1.1 (gateway)", "255.255.255.255", "DNS server"],
+      answerIndex: 1,
+      explanation: "Boshqa tarmoqdagi manzil uchun ARP so'ralmaydi; kadr gateway'ga yuboriladi, shuning uchun jadvalda gateway yozuvi bo'ladi.",
+    },
+    {
+      type: "learn",
+      title: "MAC turlari va ARP tafsilotlari",
+      body: "Amalda yana bir nechta narsani bilish kerak.",
+      points: [
+        "Birinchi baytning eng kichik biti 1 bo'lsa — multicast MAC (masalan, 01:00:5E:...); hamma bitlar 1 — broadcast.",
+        "ARP yozuvlari vaqt o'tib o'chadi (OS'ga qarab bir necha daqiqa; Cisco router'larda standart 4 soat).",
+        "Gratuitous ARP — qurilma o'z IP'si haqida so'ralmagan holda e'lon qiladi: IP to'qnashuvini aniqlash yoki boshqalarning keshini yangilash uchun.",
+        "IP to'qnashuvi: ikki qurilma bir IP'ni olsa, ARP jadvalida MAC almashib turadi va aloqa uzilib-uzilib ishlaydi.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Foydalanuvchi aloqasi uzilib-ulanib turibdi. Gateway'da arp jadvaliga qarasangiz, uning IP'si uchun MAC manzil vaqti-vaqti bilan boshqasiga almashmoqda. Sabab?",
+      options: ["DNS xatosi", "Tarmoqda shu IP'ni ishlatayotgan ikkinchi qurilma bor (IP to'qnashuvi)", "Kabel toifasi past", "Switch MAC jadvali to'lgan"],
+      answerIndex: 1,
+      explanation: "Ikki qurilma bir IP bilan javob bersa, ARP yozuvi gohida biriga, gohida boshqasiga ishora qiladi. Statik manzillarni DHCP pool'idan istisno qilish kerak.",
     },
     {
       type: "type",

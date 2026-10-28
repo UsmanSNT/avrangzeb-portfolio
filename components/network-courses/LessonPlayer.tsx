@@ -8,12 +8,14 @@ import { networkCoursesCopy } from "@/content/network-courses/copy";
 import { BinaryView } from "./steps/BinaryView";
 import { CidrView } from "./steps/CidrView";
 import { CliView } from "./steps/CliView";
+import { ExamView } from "./steps/ExamView";
 import { InputView } from "./steps/InputView";
 import { LabView } from "./steps/LabView";
 import { LearnView } from "./steps/LearnView";
 import { OrderView } from "./steps/OrderView";
 import { PracticeView } from "./steps/PracticeView";
 import { QuizView } from "./steps/QuizView";
+import { TrainerView } from "./steps/TrainerView";
 import { TypeView } from "./steps/TypeView";
 import { primaryButtonClass, secondaryButtonClass } from "./steps/shared";
 import { useLessonProgress } from "./useLessonProgress";
@@ -42,6 +44,10 @@ function StepView({ step, onSolved }: { step: Step; onSolved: () => void }) {
       return <CidrView step={step} onSolved={onSolved} />;
     case "cli":
       return <CliView step={step} onSolved={onSolved} />;
+    case "trainer":
+      return <TrainerView step={step} onSolved={onSolved} />;
+    case "exam":
+      return <ExamView step={step} onSolved={onSolved} />;
   }
 }
 

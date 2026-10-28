@@ -4,7 +4,7 @@ export const dnsDhcpPorts: Lesson = {
   id: "dns-dhcp-ports",
   title: "DNS, DHCP, TCP/UDP va portlar",
   summary: "Kompyuter manzilni qanday oladi, nomni qanday topadi va ilovalar qanday ajratiladi.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 60,
   goals: [
     "DHCP jarayonini (DORA) tartib bilan ayta olasiz",
     "DNS nima qilishini tushuntirib bera olasiz",
@@ -67,6 +67,52 @@ export const dnsDhcpPorts: Lesson = {
       ],
       answerIndex: 0,
       explanation: "DNS nomni IP'ga aylantiradi. Manzil berish — DHCP, MAC'ni topish — ARP vazifasi.",
+    },
+    {
+      type: "learn",
+      title: "DNS ierarxiyasi",
+      body: "Kompyuter o'zi butun internetni bilmaydi. U so'rovni rekursiv resolver'ga (provayder yoki 8.8.8.8) beradi, resolver esa daraxt bo'ylab qidiradi va javobni TTL muddatiga keshlaydi.",
+      visual: {
+        kind: "sequence",
+        actors: ["Resolver", "DNS serverlar"],
+        messages: [
+          { from: 0, to: 1, label: "Root server: example.com qayerda? → .com serverlariga boring" },
+          { from: 0, to: 1, label: ".com (TLD) server: → example.com'ning authoritative serveriga boring" },
+          { from: 0, to: 1, label: "Authoritative server: example.com = 93.184.216.34" },
+          { from: 1, to: 0, label: "Resolver javobni keshlab, kompyuterga qaytaradi" },
+        ],
+      },
+    },
+    {
+      type: "learn",
+      title: "Ko'p uchraydigan DNS yozuvlari",
+      body: "Ish joyida bularning barchasiga duch kelasiz.",
+      points: [
+        "A / AAAA — nomdan IPv4 / IPv6 manzil.",
+        "CNAME — laqab: www.example.com → example.com.",
+        "MX — domen pochtasini qabul qiluvchi server.",
+        "NS — domenning authoritative serverlari; SOA — zona haqida asosiy ma'lumot.",
+        "PTR — teskari so'rov: IP'dan nom. TXT — matn (SPF, domen tasdig'i).",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Qaysi yozuv IP manzildan domen nomini topish (teskari so'rov) uchun ishlatiladi?",
+      options: ["A", "MX", "PTR", "CNAME"],
+      answerIndex: 2,
+      explanation: "PTR — reverse DNS. Masalan, loglarda IP o'rniga nom ko'rsatish uchun.",
+    },
+    {
+      type: "learn",
+      title: "DHCP ijarasi",
+      body: "DHCP manzilni abadiy emas, ijara muddatiga beradi. Muddatning yarmi (T1, 50%) o'tganda klient o'sha serverdan unicast bilan uzaytirishni so'raydi. Javob bo'lmasa, 87,5% (T2) da istalgan serverdan broadcast bilan so'raydi. Muddat tugasa, manzildan voz kechadi.",
+    },
+    {
+      type: "quiz",
+      question: "Ijara muddati 8 soat. Klient birinchi marta qachon uzaytirishga urinadi?",
+      options: ["1 soatdan keyin", "4 soatdan keyin (T1, 50%)", "7 soatdan keyin", "8 soat tugaganda"],
+      answerIndex: 1,
+      explanation: "T1 — ijaraning 50% i: 4 soat.",
     },
     {
       type: "learn",
@@ -134,6 +180,8 @@ export const dnsDhcpPorts: Lesson = {
         mode: "sequence",
         items: [
           { command: "nslookup example.com", note: "DNS serverdan example.com ning IP manzilini so'raydi va qaysi server javob berganini ko'rsatadi." },
+          { command: "nslookup -type=mx gmail.com", note: "Domenning pochta serverlarini (MX yozuvlari) ko'rsatadi." },
+          { command: "ipconfig /displaydns", note: "Kompyuter keshlagan DNS javoblari va ularning qolgan TTL'i.", os: "Windows" },
           { command: "curl -I https://example.com", note: "Saytdan faqat HTTP sarlavhalarini so'raydi (-I). Birinchi qatorda status kodi bo'ladi." },
         ],
       },

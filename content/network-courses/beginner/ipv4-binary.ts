@@ -4,7 +4,7 @@ export const ipv4Binary: Lesson = {
   id: "ipv4-binary",
   title: "IPv4 manzil va ikkilik sanoq",
   summary: "IP manzil tuzilishi, ikkilik (binary) o'tkazish va barmoq bilan sanash mashqi.",
-  estimatedMinutes: 35,
+  estimatedMinutes: 55,
   goals: [
     "IPv4 manzil tuzilishini tushuntirib bera olasiz",
     "0–255 oralig'idagi sonni ikkilikka o'tkazasiz",
@@ -60,6 +60,13 @@ export const ipv4Binary: Lesson = {
       explanation: "IPv4 — 32 bit (4 oktet × 8 bit). 48 bit MAC manzilga, 128 bit IPv6'ga tegishli.",
     },
     {
+      type: "trainer",
+      title: "Ikkilik sanoq trenajyori",
+      prompt: "Sonlarni ikkilikka va ikkilikdan o'nlikka o'tkazing. Ketma-ket 8 ta to'g'ri javob kerak.",
+      kind: "binary",
+      goal: 8,
+    },
+    {
       type: "learn",
       title: "Private manzillar",
       body: "Ba'zi diapazonlar internetda marshrutlanmaydi, ular uy va ofis tarmoqlari uchun ajratilgan. Router ularni NAT orqali bitta ommaviy manzilga aylantiradi.",
@@ -92,6 +99,30 @@ export const ipv4Binary: Lesson = {
       ],
       answerIndex: 0,
       explanation: "169.254.x.x — DHCP topilmaganda Windows va boshqa tizimlar o'zi tanlagan manzil. Router yoki DHCP bilan muammo bor.",
+    },
+    {
+      type: "learn",
+      title: "Unicast, broadcast, multicast",
+      body: "Paket kimga yuborilishiga qarab uch xil bo'ladi.",
+      points: [
+        "Unicast — bitta qurilmaga (oddiy holat).",
+        "Broadcast — subnetdagi hammaga: subnet broadcast (masalan 192.168.1.255) yoki 255.255.255.255. Router broadcast'ni boshqa tarmoqqa o'tkazmaydi.",
+        "Multicast — obuna bo'lgan guruhga: 224.0.0.0/4 diapazoni (masalan, OSPF 224.0.0.5 dan foydalanadi).",
+        "0.0.0.0 — «manzil hali yo'q» (DHCP Discover manbasi) yoki marshrutlarda «hamma tarmoqlar».",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "224.0.0.5 qaysi turdagi manzil?",
+      options: ["Private unicast", "Multicast", "Broadcast", "Loopback"],
+      answerIndex: 1,
+      explanation: "224.0.0.0–239.255.255.255 — multicast. 224.0.0.5 ni OSPF router'lari ishlatadi.",
+    },
+    {
+      type: "learn",
+      title: "Tarixiy sinflar (A, B, C)",
+      body: "Eski darsliklarda va intervyularda manzil sinflari so'raladi. Bugun CIDR ishlatiladi, lekin birinchi oktet bo'yicha sinfni tanish foydali.",
+      terminal: ["A: 1–126     (standart /8)", "B: 128–191   (standart /16)", "C: 192–223   (standart /24)", "D: 224–239   multicast", "E: 240–255   eksperimental", "127 — loopback uchun ajratilgan"],
     },
     {
       type: "practice",

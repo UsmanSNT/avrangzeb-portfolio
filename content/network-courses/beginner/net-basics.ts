@@ -4,7 +4,7 @@ export const netBasics: Lesson = {
   id: "net-basics",
   title: "Tarmoq nima va qurilmalar kim",
   summary: "Host, switch, router, paket va protokol. O'z kompyuteringiz tarmoq sozlamalarini topasiz.",
-  estimatedMinutes: 25,
+  estimatedMinutes: 40,
   goals: [
     "Tarmoq, host, switch va routerni bir-biridan farqlay olasiz",
     "Paket va protokol nima ekanini tushuntirib bera olasiz",
@@ -98,6 +98,42 @@ export const netBasics: Lesson = {
       options: ["Kabel turi", "Qurilmalar kelishgan qoidalar to'plami", "Dastur nomi", "Tarmoq tezligi"],
       answerIndex: 1,
       explanation: "Protokol — qurilmalar ma'lumot almashishda amal qiladigan qoidalar. Misollar: IP, TCP, HTTP, DNS.",
+    },
+    {
+      type: "learn",
+      title: "Tarmoq turlari va topologiyalar",
+      body: "Tarmoqlar o'lchami va tuzilishiga qarab nomlanadi. Bu atamalar ish suhbatlarida va hujjatlarda doim uchraydi.",
+      points: [
+        "LAN — bitta bino yoki ofis; WLAN — simsiz LAN; WAN — shaharlar va mamlakatlar orasidagi tarmoq.",
+        "Yulduz (star) — hamma qurilma markaziy switch'ga ulangan; bugungi LAN'larning asosiy tuzilishi.",
+        "To'liq yoki qisman mesh — qurilmalar bir-biriga bir necha yo'l bilan ulangan; ishonchlilik uchun (yadro tarmoqlari).",
+        "Klient-server — xizmatni server beradi; peer-to-peer — qurilmalar teng huquqli.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Ofisdagi barcha kompyuterlar bitta switch'ga ulangan. Bu qaysi topologiya?",
+      options: ["Halqa (ring)", "Yulduz (star)", "To'liq mesh", "Shina (bus)"],
+      answerIndex: 1,
+      explanation: "Markaziy qurilmaga ulangan qurilmalar — yulduz topologiyasi. Switch ishdan chiqsa, butun segment to'xtaydi; shuning uchun muhim joylarda zaxira qo'shiladi.",
+    },
+    {
+      type: "learn",
+      title: "Tezlik emas, sifat: to'rt ko'rsatkich",
+      body: "Foydalanuvchi «internet sekin» deganda to'rt xil narsani nazarda tutishi mumkin. Ularni farqlash diagnostikani tezlashtiradi.",
+      points: [
+        "Bandwidth (o'tkazuvchanlik) — kanalning nazariy sig'imi, masalan 1 Gbit/s.",
+        "Throughput — amalda erishilgan tezlik.",
+        "Latency (kechikish) — paketning borib-kelish vaqti, ms da (ping ko'rsatadi).",
+        "Jitter — kechikishning o'zgaruvchanligi; packet loss — yo'qolgan paketlar ulushi. Ovoz va video uchun eng muhimi shu ikkisi.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Video qo'ng'iroqda ovoz uzilib-uzilib kelmoqda, yuklab olish tezligi esa yaxshi. Avval qaysi ko'rsatkichni tekshirasiz?",
+      options: ["Bandwidth", "Jitter va packet loss", "Kabel toifasi", "Disk hajmi"],
+      answerIndex: 1,
+      explanation: "Real vaqt trafiki kechikish o'zgaruvchanligi va paket yo'qolishiga sezgir; katta yuklab olish tezligi buni hal qilmaydi.",
     },
     {
       type: "lab",

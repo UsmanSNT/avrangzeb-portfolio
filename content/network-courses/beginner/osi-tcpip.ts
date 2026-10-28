@@ -4,7 +4,7 @@ export const osiTcpip: Lesson = {
   id: "osi-tcpip",
   title: "OSI va TCP/IP modellari",
   summary: "Tarmoqni qatlamlarga bo'lib o'ylash. Muammoni qaysi qatlamda qidirishni o'rganasiz.",
-  estimatedMinutes: 30,
+  estimatedMinutes: 45,
   goals: [
     "OSI ning 7 qatlamini tartib bilan sanab bera olasiz",
     "Switch va router qaysi qatlamda ishlashini bilasiz",
@@ -116,6 +116,34 @@ export const osiTcpip: Lesson = {
       hint: "Kabel va signal — eng quyi qatlam.",
       explanation: "Kabel — Physical (1) qatlam. Diagnostika odatda shu qatlamdan boshlanadi.",
       placeholder: "Raqamni yozing",
+    },
+    {
+      type: "learn",
+      title: "Har qatlam: PDU, qurilma, protokol",
+      body: "Diagnostikada «bu qaysi qatlam muammosi?» degan savolga tez javob berish uchun shu jadvalni yod oling.",
+      terminal: [
+        "Qatlam        PDU       Qurilma            Misollar",
+        "7-5 Ilova     Ma'lumot  Server, firewall   HTTP, DNS, SSH",
+        "4 Transport   Segment   —                  TCP, UDP",
+        "3 Network     Paket     Router, L3 switch  IPv4, IPv6, ICMP",
+        "2 Data Link   Kadr      Switch             Ethernet, ARP*, Wi-Fi",
+        "1 Physical    Bit       Kabel, hub         UTP, optika, radio",
+        "* ARP 2- va 3-qatlam orasida ishlaydi",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Network (3-) qatlamidagi ma'lumot birligi qanday ataladi?",
+      options: ["Kadr", "Segment", "Paket", "Bit"],
+      answerIndex: 2,
+      explanation: "3-qatlam — paket, 4 — segment, 2 — kadr, 1 — bit.",
+    },
+    {
+      type: "quiz",
+      question: "Foydalanuvchi saytga kira olmayapti, lekin shu saytning IP manziliga ping ishlaydi. Muammo qaysi qatlamda bo'lishi ehtimoli yuqori?",
+      options: ["1 · Physical", "2 · Data Link", "3 · Network", "7 · Application (DNS yoki veb-xizmat)"],
+      answerIndex: 3,
+      explanation: "3-qatlam aloqasi bor (ping ishlayapti). Muammo yuqori qatlamda: DNS, brauzer, proxy yoki saytning o'zi.",
     },
     {
       type: "practice",

@@ -15,6 +15,11 @@ export type Visual =
       kind: "topology";
       nodes: readonly { id: string; label: string; icon: "host" | "switch" | "router" | "cloud" | "server" }[];
       links: readonly (readonly [string, string])[];
+    }
+  | {
+      /** Decoded packet, shown like Wireshark's packet details pane. */
+      kind: "packet";
+      layers: readonly { name: string; fields: readonly { name: string; value: string; highlight?: boolean }[] }[];
     };
 
 /** Short explanation: one idea per step. */
@@ -145,6 +150,33 @@ export type CliStep = {
   lines: readonly CliLine[];
 };
 
+/** Unlimited randomized practice; solved after `goal` correct answers in a row. */
+export type TrainerStep = {
+  type: "trainer";
+  title: string;
+  prompt: string;
+  kind: "binary" | "subnet" | "wildcard";
+  goal: number;
+};
+
+export type ExamQuestion = {
+  question: string;
+  options: readonly string[];
+  answerIndex: number;
+  explanation: string;
+  /** Short topic label, listed after a failed attempt so the learner knows what to revise. */
+  topic: string;
+};
+
+/** Scored exam: one attempt per question, solved when the score reaches `passPercent`. */
+export type ExamStep = {
+  type: "exam";
+  title: string;
+  intro: string;
+  passPercent: number;
+  questions: readonly ExamQuestion[];
+};
+
 export type Step =
   | LearnStep
   | QuizStep
@@ -155,7 +187,9 @@ export type Step =
   | BinaryStep
   | OrderStep
   | CidrStep
-  | CliStep;
+  | CliStep
+  | TrainerStep
+  | ExamStep;
 
 export type Lesson = {
   id: string;

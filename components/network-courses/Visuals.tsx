@@ -163,6 +163,29 @@ function TopologyVisual({ nodes, links }: Extract<Visual, { kind: "topology" }>)
   );
 }
 
+function PacketVisual({ layers }: Extract<Visual, { kind: "packet" }>) {
+  return (
+    <div className="space-y-2 font-mono text-xs leading-6 sm:text-sm">
+      {layers.map((layer) => (
+        <div key={layer.name} className="overflow-hidden rounded-lg border border-line bg-card">
+          <p className="border-b border-line bg-surface px-3 py-1.5 font-bold text-cyan-text">▾ {layer.name}</p>
+          <dl className="px-3 py-1.5">
+            {layer.fields.map((field) => (
+              <div
+                key={field.name}
+                className={`flex flex-wrap gap-x-2 rounded px-1 ${field.highlight ? "bg-accent-cyan/15 text-foreground" : "text-secondary"}`}
+              >
+                <dt className="text-muted">{field.name}:</dt>
+                <dd className="break-all">{field.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function VisualBlock({ visual }: { visual: Visual }) {
   switch (visual.kind) {
     case "stack":
@@ -171,5 +194,7 @@ export function VisualBlock({ visual }: { visual: Visual }) {
       return <SequenceVisual {...visual} />;
     case "topology":
       return <TopologyVisual {...visual} />;
+    case "packet":
+      return <PacketVisual {...visual} />;
   }
 }
