@@ -4,7 +4,7 @@ export const enterpriseProject: Lesson = {
   id: "enterprise-project",
   title: "Yakuniy loyiha: ko'p filialli korxona",
   summary: "Bosh ofis va filialni noldan qurasiz, himoyalaysiz, kuzatasiz va ataylab buzilgan tarmoqda nosozlikni topasiz.",
-  estimatedMinutes: 180,
+  estimatedMinutes: 220,
   goals: [
     "Ikki ofisli korxona tarmog'ini talablardan boshlab loyihalaysiz",
     "Barcha bosqich bilimlarini bitta ishlaydigan tarmoqqa birlashtirasiz",
@@ -59,14 +59,14 @@ export const enterpriseProject: Lesson = {
       type: "learn",
       title: "Manzillash rejasi",
       body: "Ichki tarmoq uchun 10.0.0.0/8 dan foydalanamiz: ikkinchi oktet — ofis, uchinchi — VLAN.",
-      terminal: [
-        "HQ  VLAN 10 Users    10.10.10.0/24   gw .1",
-        "HQ  VLAN 20 Servers  10.10.20.0/24   gw .1   server .10",
-        "HQ  VLAN 30 Guest    10.10.30.0/24   gw .1",
-        "HQ  VLAN 99 Mgmt     10.10.99.0/24   gw .1",
-        "BR  Users            10.20.40.0/24   gw .1",
-        "Tunnel               172.16.0.0/30   HQ .1, BR .2",
-        "HQ ommaviy 203.0.113.2/30 · BR ommaviy 198.51.100.2/30",
+      points: [
+        "HQ VLAN 10 (Users) — 10.10.10.0/24, gateway .1.",
+        "HQ VLAN 20 (Servers) — 10.10.20.0/24, gateway .1, server .10.",
+        "HQ VLAN 30 (Guest) — 10.10.30.0/24, gateway .1.",
+        "HQ VLAN 99 (Mgmt) — 10.10.99.0/24, gateway .1.",
+        "Filial (Users) — 10.20.40.0/24, gateway .1.",
+        "Tunnel — 172.16.0.0/30: HQ .1, filial .2.",
+        "Ommaviy: HQ 203.0.113.2/30, filial 198.51.100.2/30.",
       ],
     },
     {
@@ -162,6 +162,46 @@ export const enterpriseProject: Lesson = {
         ],
       },
       expected: "Mehmon PC internetga chiqadi, lekin HQ va filial kompyuterlariga ping qila olmaydi. Server'da Syslog xabarlari paydo bo'ladi.",
+    },
+    {
+      type: "lab",
+      title: "5-bosqich: uzluksizlik va kuzatuv",
+      tasks: [
+        "HQ'ga ikkinchi switch qo'shing va ikkala switch'ni LACP EtherChannel trunk bilan ulang.",
+        "HQ'ga ikkinchi router qo'shing: foydalanuvchilar VLAN'ida HSRP (virtual IP — .1, router'lar — .2 va .3), DHCP pool'larida gateway virtual IP bo'lsin.",
+        "Barcha qurilmalarda SNMPv3 (authPriv) va archive log config.",
+        "Asosiy router'ni o'chirib, foydalanuvchilar ishlashda davom etishini tekshiring.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "show etherchannel summary", note: "Po1(SU), barcha portlar (P)." },
+          { command: "show standby brief", note: "Asosiy router Active, ikkinchisi Standby." },
+          { command: "show snmp user", note: "authPriv foydalanuvchi bor." },
+          { command: "show archive log config all", note: "Sozlash buyruqlari foydalanuvchi nomi bilan yozilmoqda." },
+        ],
+      },
+      expected: "Bitta router yoki bitta kabel uzilganda foydalanuvchilar ishlashda davom etadi; har o'zgarish jurnalda ko'rinadi.",
+    },
+    {
+      type: "lab",
+      title: "Qabul testlari",
+      tasks: [
+        "HQ va filial kompyuterlari DHCP'dan to'g'ri manzil, gateway va DNS oladi.",
+        "Ikkala ofisdan internet va ofislararo ping ishlaydi; mehmon PC ichki tarmoqqa chiqolmaydi.",
+        "Qurilmalarga Telnet ishlamaydi, SSH ishlaydi; Syslog serverda vaqt belgili xabarlar bor.",
+        "Har test uchun buyruq va natijani jadvalga yozing — bu loyiha hisobotining bir qismi.",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "ipconfig /all", note: "PC'da: manzil, gateway va DNS rejaga mosmi.", os: "PC" },
+          { command: "ping 10.20.40.10", note: "HQ PC'dan filial kompyuteriga.", os: "PC" },
+          { command: "telnet 10.10.99.1", note: "Ulanish rad etilishi kerak; ulansa, VTY'da transport input ssh yo'q.", os: "PC" },
+          { command: "ssh -l admin 10.10.99.1", note: "SSH bilan kirish ishlashi kerak.", os: "PC" },
+        ],
+      },
+      expected: "Barcha testlar o'tdi; natijalar jadvali va dalillar loyiha hisobotida.",
     },
     {
       type: "quiz",

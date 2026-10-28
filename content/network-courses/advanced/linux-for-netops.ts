@@ -3,8 +3,8 @@ import type { Lesson } from "../types";
 export const linuxForNetops: Lesson = {
   id: "linux-for-netops",
   title: "Tarmoqchi uchun Linux",
-  summary: "Serverlar, monitoring tizimlari va jump-host'lar Linux'da ishlaydi. Tarmoq diagnostikasi uchun asosiy buyruqlar.",
-  estimatedMinutes: 50,
+  summary: "Serverlar, monitoring tizimlari va jump-host'lar Linux'da ishlaydi. Tarmoq diagnostikasi, xizmat va portlarni tekshirish hamda netplan bilan doimiy sozlama.",
+  estimatedMinutes: 70,
   goals: [
     "ip, ss, dig va ping bilan Linux serverning tarmoq holatini tekshirasiz",
     "tcpdump bilan trafikni ushlab, Wireshark'da ochasiz",
@@ -128,6 +128,59 @@ export const linuxForNetops: Lesson = {
     },
     {
       type: "learn",
+      title: "Xizmat va portni tekshirish",
+      body: "«Server ishlayaptimi?» degan savol aslida uchta savol: xizmat ishga tushganmi, u qaysi manzilda tinglayapti va unga tarmoq orqali yetib boriladimi.",
+      points: [
+        "systemctl status nginx — xizmat holati (active yoki failed) va oxirgi log qatorlari.",
+        "ss -tlnp | grep 8080 — port tinglanyaptimi va qaysi manzilda: 127.0.0.1 — faqat serverning o'zidan, 0.0.0.0 — barcha interfeyslardan.",
+        "curl -I http://localhost:8080 — HTTP javobining faqat sarlavhalari.",
+        "nc -zv 10.0.0.20 8080 — boshqa kompyuterdan port ochiqligini tekshirish.",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Tiket: ilova tashqaridan ochilmayapti",
+      shell: "linux",
+      scenario: "app01 (10.0.0.20) dagi veb-ilova 8080-portda ishlashi kerak. Server ichida u ochiladi, boshqa kompyuterlardan esa yo'q. Serverda firewall o'chiq.",
+      lines: [
+        {
+          prompt: "admin@app01:~$ ",
+          task: "webapp xizmatining holatini ko'ring.",
+          accept: ["systemctl status webapp", "sudo systemctl status webapp"],
+          explain: "Xizmat ishlayapti. Demak muammo xizmat to'xtaganida emas.",
+          output: ["● webapp.service - Internal web app", "     Loaded: loaded (/etc/systemd/system/webapp.service; enabled)", "     Active: active (running) since Mon 09:02:11"],
+        },
+        {
+          prompt: "admin@app01:~$ ",
+          task: "Server ichidan ilovaga so'rov yuborib, faqat sarlavhalarni ko'ring.",
+          accept: ["curl -I http://localhost:8080"],
+          explain: "Ichkaridan 200 OK — ilova javob beradi.",
+          output: ["HTTP/1.1 200 OK", "Content-Type: text/html; charset=utf-8"],
+        },
+        {
+          prompt: "admin@app01:~$ ",
+          task: "8080-port qaysi manzilda tinglanayotganini ko'ring.",
+          accept: ["sudo ss -tlnp | grep 8080", "ss -tlnp | grep 8080", "sudo ss -tulpn | grep 8080", "ss -tulpn | grep 8080"],
+          explain: "Topildi: ilova faqat 127.0.0.1 da tinglayapti — bu manzilga faqat serverning o'zidan ulanish mumkin. Ilova sozlamasida tinglash manzilini 0.0.0.0 qilamiz.",
+          output: ["LISTEN 0  511  127.0.0.1:8080  0.0.0.0:*  users:((\"node\",pid=2210,fd=19))"],
+        },
+        {
+          prompt: "admin@app01:~$ ",
+          task: "Sozlama tuzatildi. Xizmatni qayta ishga tushiring.",
+          accept: ["sudo systemctl restart webapp"],
+          explain: "Xizmat yangi sozlama bilan ishga tushdi.",
+        },
+        {
+          prompt: "admin@app01:~$ ",
+          task: "Portni qayta tekshiring.",
+          accept: ["sudo ss -tlnp | grep 8080", "ss -tlnp | grep 8080", "sudo ss -tulpn | grep 8080", "ss -tulpn | grep 8080"],
+          explain: "Endi 0.0.0.0:8080 — barcha interfeyslarda. Boshqa kompyuterdan nc -zv 10.0.0.20 8080 bilan tasdiqlang.",
+          output: ["LISTEN 0  511  0.0.0.0:8080  0.0.0.0:*  users:((\"node\",pid=2318,fd=19))"],
+        },
+      ],
+    },
+    {
+      type: "learn",
       title: "Trafikni ushlash: tcpdump",
       body: "Ba'zan «paket yetib keldimi?» degan savolga faqat trafikni ko'rib javob berish mumkin. tcpdump terminalda ishlaydi, natijani faylga yozib, Wireshark'da ochsa bo'ladi.",
       points: [
@@ -154,6 +207,35 @@ export const linuxForNetops: Lesson = {
         "tail -f /var/log/syslog — Debian/Ubuntu'da umumiy log.",
         "ssh admin@192.168.1.1 — Linux'dan router'ga kirish.",
       ],
+    },
+    {
+      type: "learn",
+      title: "Doimiy sozlama: netplan",
+      body: "ip buyrug'i bilan qilingan o'zgarish qayta yuklanishda yo'qoladi. Ubuntu Server'da doimiy tarmoq sozlamasi /etc/netplan/ papkasidagi YAML faylda saqlanadi.",
+      terminal: [
+        "network:",
+        "  version: 2",
+        "  ethernets:",
+        "    eth0:",
+        "      addresses: [192.168.1.20/24]",
+        "      routes:",
+        "        - to: default",
+        "          via: 192.168.1.1",
+        "      nameservers:",
+        "        addresses: [192.168.1.10, 8.8.8.8]",
+      ],
+      points: [
+        "sudo netplan try — sozlamani qo'llaydi; 120 soniyada tasdiqlamasangiz, eskisiga qaytaradi.",
+        "sudo netplan apply — darhol va qaytarishsiz qo'llaydi.",
+        "YAML'da bo'sh joylar muhim: tab emas, probel ishlating.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Siz masofadagi serverga SSH orqali ulangansiz va uning gateway hamda DNS sozlamasini netplan'da o'zgartiryapsiz. Qaysi buyruq xavfsizroq?",
+      options: ["sudo netplan apply", "sudo netplan try", "sudo reboot", "sudo ip link set eth0 down"],
+      answerIndex: 1,
+      explanation: "Xato qilsangiz va ulanish uzilsa, tasdiq kelmagani uchun netplan try eski sozlamani o'zi qaytaradi.",
     },
     {
       type: "lab",

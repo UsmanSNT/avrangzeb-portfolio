@@ -155,7 +155,7 @@ function TopologyVisual({ nodes, links }: Extract<Visual, { kind: "topology" }>)
                 <path d={ICON_PATHS[node.icon]} />
               </svg>
             </span>
-            <span className="text-[11px] font-semibold leading-tight text-secondary sm:text-xs">{node.label}</span>
+            <span className="rounded bg-background px-1 text-[11px] font-semibold leading-tight text-secondary sm:text-xs">{node.label}</span>
           </div>
         );
       })}
@@ -176,7 +176,7 @@ function PacketVisual({ layers }: Extract<Visual, { kind: "packet" }>) {
                 className={`flex flex-wrap gap-x-2 rounded px-1 ${field.highlight ? "bg-accent-cyan/15 text-foreground" : "text-secondary"}`}
               >
                 <dt className="text-muted">{field.name}:</dt>
-                <dd className="break-all">{field.value}</dd>
+                <dd className="min-w-0 break-words">{field.value}</dd>
               </div>
             ))}
           </dl>

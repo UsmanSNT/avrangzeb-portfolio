@@ -1,0 +1,303 @@
+import type { Lesson } from "../types";
+
+export const packetAnalysis: Lesson = {
+  id: "packet-analysis",
+  title: "Paket tahlili: Wireshark va tcpdump",
+  summary: "Muammoni taxmin bilan emas, dalil bilan isbotlash: trafikni ushlash, filtrlar, TCP handshake, RST, qayta yuborishlar va DNS javoblarini o'qish.",
+  estimatedMinutes: 70,
+  goals: [
+    "Ushlash (capture) va ko'rsatish (display) filtrlarini farqlab, to'g'ri yozasiz",
+    "TCP handshake, RST va qayta yuborishlarni paketlardan o'qiysiz",
+    "Ikki nuqtada ushlash bilan paket qayerda yo'qolganini isbotlaysiz",
+  ],
+  requires: "Wireshark (bepul) va Linux (tcpdump); «Tarmoqchi uchun Linux» darsi",
+  recap: [
+    "Capture filter (BPF): host 10.0.0.5 and port 443 — nima yoziladi; display filter: ip.addr == 10.0.0.5 && tcp.port == 443 — nima ko'rsatiladi.",
+    "SYN qayta-qayta yuboriladi, javob yo'q — paket yo'lda tashlanmoqda; SYN → RST — port yopiq.",
+    "Ko'p qayta yuborish — yo'qotish yoki tiqilish; ZeroWindow — muammo tarmoqda emas, qabul qiluvchida.",
+  ],
+  steps: [
+    {
+      type: "learn",
+      title: "Nega paket darajasida?",
+      body: "«Tarmoq sekin», «firewall to'sayapti», «server javob bermayapti» — bularning har biri taxmin. Trafikni ushlash taxminni dalilga aylantiradi: paket chiqdimi, javob keldimi, qancha vaqtda keldi. Ish joyida tarmoq, server va ilova jamoalari o'rtasidagi «kim aybdor?» bahsi ko'pincha bitta ushlangan fayl bilan hal bo'ladi.",
+    },
+    {
+      type: "learn",
+      title: "Qayerda ushlash kerak?",
+      body: "Ushlash nuqtasi nimani ko'rishingizni belgilaydi.",
+      points: [
+        "Muammoli qurilmaning o'zida: Linux'da tcpdump, Windows'da Wireshark.",
+        "Switch'da SPAN (port mirroring): bir port trafigi analizator ulangan portga nusxalanadi.",
+        "Ikki nuqtada bir vaqtda (klient va server yonida) — paket qayerda yo'qolganini aniqlash uchun.",
+        "Faqat o'zingiz mas'ul bo'lgan va ruxsat berilgan tarmoqda ushlang: trafikda parollar va shaxsiy ma'lumotlar bo'lishi mumkin.",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Switch'da SPAN sozlang",
+      scenario: "Server SW1 ning Fa0/5 portida. Uning trafigini Fa0/24 ga ulangan, Wireshark o'rnatilgan noutbukka nusxalang.",
+      lines: [
+        { prompt: "SW1#", task: "Global sozlash rejimiga o'ting.", accept: ["configure terminal"], explain: "SW1(config)#." },
+        {
+          prompt: "SW1(config)#",
+          task: "1-sessiya manbasi: Fa0/5 ning ikki yo'nalishdagi trafigi.",
+          accept: ["monitor session 1 source interface fastEthernet0/5 both"],
+          explain: "both — kiruvchi (rx) va chiquvchi (tx) trafik nusxalanadi.",
+        },
+        {
+          prompt: "SW1(config)#",
+          task: "Nusxalar Fa0/24 ga yuborilsin.",
+          accept: ["monitor session 1 destination interface fastEthernet0/24"],
+          explain: "Fa0/24 endi oddiy port sifatida ishlamaydi — u faqat nusxalarni chiqaradi.",
+        },
+        { prompt: "SW1(config)#", task: "Imtiyozli rejimga qayting.", accept: ["end"], explain: "SW1#." },
+        {
+          prompt: "SW1#",
+          task: "1-sessiya holatini ko'ring.",
+          accept: ["show monitor session 1"],
+          explain: "Manba va manzil portlari to'g'ri. Noutbukda Wireshark'ni ishga tushiring.",
+          output: ["Session 1", "---------", "Type                   : Local Session", "Source Ports           :", "    Both               : Fa0/5", "Destination Ports      : Fa0/24"],
+        },
+      ],
+    },
+    {
+      type: "learn",
+      title: "Ikki xil filtr",
+      body: "Wireshark va tcpdump'da filtrlar ikki bosqichda ishlaydi va sintaksisi har xil. Bu eng ko'p chalkashtiriladigan joy.",
+      points: [
+        "Capture filter (BPF) — ushlashdan OLDIN: faqat mos paketlar yoziladi. Masalan: host 192.168.1.20 and port 53.",
+        "Display filter — ushlab bo'lingandan KEYIN: faqat ko'rsatishni toraytiradi, hech narsa o'chmaydi. Masalan: ip.addr == 192.168.1.20 && dns.",
+        "BPF'da so'zlar (host, port, and, not), display filter'da maydon nomlari (ip.addr, tcp.port) va belgilar (==, &&, !).",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Wireshark'ning ko'rsatish (display) filtri maydoniga qaysi biri to'g'ri yozilgan?",
+      options: ["host 10.0.0.5 and port 80", "ip.addr == 10.0.0.5 && tcp.port == 80", "ip host 10.0.0.5 port 80", "filter 10.0.0.5:80"],
+      answerIndex: 1,
+      explanation: "«host ... and port ...» — BPF, ya'ni capture filter sintaksisi. Display filter'da maydon nomlari ishlatiladi.",
+    },
+    {
+      type: "learn",
+      title: "Har kuni ishlatiladigan display filtrlar",
+      body: "Bularni yoddan bilish tahlilni bir necha baravar tezlashtiradi.",
+      points: [
+        "dns — barcha DNS so'rov va javoblari.",
+        "ip.addr == 10.0.0.5 — shu manzilga yoki undan.",
+        "tcp.flags.syn == 1 && tcp.flags.ack == 0 — faqat ulanish boshlanishi (SYN).",
+        "tcp.flags.reset == 1 — rad etilgan ulanishlar (RST).",
+        "tcp.analysis.retransmission — qayta yuborilgan paketlar.",
+        "icmp.type == 3 — Destination unreachable.",
+        "arp — ARP so'rov va javoblari.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "TCP ulanishi paketlarda",
+      body: "Wireshark ulanishni shunday ko'rsatadi. Seq va Ack — nisbiy raqamlar: o'qish oson bo'lishi uchun Wireshark ularni 0 dan boshlaydi.",
+      visual: {
+        kind: "sequence",
+        actors: ["Klient 10.0.0.20", "Server 10.0.0.5:443"],
+        messages: [
+          { from: 0, to: 1, label: "SYN  Seq=0" },
+          { from: 1, to: 0, label: "SYN, ACK  Seq=0 Ack=1" },
+          { from: 0, to: 1, label: "ACK  Seq=1 Ack=1" },
+          { from: 0, to: 1, label: "TLS Client Hello" },
+        ],
+      },
+    },
+    {
+      type: "quiz",
+      question: "Klient serverning 443-portiga SYN yubormoqda va uni 1, 3, 7 soniyadan keyin qayta yubormoqda. Javob umuman yo'q. Eng ehtimoliy sabab?",
+      options: [
+        "Port yopiq",
+        "Paket yoki javob yo'lda jim tashlanmoqda: firewall, marshrut yoki server o'chiq",
+        "DNS ishlamayapti",
+        "TLS sertifikati eskirgan",
+      ],
+      answerIndex: 1,
+      explanation: "Port yopiq bo'lsa, server darhol RST bilan javob beradi. Umuman javob yo'qligi — paket jim tashlanayotganini bildiradi, ko'pincha firewall'da.",
+    },
+    {
+      type: "quiz",
+      question: "SYN'ga javoban darhol RST, ACK keldi. Bu nimani bildiradi?",
+      options: [
+        "Server yetib boriladi, lekin bu portda hech qanday xizmat tinglamayapti (yoki firewall reject qilmoqda)",
+        "Kabel uzilgan",
+        "Paket yo'qotish",
+        "DNS xatosi",
+      ],
+      answerIndex: 0,
+      explanation: "RST — «bu portda hech kim yo'q» degan aniq javob. Yo'l ishlaydi: xizmat ishga tushmagan yoki boshqa portda — serverda ss -tulpn bilan tekshiring.",
+    },
+    {
+      type: "learn",
+      title: "DNS javobini o'qish",
+      body: "Foydalanuvchi «server ochilmayapti» dedi. Ushlangan DNS javobi sababni darhol ko'rsatadi: bunday nom umuman yo'q (NXDOMAIN). Muammo tarmoqda emas — nomda yoki DNS yozuvida.",
+      visual: {
+        kind: "packet",
+        layers: [
+          {
+            name: "User Datagram Protocol",
+            fields: [
+              { name: "Source Port", value: "53", highlight: true },
+              { name: "Destination Port", value: "50122" },
+            ],
+          },
+          {
+            name: "Domain Name System (response)",
+            fields: [
+              { name: "Transaction ID", value: "0x3f2a" },
+              { name: "Flags", value: "0x8183 Standard query response, No such name", highlight: true },
+              { name: "Questions", value: "1" },
+              { name: "Answer RRs", value: "0", highlight: true },
+              { name: "Query", value: "srv-db.corp.local: type A" },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      type: "learn",
+      title: "Sekinlikni o'qish",
+      body: "«Tarmoq sekin» shikoyatida quyidagi belgilarni qidiring.",
+      points: [
+        "Ko'p tcp.analysis.retransmission — yo'lda paketlar yo'qolmoqda: tiqilish, xatoli kabel, Wi-Fi shovqini.",
+        "Duplicate ACK va Fast retransmission — qabul qiluvchi bitta paket yo'qolganini sezdi.",
+        "TCP ZeroWindow — qabul qiluvchi ulgurmayapti: muammo tarmoqda emas, server yoki ilovada.",
+        "Statistics → Conversations va I/O Graph — kim ko'p trafik yaratmoqda va qachon.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Wireshark'da serverdan klientga ko'p «TCP ZeroWindow» xabarlari kelmoqda. Muammo qayerda?",
+      options: ["Kabel shikastlangan", "Server yoki undagi ilova ma'lumotni o'z vaqtida qabul qila olmayapti", "DNS serverda", "VLAN noto'g'ri"],
+      answerIndex: 1,
+      explanation: "ZeroWindow — qabul qiluvchining buferi to'lgan. Bu tarmoq emas, server unumdorligi muammosi: «tarmoq aybdor emas»ligini isbotlashning klassik misoli.",
+    },
+    {
+      type: "learn",
+      title: "tcpdump natijasini o'qish",
+      body: "tcpdump har paketni bitta qatorda chiqaradi: vaqt, manba.port > manzil.port va TCP bayroqlari.",
+      points: [
+        "[S] — SYN, [S.] — SYN/ACK, [.] — ACK.",
+        "[P.] — ma'lumot (PSH/ACK), [F.] — ulanishni yopish (FIN), [R] yoki [R.] — RST.",
+        "-n — nomlarni aniqlamaslik (tezroq va aniqroq); -c 100 — 100 paketdan keyin to'xtash.",
+        "-w fayl.pcap — keyin Wireshark'da ochish uchun faylga yozish.",
+      ],
+    },
+    {
+      type: "cli",
+      title: "Tiket: ilova bazaga ulanolmayapti",
+      shell: "linux",
+      scenario: "app01 (10.0.0.20) dagi ilova db01 (10.0.0.30) dagi PostgreSQL'ga (5432-port) ulanolmayapti. Ikki tomonda trafikni ushlab, aybdorni dalil bilan toping.",
+      lines: [
+        {
+          prompt: "admin@app01:~$ ",
+          task: "eth0 da db01 bilan 5432-port trafigini sonli ko'rinishda ushlang.",
+          accept: ["sudo tcpdump -i eth0 -n host 10.0.0.30 and port 5432", "sudo tcpdump -n -i eth0 host 10.0.0.30 and port 5432", "sudo tcpdump -i eth0 -n host 10.0.0.30 and tcp port 5432"],
+          explain: "SYN chiqmoqda va 1, 3 soniyadan keyin qayta yuborilmoqda — javob yo'q. Paket app01 dan chiqyapti; endi u db01 ga yetib boryaptimi?",
+          output: [
+            "listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes",
+            "10:15:01.120 IP 10.0.0.20.41822 > 10.0.0.30.5432: Flags [S], seq 1736221, win 64240, length 0",
+            "10:15:02.142 IP 10.0.0.20.41822 > 10.0.0.30.5432: Flags [S], seq 1736221, win 64240, length 0",
+            "10:15:04.158 IP 10.0.0.20.41822 > 10.0.0.30.5432: Flags [S], seq 1736221, win 64240, length 0",
+          ],
+        },
+        {
+          prompt: "admin@db01:~$ ",
+          task: "Endi db01 da app01 bilan 5432-port trafigini ushlang.",
+          accept: ["sudo tcpdump -i eth0 -n host 10.0.0.20 and port 5432", "sudo tcpdump -n -i eth0 host 10.0.0.20 and port 5432", "sudo tcpdump -i eth0 -n host 10.0.0.20 and tcp port 5432"],
+          explain: "SYN db01 ga yetib kelmoqda, lekin javob chiqmayapti. Tarmoq yo'li ishlaydi — paketni db01 ning o'zi tashlamoqda.",
+          output: [
+            "10:15:01.121 IP 10.0.0.20.41822 > 10.0.0.30.5432: Flags [S], seq 1736221, win 64240, length 0",
+            "10:15:02.143 IP 10.0.0.20.41822 > 10.0.0.30.5432: Flags [S], seq 1736221, win 64240, length 0",
+          ],
+        },
+        {
+          prompt: "admin@db01:~$ ",
+          task: "5432-portda xizmat tinglayaptimi — ss bilan tekshiring.",
+          accept: ["sudo ss -tlnp | grep 5432", "ss -tlnp | grep 5432", "sudo ss -tulpn | grep 5432", "ss -tulpn | grep 5432"],
+          explain: "PostgreSQL barcha manzillarda tinglamoqda. Xizmat ishlasa-yu, SYN/ACK chiqmasa — paketni firewall tashlamoqda.",
+          output: ["LISTEN 0  244  0.0.0.0:5432  0.0.0.0:*  users:((\"postgres\",pid=901,fd=6))"],
+        },
+        {
+          prompt: "admin@db01:~$ ",
+          task: "Firewall (ufw) holatini ko'ring.",
+          accept: ["sudo ufw status", "sudo ufw status verbose", "sudo ufw status numbered"],
+          explain: "Faqat 22-port ochiq; qolgan kiruvchi trafik standart holatda tashlanadi. Sabab isbotlandi.",
+          output: ["Status: active", "", "To                         Action      From", "--                         ------      ----", "22/tcp                     ALLOW       Anywhere"],
+        },
+        {
+          prompt: "admin@db01:~$ ",
+          task: "Faqat app01 (10.0.0.20) dan 5432/tcp ga ruxsat bering.",
+          accept: ["sudo ufw allow from 10.0.0.20 to any port 5432 proto tcp"],
+          explain: "Ruxsat faqat kerakli manba va portga beriladi — butun dunyoga emas.",
+          output: ["Rule added"],
+        },
+        {
+          prompt: "admin@app01:~$ ",
+          task: "app01 da ulanishni qayta ushlang.",
+          accept: ["sudo tcpdump -i eth0 -n host 10.0.0.30 and port 5432", "sudo tcpdump -n -i eth0 host 10.0.0.30 and port 5432", "sudo tcpdump -i eth0 -n host 10.0.0.30 and tcp port 5432"],
+          explain: "[S] → [S.] → [.] — handshake to'liq. Tiketga tcpdump natijalarini dalil sifatida qo'shing.",
+          output: [
+            "10:31:40.502 IP 10.0.0.20.41830 > 10.0.0.30.5432: Flags [S], seq 2210931, win 64240, length 0",
+            "10:31:40.503 IP 10.0.0.30.5432 > 10.0.0.20.41830: Flags [S.], seq 99120, ack 2210932, win 65160, length 0",
+            "10:31:40.503 IP 10.0.0.20.41830 > 10.0.0.30.5432: Flags [.], ack 1, win 502, length 0",
+          ],
+        },
+      ],
+    },
+    {
+      type: "type",
+      title: "Qo'l xotirasi: tcpdump",
+      prompt: "eth0 da 10.0.0.5 bilan 443-port trafigini sonli ko'rinishda ushlaydigan buyruqni yozing.",
+      options: [{ command: "sudo tcpdump -i eth0 -n host 10.0.0.5 and port 443", os: "Linux" }],
+      reps: 3,
+    },
+    {
+      type: "order",
+      title: "Tahlil tartibi",
+      prompt: "Paket tahlili bosqichlarini tartib bilan bosing.",
+      items: [
+        "Muammoni aniq savolga aylantirish: qaysi klient, qaysi server, qaysi port",
+        "Ushlash nuqtasini tanlash: klient, server yoki SPAN",
+        "Capture filter bilan yozishni boshlash",
+        "Muammoni takrorlash",
+        "Display filter bilan tahlil qilish",
+        "Xulosa va dalilni tiketga qo'shish",
+      ],
+    },
+    {
+      type: "lab",
+      title: "Wireshark: o'z trafigingizni o'qing",
+      tasks: [
+        "Wireshark'ni o'rnating va asosiy interfeysda ushlashni boshlang.",
+        "Brauzerda biror saytni oching, so'ng ushlashni to'xtating.",
+        "dns filtri bilan so'rov va javobni toping; javobdagi IP manzilni yozing.",
+        "SYN filtri bilan ulanish boshlanishini toping va Follow → TCP Stream bilan butun suhbatni oching.",
+        "Statistics → Conversations: eng ko'p trafik qaysi manzil bilan almashilgan?",
+      ],
+      commands: {
+        mode: "sequence",
+        items: [
+          { command: "dns", note: "DNS so'rov va javob juftligi; javobdagi A yozuvi — saytning IP manzili.", os: "Wireshark" },
+          { command: "tcp.flags.syn == 1 && tcp.flags.ack == 0", note: "Har yangi TCP ulanishning birinchi paketi.", os: "Wireshark" },
+          { command: "tcp.analysis.retransmission", note: "Qayta yuborishlar; Wi-Fi'da simli ulanishdan ko'proq bo'ladi.", os: "Wireshark" },
+        ],
+      },
+      expected: "DNS javobi, TCP handshake va TLS Client Hello topilgan; eng faol suhbat aniqlangan.",
+    },
+    {
+      type: "practice",
+      title: "Filtrlarni yoddan yozing",
+      instructions: [
+        "Har biri uchun display filter va tcpdump (BPF) variantini yozing: 1) faqat 192.168.1.1 bilan trafik; 2) faqat RST paketlar; 3) 10.0.0.5 bilan DNS; 4) ICMP; 5) 22-portdan tashqari hammasi.",
+        "Javoblarni Wireshark va tcpdump'da sinab ko'ring.",
+        "Xato qilganlaringizni ertaga qayta yozing.",
+      ],
+      seconds: 180,
+    },
+  ],
+};

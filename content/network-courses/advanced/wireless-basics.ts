@@ -3,8 +3,8 @@ import type { Lesson } from "../types";
 export const wirelessBasics: Lesson = {
   id: "wireless-basics",
   title: "Simsiz tarmoqlar (Wi-Fi)",
-  summary: "Diapazonlar, kanallar, xavfsizlik va korporativ Wi-Fi arxitekturasi. Signalni o'lchash va kanal rejalash.",
-  estimatedMinutes: 45,
+  summary: "Diapazonlar, kanallar, xavfsizlik va korporativ Wi-Fi arxitekturasi. Signal va SNR o'lchash, kanal rejalash va Wi-Fi nosozliklari.",
+  estimatedMinutes: 65,
   goals: [
     "2,4 / 5 / 6 GHz diapazonlari va kanallar farqini tushuntirasiz",
     "Ofis uchun to'g'ri Wi-Fi xavfsizlik turini tanlaysiz",
@@ -45,7 +45,7 @@ export const wirelessBasics: Lesson = {
       terminal: [
         "Yo'lak bo'ylab joylashgan AP'lar:",
         "[AP1: 1]   [AP2: 6]   [AP3: 11]   [AP4: 1]",
-        "Qo'shni AP'lar hech qachon bir xil kanalda emas.",
+        "Qo'shnilar hech qachon bir kanalda emas.",
       ],
     },
     {
@@ -95,7 +95,7 @@ export const wirelessBasics: Lesson = {
       type: "learn",
       title: "Signal darajasi (dBm)",
       body: "Signal kuchi manfiy dBm bilan o'lchanadi: 0 ga qanchalik yaqin bo'lsa, shunchalik kuchli. Devorlar, beton, mikroto'lqinli pech va Bluetooth signalni zaiflashtiradi.",
-      terminal: ["−30 dBm   juda kuchli (AP yonida)", "−67 dBm   ovoz va video uchun tavsiya etilgan chegara", "−70 dBm   oddiy ishlash uchun yetarli", "−80 dBm   beqaror, deyarli ishlamaydi"],
+      points: ["−30 dBm — juda kuchli (AP yonida).", "−67 dBm — ovoz va video uchun tavsiya etilgan chegara.", "−70 dBm — oddiy ishlash uchun yetarli.", "−80 dBm — beqaror, deyarli ishlamaydi."],
     },
     {
       type: "input",
@@ -104,6 +104,63 @@ export const wirelessBasics: Lesson = {
       hint: "Jadvaldagi «ovoz va video» qatoriga qarang.",
       explanation: "−67 dBm va undan kuchli signal ovoz/video uchun barqaror ishlashni ta'minlaydi.",
       placeholder: "Masalan: -70",
+    },
+    {
+      type: "learn",
+      title: "SNR: signal va shovqin",
+      body: "Signal kuchli bo'lishi yetarli emas — u shovqindan qanchalik baland ekani muhim. SNR = signal − shovqin (dB). Ovoz va video uchun kamida 25 dB tavsiya etiladi.",
+      points: [
+        "Signal −65 dBm, shovqin −92 dBm → SNR 27 dB: yaxshi.",
+        "Signal −65 dBm, shovqin −75 dBm → SNR 10 dB: yomon, kuchli shovqin.",
+      ],
+    },
+    {
+      type: "input",
+      question: "Signal −70 dBm, shovqin −95 dBm. SNR necha dB?",
+      answers: ["25", "25 db"],
+      hint: "SNR = signal − shovqin.",
+      explanation: "−70 − (−95) = 25 dB — ovoz uchun chegarada.",
+      placeholder: "Son",
+    },
+    {
+      type: "learn",
+      title: "5 GHz va kanal kengligi",
+      body: "5 GHz da 20 MHz'li kanallar ko'p. Ularni 40, 80 yoki 160 MHz ga birlashtirish tezlikni oshiradi, lekin kesishmaydigan kanallar soni kamayadi. Ko'p AP'li ofisda odatda 20 yoki 40 MHz tanlanadi. Ayrim 5 GHz kanallarida (DFS) AP radar signalini sezsa, kanalni almashtirishi shart.",
+    },
+    {
+      type: "quiz",
+      question: "Zich ofisda 30 ta AP 5 GHz da 80 MHz kenglikda ishlamoqda. Foydalanuvchilar «signal kuchli, lekin tezlik past» deydi. Eng ehtimoliy sabab?",
+      options: [
+        "Qo'shni AP'lar bir xil kanalda (co-channel interference) — kenglikni 20/40 MHz ga tushirish kerak",
+        "Kabel toifasi past",
+        "DNS sekin",
+        "VLAN noto'g'ri",
+      ],
+      answerIndex: 0,
+      explanation: "Keng kanallar kam bo'lgani uchun qo'shni AP'lar bitta kanalni bo'lishib, havoni navbat bilan ishlatadi. Torroq kanallar AP'larni ko'proq kanalga ajratadi.",
+    },
+    {
+      type: "learn",
+      title: "Wi-Fi nosozliklari",
+      body: "Shikoyatni toifaga ajrating — har birining o'z tekshiruvi bor.",
+      points: [
+        "Ulanmaydi: SSID va xavfsizlik turi mosmi; Enterprise'da RADIUS loglaridagi rad etish sababi.",
+        "Ulandi, lekin IP yo'q: WLAN VLAN'ida DHCP pool, helper-address va trunk'da VLAN.",
+        "Signal kuchli, tezlik past: kanal kesishmasi, ko'p klient, eski 2,4 GHz qurilmalar.",
+        "Yurganda uziladi: AP qamrovlari kesishmayapti yoki roaming sozlanmagan.",
+      ],
+    },
+    {
+      type: "quiz",
+      question: "Noutbuk korporativ Wi-Fi'ga ulandi (WPA2-Enterprise muvaffaqiyatli), lekin 169.254.x.x manzil oldi. Muammo qayerda?",
+      options: [
+        "Parol noto'g'ri",
+        "WLAN VLAN'ida DHCP ishlamayapti: pool, helper-address yoki trunk'da VLAN yo'q",
+        "Signal zaif",
+        "1-kanal band",
+      ],
+      answerIndex: 1,
+      explanation: "Autentifikatsiya o'tgan — radio va xavfsizlik joyida. Endi bu oddiy simli VLAN muammosi: DHCP zanjirini tekshiring.",
     },
     {
       type: "lab",
