@@ -4,7 +4,7 @@ export const subnetCidr: Lesson = {
   id: "subnet-cidr",
   title: "Subnet mask va CIDR",
   summary: "Manzilning tarmoq va host qismini ajratish; /24, /26, /30 hisoblari.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 80,
   goals: [
     "Mask va prefiks (/24) o'rtasida o'tkaza olasiz",
     "Subnetdagi hostlar sonini hisoblaysiz",
@@ -97,6 +97,27 @@ export const subnetCidr: Lesson = {
       hint: "/28 blok o'lchami 16: ..., 64–79, 80–95. 70 qaysi blokda? Broadcast — blokning oxirgisi.",
       explanation: "/28 da blok 16. 70 soni 64–79 blokida, oxirgi manzil 10.1.1.79.",
       placeholder: "Masalan: 10.0.0.255",
+    },
+    {
+      type: "learn",
+      title: "Tarmoqni teng bo'laklarga bo'lish",
+      body: "Ko'p uchraydigan vazifa: bitta blokni N ta teng subnetga bo'lish. Har qo'shimcha bit subnetlar sonini 2 baravar oshiradi va hostlarni 2 baravar kamaytiradi.",
+      terminal: ["/24 ni 2 ga  → /25 (har birida 126 host)", "/24 ni 4 ga  → /26 (62 host)", "/24 ni 8 ga  → /27 (30 host)", "/24 ni 16 ga → /28 (14 host)"],
+    },
+    {
+      type: "input",
+      question: "10.5.5.0/24 ni 8 ta teng subnetga bo'lsangiz, uchinchi subnetning tarmoq manzili qanday bo'ladi?",
+      answers: ["10.5.5.64", "10.5.5.64/27"],
+      hint: "8 ta → /27, qadam 32: .0, .32, .64 ...",
+      explanation: "/27 bloklari .0, .32, .64 — uchinchisi 10.5.5.64/27.",
+      placeholder: "Manzil",
+    },
+    {
+      type: "trainer",
+      title: "Subnetting trenajyori",
+      prompt: "Har safar yangi manzil: tarmoq, broadcast, birinchi/oxirgi host, hostlar soni yoki maska. Ketma-ket 10 ta to'g'ri javob bering. Xato bo'lsa, yechim yo'li ko'rsatiladi.",
+      kind: "subnet",
+      goal: 10,
     },
     {
       type: "practice",

@@ -4,7 +4,7 @@ export const switching: Lesson = {
   id: "switching",
   title: "Switch va MAC jadvali",
   summary: "Switch kadrlarni qanday yo'naltiradi. Packet Tracer'da birinchi tarmoqni qurasiz.",
-  estimatedMinutes: 35,
+  estimatedMinutes: 60,
   goals: [
     "Switch MAC jadvalini qanday to'ldirishini tushuntirib bera olasiz",
     "Learning, forwarding va flooding farqini bilasiz",
@@ -81,6 +81,49 @@ export const switching: Lesson = {
       ],
       answerIndex: 1,
       explanation: "Noma'lum unicast kadr flooding qilinadi. Shu yo'l bilan javob qaytadi va switch yangi MAC'ni o'rganadi.",
+    },
+    {
+      type: "learn",
+      title: "Uzatish usullari va MAC jadvali muddati",
+      body: "Switch kadrni ikki usulda uzatishi mumkin. MAC jadvali yozuvlari esa abadiy turmaydi.",
+      points: [
+        "Store-and-forward — kadrni to'liq qabul qilib, FCS'ni tekshiradi, buzilganini tashlaydi. Zamonaviy switch'larda standart.",
+        "Cut-through — manzil MAC o'qilishi bilan uzatishni boshlaydi: kechikish kamroq, lekin buzilgan kadrlar ham o'tadi.",
+        "MAC yozuvi faollik bo'lmasa, Cisco switch'larda standart 300 soniyadan keyin o'chadi.",
+      ],
+    },
+    {
+      type: "learn",
+      title: "Collision va broadcast domain'larni sanash",
+      body: "Klassik intervyu savoli. Qoidalar: switch'ning har bir porti — alohida collision domain; router'ning har bir interfeysi (yoki har VLAN) — alohida broadcast domain. Hub esa hech narsani bo'lmaydi.",
+      visual: {
+        kind: "topology",
+        nodes: [
+          { id: "r", label: "Router", icon: "router" },
+          { id: "s1", label: "Switch A · 5 PC", icon: "switch" },
+          { id: "s2", label: "Switch B · 5 PC", icon: "switch" },
+        ],
+        links: [
+          ["r", "s1"],
+          ["r", "s2"],
+        ],
+      },
+    },
+    {
+      type: "input",
+      question: "Rasmdagi tarmoqda (VLAN'siz) nechta broadcast domain bor?",
+      answers: ["2"],
+      hint: "Router har interfeysida broadcast'ni to'xtatadi.",
+      explanation: "Router ikki interfeysi — ikki broadcast domain: har switch o'z domenida.",
+      placeholder: "Son",
+    },
+    {
+      type: "input",
+      question: "Shu tarmoqda nechta collision domain bor? (10 ta PC kanali + switch–router kanallari)",
+      answers: ["12"],
+      hint: "Har switch–qurilma kanali alohida collision domain.",
+      explanation: "10 ta PC kanali + 2 ta router–switch kanali = 12.",
+      placeholder: "Son",
     },
     {
       type: "learn",

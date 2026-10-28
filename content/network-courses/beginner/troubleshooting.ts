@@ -4,7 +4,7 @@ export const troubleshooting: Lesson = {
   id: "troubleshooting",
   title: "Muammoni topish: ping, tracert va diagnostika",
   summary: "Bosqich yakuni: «internet ishlamayapti» muammosini tizimli usulda tahlil qilish.",
-  estimatedMinutes: 40,
+  estimatedMinutes: 55,
   goals: [
     "Pastdan yuqoriga diagnostika ketma-ketligini yoddan bilasiz",
     "Ping natijasiga qarab muammo qaysi qatlamda ekanini aniqlaysiz",
@@ -141,6 +141,32 @@ export const troubleshooting: Lesson = {
         "Qaysi qadamda uzilganini toping, so'ng gateway'ni to'g'rilang.",
       ],
       expected: "Noto'g'ri gateway bilan o'z subnetga ping ishlaydi, boshqa tarmoqqa ishlamaydi. To'g'rilangach aloqa tiklanadi.",
+    },
+    {
+      type: "quiz",
+      question: "Ssenariy: ipconfig da IP 192.168.1.50, maska 255.255.255.0, gateway 192.168.2.1. Lokal printerga ping ishlaydi, internetga yo'q. Sabab?",
+      options: ["DNS server noto'g'ri", "Gateway boshqa subnetda — noto'g'ri sozlangan", "Kabel shikastlangan", "Wi-Fi kanali band"],
+      answerIndex: 1,
+      explanation: "Gateway hostning o'z subnetida bo'lishi kerak (192.168.1.x). Lokal aloqa ishlaydi, boshqa tarmoqlarga chiqish yo'q.",
+    },
+    {
+      type: "quiz",
+      question: "Ssenariy: ping 8.8.8.8 da javoblarning 30% i yo'qolmoqda, kechikish 20 ms dan 400 ms gacha sakramoqda. Birinchi gumon?",
+      options: ["DNS muammosi", "Kanal tiqilib qolgan yoki fizik muammo (Wi-Fi shovqini, kabel, port xatolari)", "IP manzil noto'g'ri", "Brauzer eskirgan"],
+      answerIndex: 1,
+      explanation: "Paket yo'qolishi va beqaror kechikish — yuklama yoki 1-qatlam muammosi. Kabel orqali ulanib solishtiring, port xatolarini tekshiring.",
+    },
+    {
+      type: "quiz",
+      question: "Ssenariy: faqat bitta saytni ochib bo'lmayapti, boshqalari ishlaydi; nslookup to'g'ri IP qaytaryapti, ping ham ishlayapti. Keyingi qadam?",
+      options: [
+        "Router'ni qayta yuklash",
+        "Saytning portini tekshirish (masalan, curl -I https://sayt) — muammo veb-xizmat yoki filtrda bo'lishi mumkin",
+        "Kabelni almashtirish",
+        "DHCP'ni yangilash",
+      ],
+      answerIndex: 1,
+      explanation: "1–3-qatlamlar va DNS joyida. Endi 4–7-qatlamlarni tekshirish kerak: port, sertifikat, proxy yoki firewall.",
     },
     {
       type: "practice",

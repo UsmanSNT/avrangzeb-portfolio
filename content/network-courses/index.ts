@@ -22,6 +22,9 @@ export type {
   CidrStep,
   CliStep,
   CliLine,
+  TrainerStep,
+  ExamStep,
+  ExamQuestion,
 } from "./types";
 
 /** Levels with published lessons, in learning order. */
